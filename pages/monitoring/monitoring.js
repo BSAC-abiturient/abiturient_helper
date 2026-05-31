@@ -589,22 +589,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Сохранение в историю просмотров
-(function () {
+// Функция сохранения в историю просмотров (запускается после загрузки DOM)
+function saveToHistory() {
     const specTitle = document.title;
     const specUrl = window.location.pathname;
 
-    if (specTitle && specUrl && !specUrl.endsWith('index.html') && !specUrl.endsWith('/')) {
+    // Теперь это сработает корректно, так как DOM уже полностью построен!
+    const isSpecPage = document.getElementById('monitor-content') !== null;
+
+    if (isSpecPage && specTitle && specUrl && !specUrl.endsWith('index.html') && !specUrl.endsWith('/')) {
         let history = JSON.parse(localStorage.getItem('recently_viewed_specs')) || [];
+
+        // Исключаем дублирование
         history = history.filter(item => item.url !== specUrl);
+
+        // Добавляем в начало истории
         history.unshift({ title: specTitle, url: specUrl });
+
+        // Ограничиваем историю 3 пунктами
         if (history.length > 3) {
             history.pop();
         }
         localStorage.setItem('recently_viewed_specs', JSON.stringify(history));
     }
-})();
-
+}
 
 /* ========================================================
    БЛОК 15: ПЕРЕНЕСЕННЫЙ ГЛОБАЛЬНЫЙ СКРИПТ АНИМАЦИИ И ТЕМЫ 
@@ -667,15 +675,19 @@ function toggleTheme() {
 }
 
 /* ДОБАВЛЕНИЕ ИНТЕРАКТИВНОСТИ ПРИ ПОМОЩИ BOM/DOM: Объединенный обработчик событий при загрузке документа */
+/* ДОБАВЛЕНИЕ ИНТЕРАКТИВНОСТИ ПРИ ПОМОЩИ BOM/DOM: Объединенный обработчик событий при загрузке документа */
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Сначала динамически генерируем кнопки навигации
     injectNavigationButtons();
 
-    // 2. Инициализируем правильную иконку темы (солнце/луна)
+    // 2. Запускаем сохранение в историю (если это страница специальности)
+    saveToHistory();
+
+    // 3. Инициализируем правильную иконку темы (солнце/луна)
     const isDark = document.documentElement.classList.contains('dark-mode');
     updateThemeIcon(isDark);
 
-    // 3. Навешиваем плавные переходы на ссылки
+    // 4. Навешиваем плавные переходы на ссылки
     const links = document.querySelectorAll('a');
     links.forEach(link => {
         const href = link.getAttribute('href');
