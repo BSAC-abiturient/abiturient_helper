@@ -92,19 +92,21 @@
             const [loading, setLoading] = useState(true);
 
             useEffect(() => {
-                fetch(XLSX_URL)
-                    .then(res => {
-                        if (!res.ok) throw new Error();
-                        return res.arrayBuffer();
-                    })
-                    .then(buffer => {
+                const loadWorkbook = async () => {
+                    try {
+                        const fetchFunc = window.fetchXlsxWithCache || async function(url) {
+                            const res = await fetch(url);
+                            return res.arrayBuffer();
+                        };
+                        const buffer = await fetchFunc(XLSX_URL);
                         const wb = XLSX.read(buffer, { type: 'array' });
                         setWorkbook(wb);
                         setLoading(false);
-                    })
-                    .catch(() => {
+                    } catch (e) {
                         setLoading(false);
-                    });
+                    }
+                };
+                loadWorkbook();
             }, []);
 
             /* ДОБАВЛЕНИЕ ИНТЕРАКТИВНЫХ КОМПОНЕНТОВ (СЛАЙДЕРЫ, ФОРМЫ, ФИЛЬТРЫ) С ОБРАБОТКОЙ ДАННЫХ ПОЛЬЗОВАТЕЛЯ: Считывание числового балла */

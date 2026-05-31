@@ -1,8 +1,57 @@
-﻿// pages/monitoring/monitoring.js
-
-// переменные для переключения бюджета/платного
+﻿// переменные для переключения бюджета/платного
 let currentCategory = 'budget';
 let timerInterval = null;
+
+//ФУНКЦИИ СЕССИОННОГО КЭШИРОВАНИЯ ДАННЫХ EXCEL (XLSX)
+
+// Перевод ArrayBuffer в Base64-строку для хранения в sessionStorage
+window.arrayBufferToBase64 = function (buffer) {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary);
+};
+
+// Восстановление ArrayBuffer из Base64-строки
+window.base64ToArrayBuffer = function (base64) {
+    const binary_string = window.atob(base64);
+    const len = binary_string.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+        bytes[i] = binary_string.charCodeAt(i);
+    }
+    return bytes.buffer;
+};
+
+// Единая функция загрузки XLSX с кэшем на 3 минуты
+window.fetchXlsxWithCache = async function (url) {
+    const now = Date.now();
+    const cachedData = sessionStorage.getItem('cached_xlsx_data');
+    const cachedTime = sessionStorage.getItem('cached_xlsx_time');
+    const cacheDuration = 3 * 60 * 1000; // Время действия кэша: 3 минуты
+
+    // Если кэш валиден и сохранен, используем его без обращения к сети
+    if (cachedData && cachedTime && (now - parseInt(cachedTime, 10) < cacheDuration)) {
+        return window.base64ToArrayBuffer(cachedData);
+    }
+
+    // Иначе выполняем сетевой запрос к Google API
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Сетевая ошибка при загрузке таблицы");
+    const buffer = await response.arrayBuffer();
+
+    try {
+        sessionStorage.setItem('cached_xlsx_data', window.arrayBufferToBase64(buffer));
+        sessionStorage.setItem('cached_xlsx_time', now.toString());
+    } catch (e) {
+        console.warn("Лимит sessionStorage превышен, кэширование пропущено:", e);
+    }
+
+    return buffer;
+};
 
 // настройки сроков приемки
 function getCampaignDates() {
@@ -432,9 +481,8 @@ async function loadAndRender(gid, offset) {
     try {
         const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=xlsx&id=${SHEET_ID}&gid=${gid}`;
 
-        const response = await fetch(url);
-        if (!response.ok) throw new Error("Ошибка загрузки");
-        const buffer = await response.arrayBuffer();
+        // Считываем буфер через общую функцию кэширования
+        const buffer = await window.fetchXlsxWithCache(url);
         const workbook = XLSX.read(buffer, { type: 'array' });
 
         const sheetName = workbook.SheetNames[0];

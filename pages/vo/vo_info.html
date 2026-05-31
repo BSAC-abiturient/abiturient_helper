@@ -71,7 +71,11 @@
             const [currentIndex, setCurrentIndex] = useState(0);
             const [lightboxImg, setLightboxImg] = useState(null);
 
-            // Обработка переключения базы
+            // Вспомогательные переменные для жестов свайпа
+            const [touchStartX, setTouchStartX] = useState(null);
+            const [touchEndX, setTouchEndX] = useState(null);
+            const minSwipeDistance = 50; // Минимальная длина свайпа в пикселях
+
             const handleBaseChange = (e) => {
                 const value = e.target.value;
                 setBase(value);
@@ -88,7 +92,30 @@
                 setCurrentIndex(prev => (prev > 0 ? prev - 1 : slides.length - 1));
             };
 
-            /* ДОБАВЛЕНИЕ ИНТЕРАКТИВНОСТИ ПРИ ПОМОЩИ BOM/DOM: Перехват нажатия стрелок клавиатуры и Esc для перелистывания и закрытия слайдера */
+            /* СЕНСОРНЫЕ СОБЫТИЯ ДЛЯ СВАЙПОВ НА ТЕЛЕФОНЕ */
+            const handleTouchStart = (e) => {
+                setTouchEndX(null);
+                setTouchStartX(e.targetTouches[0].clientX);
+            };
+
+            const handleTouchMove = (e) => {
+                setTouchEndX(e.targetTouches[0].clientX);
+            };
+
+            const handleTouchEnd = () => {
+                if (!touchStartX || !touchEndX) return;
+                const distance = touchStartX - touchEndX;
+                const isLeftSwipe = distance > minSwipeDistance;
+                const isRightSwipe = distance < -minSwipeDistance;
+
+                if (isLeftSwipe) {
+                    nextSlide(); // Свайп влево -> следующий слайд
+                } else if (isRightSwipe) {
+                    prevSlide(); // Свайп вправо -> предыдущий слайд
+                }
+            };
+
+            // Слушатель клавиатуры для ПК
             useEffect(() => {
                 const handleKeyDown = (e) => {
                     if (e.key === 'ArrowLeft') {
@@ -105,17 +132,14 @@
                 };
             }, [slides, currentIndex]);
 
-            // Обновление лайтбокса при прокрутке стрелками
             useEffect(() => {
                 if (lightboxImg) {
                     setLightboxImg(slides[currentIndex].img);
                 }
             }, [currentIndex]);
 
-            /* ДОБАВЛЕНИЕ ИНТЕРАКТИВНЫХ КОМПОНЕНТОВ (СЛАЙДЕРЫ, ФОРМЫ, ФИЛЬТРЫ) С ОБРАБОТКОЙ ДАННЫХ ПОЛЬЗОВАТЕЛЯ: Слайдер смены изображений и модальное окно полноэкранного просмотра */
             return (
                 <div className="slider-container">
-                    {/* Селектор баз */}
                     <div className="slider-controls">
                         <label htmlFor="level-select-vo">Выберите базу: </label>
                         <select id="level-select-vo" className="select-level" value={base} onChange={handleBaseChange}>
@@ -124,8 +148,21 @@
                         </select>
                     </div>
 
-                    {/* Окно книги со слайдом */}
-                    <div className="slider-book" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '340px', padding: '10px' }}>
+                    {/* Контейнер книги с поддержкой свайпов в свернутом виде */}
+                    <div
+                        className="slider-book"
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            minHeight: '340px',
+                            padding: '10px',
+                            touchAction: 'pan-y' // Разрешает вертикальный скролл страницы
+                        }}
+                        onTouchStart={handleTouchStart}
+                        onTouchMove={handleTouchMove}
+                        onTouchEnd={handleTouchEnd}
+                    >
                         <img
                             className="slider-book-img"
                             src={slides[currentIndex].img}
@@ -134,16 +171,22 @@
                         />
                     </div>
 
-                    {/* Навигация */}
                     <div className="slider-nav-btns">
                         <button className="btn-arrow" onClick={prevSlide}>← Пред.</button>
                         <span style={{ fontWeight: 'bold', margin: '0 10px' }}>{currentIndex + 1} / {slides.length}</span>
                         <button className="btn-arrow" onClick={nextSlide}>След. →</button>
                     </div>
 
-                    {/* Лайтбокс */}
+                    {/* Лайтбокс с поддержкой свайпов в развернутом виде */}
                     {lightboxImg && (
-                        <div className="lightbox active" onClick={() => setLightboxImg(null)}>
+                        <div
+                            className="lightbox active"
+                            onClick={() => setLightboxImg(null)}
+                            onTouchStart={handleTouchStart}
+                            onTouchMove={handleTouchMove}
+                            onTouchEnd={handleTouchEnd}
+                            style={{ touchAction: 'none' }} // Блокирует прокрутку экрана
+                        >
                             <span className="lightbox-close" onClick={() => setLightboxImg(null)}>&times;</span>
                             <img className="lightbox-content" src={lightboxImg} alt="Просмотр" onClick={(e) => e.stopPropagation()} />
                         </div>
