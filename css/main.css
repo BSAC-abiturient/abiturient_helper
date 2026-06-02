@@ -1552,7 +1552,6 @@ nav ul {
     align-items: center;
     width: 100%;
 }
-
     .btn-grid-main .btn-item {
         width: 100%;
         max-width: 550px;
@@ -1569,8 +1568,14 @@ nav ul {
         background-color: #8CBEFF;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
         white-space: nowrap;
-        transition: background-color 0.3s ease, color 0.3s ease;
+        transition: transform 0.2s ease, background-color 0.3s ease, color 0.3s ease;
     }
+
+        /* Добавили эффект затемнения и подъема для светлой темы */
+        .btn-grid-main .btn-item:hover {
+            background-color: #72aeff;
+            transform: translateY(-2px);
+        }
 
 .dark-mode .btn-grid-main .btn-item {
     background-color: #3B4B5E !important;
