@@ -92,13 +92,13 @@ function getCampaignDates() {
             // База 9 классов
             if (currentCategory === 'budget') {
                 // Бюджет ССО (9 кл.): с 18 июля по 3 августа
-                startDate = new Date(year, 6, 18, 9, 0, 0);
-                endDate = new Date(year, 7, 3, 18, 0, 0); // 3 августа 18:00
+                startDate = new Date(year, 4, 18, 9, 0, 0);
+                endDate = new Date(year, 5, 3, 18, 0, 0); // 3 августа 18:00
                 startLabel = "18 июля";
             } else {
                 // Платно ССО (9 кл.): с 18 июля по 10 августа
-                startDate = new Date(year, 6, 18, 9, 0, 0);
-                endDate = new Date(year, 7, 10, 18, 0, 0); // 10 августа 18:00
+                startDate = new Date(year, 3, 18, 9, 0, 0);
+                endDate = new Date(year, 4, 10, 18, 0, 0); // 10 августа 18:00
                 startLabel = "18 июля";
             }
         } else {
