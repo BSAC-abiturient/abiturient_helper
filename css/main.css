@@ -235,66 +235,24 @@ nav ul {
    БЛОК 4: КНОПКИ, НАВИГАЦИЯ И УПРАВЛЯЮЩИЕ ИНТЕРФЕЙСЫ
    ========================================================================== */
 
-/* Кнопка "На главную" */
-.btn-home {
-    position: absolute;
-    top: 25px;
-    right: 75px;
-    width: 36px;
-    height: 36px;
-    text-decoration: none;
-    transition: transform 0.2s ease, opacity 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 9999;
-    opacity: 0.8;
+/* Автоматическое наследование единого цвета для всех векторных иконок */
+.btn-home svg,
+.btn-theme svg,
+.btn-menu-trigger svg,
+.btn-home svg *,
+.btn-theme svg *,
+.btn-menu-trigger svg * {
+    fill: currentColor !important;
+    transition: fill 0.3s ease, stroke 0.3s ease !important;
 }
 
-    .btn-home:hover {
-        transform: scale(1.1);
-        opacity: 1;
+    /* Исключение для контурной иконки солнца, где нужна только обводка (stroke) */
+    .btn-theme svg#theme-icon,
+    .btn-theme svg#theme-icon * {
+        fill: none !important;
+        stroke: currentColor !important;
+        stroke-width: 2px !important;
     }
-
-/* Кнопка переключения темы */
-.btn-theme {
-    position: absolute;
-    top: 25px;
-    right: 25px;
-    width: 36px;
-    height: 36px;
-    text-decoration: none;
-    transition: transform 0.2s ease, opacity 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 9999;
-    opacity: 0.8;
-}
-
-    .btn-theme:hover {
-        transform: scale(1.1);
-        opacity: 1;
-    }
-
-    .btn-home svg,
-    .btn-home svg *,
-    .btn-theme svg,
-    .btn-theme svg * {
-        fill: #333333 !important;
-        stroke: #333333 !important;
-        transition: fill 0.3s ease, stroke 0.3s ease;
-    }
-
-.dark-mode .btn-home svg,
-.dark-mode .btn-home svg *,
-.dark-mode .btn-theme svg,
-.dark-mode .btn-theme svg * {
-    fill: #CCCCCC !important;
-    stroke: #CCCCCC !important;
-}
 
 /* Кнопка "Назад" */
 .btn-back {
@@ -2091,26 +2049,11 @@ body:not(.body-main) {
         box-shadow: none !important;
     }
 
-    .btn-home {
-        position: absolute;
-        top: 25px;
-        right: 60px;
-        width: 32px;
-        height: 32px;
-    }
 
         .btn-home svg {
             width: 32px;
             height: 32px;
         }
-
-    .btn-theme {
-        position: absolute;
-        top: 25px;
-        right: 15px;
-        width: 32px;
-        height: 32px;
-    }
 
         .btn-theme svg {
             width: 32px;
@@ -2329,5 +2272,481 @@ body:not(.body-main) {
         left: 15px;
         right: 15px;
         top: auto;
+    }
+}
+/* ==========================================================================
+   ПАНЕЛЬ УПРАВЛЕНИЯ В ПРАВОМ ВЕРХНЕМ УГЛУ (КНОПКИ И БУРГЕР-МЕНЮ)
+   ========================================================================== */
+
+.header-controls {
+    position: absolute !important;
+    top: 25px !important;
+    right: 25px !important;
+    display: flex !important;
+    flex-direction: row !important; /* Строго в одну линию */
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 12px !important;
+    z-index: 100010 !important;
+}
+
+/* Оформление увеличенных круглых кнопок навигации */
+.btn-home,
+.btn-theme,
+.btn-menu-trigger {
+    position: relative !important;
+    width: 52px !important;
+    height: 52px !important;
+    background-color: rgba(255, 255, 255, 0.85) !important;
+    border: 1px solid rgba(0, 0, 0, 0.12) !important;
+    border-radius: 50% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease !important;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08) !important;
+    box-sizing: border-box !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    color: #333333 !important; /* Единый цвет по умолчанию для всех иконок и полосок в светлой теме */
+}
+
+.dark-mode .btn-home,
+.dark-mode .btn-theme,
+.dark-mode .btn-menu-trigger {
+    background-color: rgba(45, 45, 45, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4) !important;
+    color: #CCCCCC !important; /* Единый цвет по умолчанию для всех иконок и полосок в темной теме */
+}
+
+.btn-home:hover,
+.btn-theme:hover,
+.btn-menu-trigger:hover {
+    transform: scale(1.08) !important;
+    background-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.dark-mode .btn-home:hover,
+.dark-mode .btn-theme:hover,
+.dark-mode .btn-menu-trigger:hover {
+    background-color: rgba(65, 65, 65, 0.95) !important;
+}
+
+/* Размеры SVG иконок внутри кнопок */
+.btn-home svg,
+.btn-theme svg,
+.btn-menu-trigger svg {
+    width: 22px !important;
+    height: 22px !important;
+    fill: #333333 !important;
+    stroke: none !important;
+    transition: fill 0.3s ease !important;
+    display: block !important;
+}
+
+.dark-mode .btn-home svg,
+.dark-mode .btn-theme svg,
+.dark-mode .btn-menu-trigger svg {
+    fill: #E2E8F0 !important;
+}
+
+.btn-theme svg#theme-icon {
+    stroke: currentColor !important;
+}
+
+/* Контейнер выпадающего списка */
+.menu-wrapper {
+    position: relative !important;
+}
+
+/* Выпадающая вертикальная карточка меню */
+.menu-drawer {
+    position: absolute !important;
+    top: 52px !important;
+    right: 0 !important;
+    width: 240px !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+    padding: 8px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    opacity: 0 !important;
+    transform: translateY(-10px) scale(0.95) !important;
+    pointer-events: none !important;
+    transition: opacity 0.2s ease, transform 0.2s ease !important;
+    z-index: 100020 !important;
+    box-sizing: border-box !important;
+}
+
+    /* Состояние открытого меню */
+    .menu-drawer.open {
+        opacity: 1 !important;
+        transform: translateY(0) scale(1) !important;
+        pointer-events: auto !important;
+    }
+
+.dark-mode .menu-drawer {
+    background: rgba(30, 30, 30, 0.95) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Стили элементов списка меню */
+.menu-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 14px !important;
+    color: #333333 !important;
+    text-decoration: none !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    border-radius: 10px !important;
+    transition: background-color 0.2s ease, color 0.2s ease !important;
+    text-align: left !important;
+    box-sizing: border-box !important;
+}
+
+.dark-mode .menu-item {
+    color: #E2E8F0 !important;
+}
+
+.menu-item:hover {
+    background-color: rgba(0, 123, 255, 0.08) !important;
+    color: #007bff !important;
+}
+
+.dark-mode .menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #8CBEFF !important;
+}
+
+/* Разделитель внутри меню */
+.menu-divider {
+    height: 1px !important;
+    background-color: rgba(0, 0, 0, 0.08) !important;
+    margin: 6px 8px !important;
+}
+
+.dark-mode .menu-divider {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Адаптивные параметры для мобильных экранов */
+@media (max-width: 768px) {
+    .header-controls {
+        top: 15px !important;
+        right: 15px !important;
+        gap: 10px !important;
+    }
+
+    .btn-home, .btn-theme, .btn-menu-trigger {
+        width: 40px !important;
+        height: 40px !important;
+    }
+
+        .btn-home svg, .btn-theme svg, .btn-menu-trigger svg {
+            width: 19px !important;
+            height: 19px !important;
+        }
+
+    .menu-drawer {
+        top: 45px !important;
+        width: 220px !important;
+    }
+}
+
+
+/* ==========================================================================
+   ОБНОВЛЕННЫЙ БЛОК 4: ИДЕАЛЬНОЕ ЦЕНТРИРОВАНИЕ КНОПОК И СОВПАДЕНИЕ ЦВЕТА
+   ========================================================================== */
+
+.header-controls {
+    position: absolute !important;
+    top: 25px !important;
+    right: 25px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    z-index: 100010 !important;
+}
+
+/* Оформление кнопок с общим цветовым поведением */
+.btn-home,
+.btn-theme,
+.btn-menu-trigger {
+    position: relative !important; /* Родитель позиционирования для линий */
+    width: 52px !important;
+    height: 52px !important;
+    background-color: rgba(255, 255, 255, 0.85) !important;
+    border: 1px solid rgba(0, 0, 0, 0.12) !important;
+    border-radius: 50% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease !important;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08) !important;
+    box-sizing: border-box !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    /* Базовый серый цвет для всех иконок и линий в светлой теме */
+    color: #4a5568 !important;
+}
+
+.dark-mode .btn-home,
+.dark-mode .btn-theme,
+.dark-mode .btn-menu-trigger {
+    background-color: rgba(45, 45, 45, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4) !important;
+    /* Ровный мягкий серый цвет для всех кнопок в темной теме */
+    color: #a0aec0 !important;
+}
+
+/* Эффект наведения для кнопки "Назад/Домой" (сохраняет голубую/синюю акцентную тему) */
+.btn-home:hover {
+    transform: scale(1.08) !important;
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    color: #007bff !important;
+}
+
+.dark-mode .btn-home:hover {
+    background-color: rgba(65, 65, 65, 0.95) !important;
+    color: #8CBEFF !important;
+}
+
+/* Нейтральный интерактивный ховер для Смены темы и Меню (без голубого цвета) */
+.btn-theme:hover,
+.btn-menu-trigger:hover {
+    transform: scale(1.08) !important;
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    color: #1a202c !important; /* Мягкий темный акцент в светлой теме */
+}
+
+.dark-mode .btn-theme:hover,
+.dark-mode .btn-menu-trigger:hover {
+    background-color: rgba(65, 65, 65, 0.95) !important;
+    color: #ffffff !important; /* Чистый белый акцент в темной теме */
+}
+
+/* Иконки внутри кнопок наследуют currentColor */
+.btn-home svg,
+.btn-theme svg,
+.btn-menu-trigger svg {
+    width: 24px !important;
+    height: 24px !important;
+    fill: currentColor !important;
+    stroke: none !important;
+    transition: fill 0.3s ease !important;
+    display: block !important;
+}
+
+    .btn-theme svg#theme-icon {
+        stroke: currentColor !important;
+        fill: none !important;
+    }
+
+/* МАТЕМАТИЧЕСКИ БЕЗУПРЕЧНОЕ ЦЕНТРИРОВАНИЕ ЛИНИЙ */
+.burger-line {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: 20px !important;
+    height: 3px !important; /* Толщина линий увеличена до 3px */
+    margin-left: -10px !important;
+    background-color: currentColor !important; /* Берет точно такой же цвет, как иконка рядом */
+    border-radius: 2px !important;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, background-color 0.3s ease !important;
+}
+
+    /* Сбалансированные расстояния для толщины 3px */
+    .burger-line:nth-child(1) {
+        transform: translateY(-7px) !important;
+    }
+
+    .burger-line:nth-child(2) {
+        transform: translateY(0) !important;
+    }
+
+    .burger-line:nth-child(3) {
+        transform: translateY(7px) !important;
+    }
+
+/* Анимация крестика: перенос линий в центр и поворот */
+.btn-menu-trigger.open .burger-line:nth-child(1) {
+    transform: translateY(0) rotate(45deg) !important;
+}
+
+.btn-menu-trigger.open .burger-line:nth-child(2) {
+    opacity: 0 !important;
+}
+
+.btn-menu-trigger.open .burger-line:nth-child(3) {
+    transform: translateY(0) rotate(-45deg) !important;
+}
+
+
+/* ==========================================================================
+   ВЫПАДАЮЩАЯ КАРТОЧКА МЕНЮ
+   ========================================================================== */
+
+/* Больше не требует wrapper-обертки */
+.menu-drawer {
+    position: absolute !important;
+    top: 58px !important; /* Отступ вниз с учетом диаметра кнопки 52px */
+    right: 0 !important;
+    width: 240px !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+    padding: 8px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    opacity: 0 !important;
+    transform: translateY(-10px) scale(0.95) !important;
+    pointer-events: none !important;
+    transition: opacity 0.2s ease, transform 0.2s ease !important;
+    z-index: 100020 !important;
+    box-sizing: border-box !important;
+}
+
+    .menu-drawer.open {
+        opacity: 1 !important;
+        transform: translateY(0) scale(1) !important;
+        pointer-events: auto !important;
+    }
+
+.dark-mode .menu-drawer {
+    background: rgba(30, 30, 30, 0.95) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+.menu-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 14px !important;
+    color: #333333 !important;
+    text-decoration: none !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    border-radius: 10px !important;
+    transition: background-color 0.2s ease, color 0.2s ease !important;
+    text-align: left !important;
+    box-sizing: border-box !important;
+}
+
+.dark-mode .menu-item {
+    color: #E2E8F0 !important;
+}
+
+.menu-item:hover {
+    background-color: rgba(0, 123, 255, 0.08) !important;
+    color: #007bff !important;
+}
+
+.dark-mode .menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #8CBEFF !important;
+}
+
+.menu-item-icon {
+    width: 18px !important;
+    height: 18px !important;
+    fill: none !important;
+    stroke: #4A5568 !important;
+    stroke-width: 2 !important;
+    stroke-linecap: round !important;
+    stroke-linejoin: round !important;
+    transition: stroke 0.2s ease !important;
+    flex-shrink: 0 !important;
+}
+
+.dark-mode .menu-item-icon {
+    stroke: #A0AEC0 !important;
+}
+
+.menu-item:hover .menu-item-icon {
+    stroke: #007bff !important;
+}
+
+.dark-mode .menu-item:hover .menu-item-icon {
+    stroke: #8CBEFF !important;
+}
+
+.menu-divider {
+    height: 1px !important;
+    background-color: rgba(0, 0, 0, 0.08) !important;
+    margin: 6px 8px !important;
+}
+
+.dark-mode .menu-divider {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+
+/* ==========================================================================
+   АДАПТИВНОСТЬ ПОД МОБИЛЬНЫЕ УСТРОЙСТВА
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    .header-controls {
+        top: 15px !important;
+        right: 15px !important;
+        gap: 10px !important;
+    }
+
+    .btn-home, .btn-theme, .btn-menu-trigger {
+        width: 44px !important;
+        height: 44px !important;
+    }
+
+        .btn-home svg, .btn-theme svg, .btn-menu-trigger svg {
+            width: 20px !important;
+            height: 20px !important;
+        }
+
+    .burger-line {
+        left: 50% !important;
+        width: 17px !important;
+        height: 2.5px !important; /* Толщина на мобильных установлена в 2.5px */
+        margin-left: -8.5px !important;
+    }
+
+        /* Сдвиги на мобильных */
+        .burger-line:nth-child(1) {
+            transform: translateY(-6px) !important;
+        }
+
+        .burger-line:nth-child(3) {
+            transform: translateY(6px) !important;
+        }
+
+    .btn-menu-trigger.open .burger-line:nth-child(1) {
+        transform: translateY(0) rotate(45deg) !important;
+    }
+
+    .btn-menu-trigger.open .burger-line:nth-child(3) {
+        transform: translateY(0) rotate(-45deg) !important;
+    }
+
+    .menu-drawer {
+        top: 50px !important;
+        width: 220px !important;
     }
 }

@@ -614,29 +614,64 @@ function saveToHistory() {
     }
 }
 
-function injectNavigationButtons() {
-    // Если кнопка темы уже есть на странице (во избежание дублирования), ничего не делаем
-    if (document.querySelector('.btn-theme')) return;
+// pages/monitoring/monitoring.js
 
-    // Определяем, находимся ли мы на главной странице
+/* ==========================================================================
+   ЛОГИКА УПРАВЛЕНИЯ ВЫПАДАЮЩИМ МЕНЮ И АНИМАЦИЕЙ ТРИГГЕРА
+   ========================================================================== */
+
+window.toggleMenuDrawer = function (event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    const drawer = document.getElementById('menu-drawer');
+    const trigger = document.getElementById('menu-trigger-btn');
+    if (drawer && trigger) {
+        const isOpen = drawer.classList.toggle('open');
+        trigger.classList.toggle('open', isOpen); // Добавляем/удаляем анимацию крестика
+    }
+};
+
+document.addEventListener('click', function (event) {
+    const drawer = document.getElementById('menu-drawer');
+    const trigger = document.getElementById('menu-trigger-btn');
+
+    if (drawer && drawer.classList.contains('open')) {
+        if (!drawer.contains(event.target) && !trigger.contains(event.target)) {
+            drawer.classList.remove('open');
+            if (trigger) {
+                trigger.classList.remove('open');
+            }
+        }
+    }
+});
+
+
+/* ==========================================================================
+   ДИНАМИЧЕСКОЕ СОЗДАНИЕ ПАНЕЛИ УПРАВЛЕНИЯ
+   ========================================================================== */
+
+function injectNavigationButtons() {
+    // Предотвращаем повторное добавление элементов
+    if (document.querySelector('.header-controls')) return;
+
+    // Определение уровня вложенности текущей страницы
     const isRoot = window.location.pathname.endsWith('index.html') ||
         window.location.pathname.endsWith('/') ||
         window.location.pathname === '';
 
-    // Разметка кнопки темы
-    const themeButtonHtml = `
-        <a href="javascript:void(0)" class="btn-theme" onclick="toggleTheme()" title="Переключить тему">
-            <svg id="theme-icon" viewBox="0 0 24 24">
-                <path d="M12.3 22h-.1c-5.5 0-10-4.5-10-10 0-4.8 3.5-9 8.3-9.8.5-.1 1 .2 1.2.7.2.5 0 1.1-.4 1.4-3.5 2.5-4.2 7.4-1.7 10.9 2.5 3.5 7.4 4.2 10.9 1.7.4-.3 1-.3 1.4.1.4.4.5.9.2 1.4-1.8 2.3-4.5 3.6-7.8 3.6z" />
-            </svg>
-        </a>
-    `;
+    // Относительный префикс для путей в зависимости от структуры папок
+    const pathPrefix = isRoot ? '' : '../../';
 
-    // Разметка кнопки "На главную" (генерируется только для внутренних страниц)
+    // Создание общего контейнера для кнопок управления
+    const controlsContainer = document.createElement('div');
+    controlsContainer.className = 'header-controls';
+
+    // 1. Кнопка "На главную" (выводится только для внутренних страниц)
     let homeButtonHtml = '';
     if (!isRoot) {
         homeButtonHtml = `
-            <a href="../../index.html" class="btn-home" title="На главную">
+            <a href="${pathPrefix}index.html" class="btn-home" title="На главную">
                 <svg viewBox="0 0 24 24">
                     <rect x="16" y="4" width="3" height="5" />
                     <path d="M12 2.5L2 10.5h2v10a1 1 0 0 0 1 1h6v-6h2v6h6a1 1 0 0 0 1-1v-10h2L12 2.5z" />
@@ -645,14 +680,79 @@ function injectNavigationButtons() {
         `;
     }
 
-    // Внедряем кнопки в тело документа
-    const wrapper = document.createElement('div');
-    wrapper.style.display = 'contents'; // Чтобы обертка не влияла на верстку CSS
-    wrapper.innerHTML = homeButtonHtml + themeButtonHtml;
-    document.body.appendChild(wrapper);
-}
+    // 2. Кнопка переключения темы оформления
+    const themeButtonHtml = `
+        <a href="javascript:void(0)" class="btn-theme" onclick="toggleTheme()" title="Переключить тему">
+            <svg id="theme-icon" viewBox="0 0 24 24">
+                <path d="M12.3 22h-.1c-5.5 0-10-4.5-10-10 0-4.8 3.5-9 8.3-9.8.5-.1 1 .2 1.2.7.2.5 0 1.1-.4 1.4-3.5 2.5-4.2 7.4-1.7 10.9 2.5 3.5 7.4 4.2 10.9 1.7.4-.3 1-.3 1.4.1.4.4.5.9.2 1.4-1.8 2.3-4.5 3.6-7.8 3.6z" />
+            </svg>
+        </a>
+    `;
 
-/* ДОБАВЛЕНИЕ ИНТЕРАКТИВНОСТИ ПРИ ПОМОЩИ BOM/DOM: Интегрированное управление SVG иконками светлой/темной темы оформления */
+    // 3. Структура бургер-меню (кнопка и карточка теперь лежат на одном уровне флекса)
+    const menuButtonHtml = `
+        <a href="javascript:void(0)" id="menu-trigger-btn" class="btn-menu-trigger" onclick="window.toggleMenuDrawer(event)" title="Открыть меню">
+            <span class="burger-line"></span>
+            <span class="burger-line"></span>
+            <span class="burger-line"></span>
+        </a>
+        <div id="menu-drawer" class="menu-drawer">
+            <a href="${pathPrefix}pages/info/college.html" class="menu-item" onclick="window.toggleMenuDrawer()">
+                <svg class="menu-item-icon" viewBox="0 0 24 24">
+                    <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                    <line x1="9" y1="22" x2="9" y2="16"></line>
+                    <line x1="15" y1="22" x2="15" y2="16"></line>
+                    <line x1="9" y1="16" x2="15" y2="16"></line>
+                    <path d="M8 6h.01M16 6h.01M8 10h.01M16 10h.01"></path>
+                </svg>
+                О Колледже (ССО)
+            </a>
+            <a href="${pathPrefix}pages/info/university.html" class="menu-item" onclick="window.toggleMenuDrawer()">
+                <svg class="menu-item-icon" viewBox="0 0 24 24">
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                    <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"></path>
+                </svg>
+                Об Академии (ВО)
+            </a>
+            <a href="${pathPrefix}pages/info/dorms.html" class="menu-item" onclick="window.toggleMenuDrawer()">
+                <svg class="menu-item-icon" viewBox="0 0 24 24">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                Общежития БГАС
+            </a>
+            <a href="${pathPrefix}pages/info/contacts.html" class="menu-item" onclick="window.toggleMenuDrawer()">
+                <svg class="menu-item-icon" viewBox="0 0 24 24">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-10a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                Контакты и Карта
+            </a>
+            <div class="menu-divider"></div>
+            <!-- Telegram-канал ВО -->
+            <a href="https://t.me/bsac_by" target="_blank" class="menu-item" style="color: #0088cc !important;" onclick="window.toggleMenuDrawer()">
+                <svg viewBox="0 0 24 24" width="18" height="18" style="fill: #0088cc !important; margin-right: 6px; flex-shrink: 0;">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.69-.52.36-1 .53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.35-.49.97-.74 3.79-1.65 6.32-2.73 7.59-3.25 3.61-1.48 4.36-1.74 4.85-1.75.11 0 .35.03.5.16.13.12.17.29.18.42-.01.06-.01.12-.02.19z"/>
+                </svg>
+                Telegram ВО
+            </a>
+            <!-- Telegram-канал ССО -->
+            <a href="https://t.me/bsac_sso_chat" target="_blank" class="menu-item" style="color: #0088cc !important;" onclick="window.toggleMenuDrawer()">
+                <svg viewBox="0 0 24 24" width="18" height="18" style="fill: #0088cc !important; margin-right: 6px; flex-shrink: 0;">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.69-.52.36-1 .53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.35-.49.97-.74 3.79-1.65 6.32-2.73 7.59-3.25 3.61-1.48 4.36-1.74 4.85-1.75.11 0 .35.03.5.16.13.12.17.29.18.42-.01.06-.01.12-.02.19z"/>
+                </svg>
+                Telegram ССО
+            </a>
+        </div>
+    `;
+
+    controlsContainer.innerHTML = homeButtonHtml + themeButtonHtml + menuButtonHtml;
+    document.body.appendChild(controlsContainer);
+}
+/* ==========================================================================
+   УПРАВЛЕНИЕ ИКОНКАМИ И ПЕРЕКЛЮЧЕНИЕМ ТЕМЫ ОФОРМЛЕНИЯ
+   ========================================================================== */
+
 const moonSvg = `<path d="M12.3 22h-.1c-5.5 0-10-4.5-10-10 0-4.8 3.5-9 8.3-9.8.5-.1 1 .2 1.2.7.2.5 0 1.1-.4 1.4-3.5 2.5-4.2 7.4-1.7 10.9 2.5 3.5 7.4 4.2 10.9 1.7.4-.3 1-.3 1.4.1.4.4.5.9.2 1.4-1.8 2.3-4.5 3.6-7.8 3.6z" />`;
 const sunSvg = `<circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke-width="2" stroke-linecap="round" stroke="currentColor" />`;
 
@@ -663,25 +763,31 @@ function updateThemeIcon(isDark) {
     }
 }
 
-/* ДОБАВЛЕНИЕ ИНТЕРАКТИВНОСТИ ПРИ ПОМОЩИ BOM/DOM: Переключение темы оформления на лету с записью значения в localStorage */
 function toggleTheme() {
     const isDark = document.documentElement.classList.toggle('dark-mode');
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
     updateThemeIcon(isDark);
 }
-/* ДОБАВЛЕНИЕ ИНТЕРАКТИВНОСТИ ПРИ ПОМОЩИ BOM/DOM: Объединенный обработчик событий при загрузке документа */
+
+
+/* ==========================================================================
+   ОБЪЕДИНЕННЫЙ ОБРАБОТЧИК СОБЫТИЙ ЗАГРУЗКИ ДОКУМЕНТА (DOM)
+   ========================================================================== */
+
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Сначала динамически генерируем кнопки навигации
+    // 1. Динамически генерируем кнопки навигации и бургер-меню
     injectNavigationButtons();
 
     // 2. Запускаем сохранение в историю (если это страница специальности)
-    saveToHistory();
+    if (typeof saveToHistory === 'function') {
+        saveToHistory();
+    }
 
-    // 3. Инициализируем правильную иконку темы (солнце/луна)
+    // 3. Инициализируем правильную визуальную иконку темы (солнце/луна)
     const isDark = document.documentElement.classList.contains('dark-mode');
     updateThemeIcon(isDark);
 
-    // 4. Навешиваем плавные переходы на ссылки
+    // 4. Навешиваем плавные переходы между страницами на локальные ссылки
     const links = document.querySelectorAll('a');
     links.forEach(link => {
         const href = link.getAttribute('href');
