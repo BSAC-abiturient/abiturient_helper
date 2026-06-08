@@ -2040,7 +2040,7 @@ body:not(.body-main) {
     .btn-back {
         position: absolute !important;
         left: 0 !important;
-        top: -93px !important;
+        top: -77px !important; 
         padding: 8px 15px;
         font-size: 14px;
         border-radius: 30px;
@@ -2049,6 +2049,11 @@ body:not(.body-main) {
         box-shadow: none !important;
     }
 
+    body:not(.body-main) {
+        background-attachment: scroll !important;
+        background-size: cover !important;
+        background-position: center top !important; 
+    }
 
         .btn-home svg {
             width: 32px;
@@ -2515,29 +2520,23 @@ body:not(.body-main) {
 
 /* Эффект наведения для кнопки "Назад/Домой" (сохраняет голубую/синюю акцентную тему) */
 /* Применяем эффекты наведения только на компьютерах, где есть мышь */
+/* Применяем эффекты наведения только на компьютерах, где есть мышь */
 @media (hover: hover) {
-    .btn-home:hover {
-        transform: scale(1.08) !important;
-        background-color: rgba(255, 255, 255, 0.95) !important;
-        color: #007bff !important;
-    }
-
-    .dark-mode .btn-home:hover {
-        background-color: rgba(65, 65, 65, 0.95) !important;
-        color: #8CBEFF !important;
-    }
-
+    /* Единый стиль наведения для ВСЕХ трех кнопок в светлой теме */
+    .btn-home:hover,
     .btn-theme:hover,
     .btn-menu-trigger:hover {
         transform: scale(1.08) !important;
         background-color: rgba(255, 255, 255, 0.95) !important;
-        color: #1a202c !important;
+        color: #1a202c !important; /* Тёмно-серый цвет наведения */
     }
 
+    /* Единый стиль наведения для ВСЕХ трех кнопок в тёмной теме */
+    .dark-mode .btn-home:hover,
     .dark-mode .btn-theme:hover,
     .dark-mode .btn-menu-trigger:hover {
         background-color: rgba(65, 65, 65, 0.95) !important;
-        color: #ffffff !important;
+        color: #ffffff !important; /* Чистый белый цвет наведения */
     }
 }
 
