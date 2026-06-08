@@ -1,10 +1,10 @@
-/* ==========================================================================
-   БЛОК 1: ГЛОБАЛЬНЫЕ СТИЛИ, ШРИФТЫ И АНИМАЦИИ ПОЯВЛЕНИЯ
+п»ї/* ==========================================================================
+   Р‘Р›РћРљ 1: Р“Р›РћР‘РђР›Р¬РќР«Р• РЎРўРР›Р, РЁР РР¤РўР« Р РђРќРРњРђР¦РР РџРћРЇР’Р›Р•РќРРЇ
    ========================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300..900&display=swap');
 
-/* Анимация плавного появления страниц */
+/* РђРЅРёРјР°С†РёСЏ РїР»Р°РІРЅРѕРіРѕ РїРѕСЏРІР»РµРЅРёСЏ СЃС‚СЂР°РЅРёС† */
 @keyframes pageFadeIn {
     0% {
         opacity: 0;
@@ -36,10 +36,10 @@ html {
 
 
 /* ==========================================================================
-   БЛОК 2: НАСТРОЙКА КРОССБРАУЗЕРНОГО СКРОЛЛА (ПОЛОСЫ ПРОКРУТКИ)
+   Р‘Р›РћРљ 2: РќРђРЎРўР РћР™РљРђ РљР РћРЎРЎР‘Р РђРЈР—Р•Р РќРћР“Рћ РЎРљР РћР›Р›Рђ (РџРћР›РћРЎР« РџР РћРљР РЈРўРљР)
    ========================================================================== */
 
-/* Общие размеры скроллбара */
+/* РћР±С‰РёРµ СЂР°Р·РјРµСЂС‹ СЃРєСЂРѕР»Р»Р±Р°СЂР° */
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -49,7 +49,7 @@ html {
     background: transparent;
 }
 
-/* --- Светлая тема --- */
+/* --- РЎРІРµС‚Р»Р°СЏ С‚РµРјР° --- */
 ::-webkit-scrollbar-thumb {
     background: rgb(130, 160, 195);
     border-radius: 10px;
@@ -64,7 +64,7 @@ html {
     scrollbar-color: rgb(130, 160, 195) transparent;
 }
 
-/* --- Темная тема  --- */
+/* --- РўРµРјРЅР°СЏ С‚РµРјР°  --- */
 .dark-mode::-webkit-scrollbar-thumb,
 .dark-mode ::-webkit-scrollbar-thumb {
     background: rgb(40, 48, 56) !important;
@@ -82,7 +82,7 @@ html.dark-mode,
 
 
 /* ==========================================================================
-   БЛОК 3: БАЗОВЫЕ СТИЛИ СТРАНИЦЫ, ШАПКИ И ОСНОВНОГО КОНТЕЙНЕРА
+   Р‘Р›РћРљ 3: Р‘РђР—РћР’Р«Р• РЎРўРР›Р РЎРўР РђРќРР¦Р«, РЁРђРџРљР Р РћРЎРќРћР’РќРћР“Рћ РљРћРќРўР•Р™РќР•Р Рђ
    ========================================================================== */
 
 body {
@@ -102,7 +102,7 @@ body {
     color: #FFFFFF;
 }
 
-/* Стили фона главной страницы */
+/* РЎС‚РёР»Рё С„РѕРЅР° РіР»Р°РІРЅРѕР№ СЃС‚СЂР°РЅРёС†С‹ */
 .body-main {
     background-image: url('../Fon/litht.webp') !important;
     background-size: cover;
@@ -121,7 +121,7 @@ body {
     background-image: url('../Fon/dark.webp') !important;
 }
 
-/* Белая подложка-контейнер контента */
+/* Р‘РµР»Р°СЏ РїРѕРґР»РѕР¶РєР°-РєРѕРЅС‚РµР№РЅРµСЂ РєРѕРЅС‚РµРЅС‚Р° */
 .container {
     width: 100%;
     max-width: 800px;
@@ -178,7 +178,7 @@ h2 {
     color: #CBD5E1;
 }
 
-/* Навигация (меню-список) */
+/* РќР°РІРёРіР°С†РёСЏ (РјРµРЅСЋ-СЃРїРёСЃРѕРє) */
 nav ul {
     list-style: none;
     display: block;
@@ -204,7 +204,7 @@ nav ul {
                 background-color: #F1EEFF;
             }
 
-/* Двухколоночный макет на страницах калькуляторов */
+/* Р”РІСѓС…РєРѕР»РѕРЅРѕС‡РЅС‹Р№ РјР°РєРµС‚ РЅР° СЃС‚СЂР°РЅРёС†Р°С… РєР°Р»СЊРєСѓР»СЏС‚РѕСЂРѕРІ */
 .columns-container {
     display: flex;
     gap: 40px;
@@ -232,10 +232,10 @@ nav ul {
 
 
 /* ==========================================================================
-   БЛОК 4: КНОПКИ, НАВИГАЦИЯ И УПРАВЛЯЮЩИЕ ИНТЕРФЕЙСЫ
+   Р‘Р›РћРљ 4: РљРќРћРџРљР, РќРђР’РР“РђР¦РРЇ Р РЈРџР РђР’Р›РЇР®Р©РР• РРќРўР•Р Р¤Р•Р™РЎР«
    ========================================================================== */
 
-/* Автоматическое наследование единого цвета для всех векторных иконок */
+/* РђРІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРµ РЅР°СЃР»РµРґРѕРІР°РЅРёРµ РµРґРёРЅРѕРіРѕ С†РІРµС‚Р° РґР»СЏ РІСЃРµС… РІРµРєС‚РѕСЂРЅС‹С… РёРєРѕРЅРѕРє */
 .btn-home svg,
 .btn-theme svg,
 .btn-menu-trigger svg,
@@ -246,7 +246,7 @@ nav ul {
     transition: fill 0.3s ease, stroke 0.3s ease !important;
 }
 
-    /* Исключение для контурной иконки солнца, где нужна только обводка (stroke) */
+    /* РСЃРєР»СЋС‡РµРЅРёРµ РґР»СЏ РєРѕРЅС‚СѓСЂРЅРѕР№ РёРєРѕРЅРєРё СЃРѕР»РЅС†Р°, РіРґРµ РЅСѓР¶РЅР° С‚РѕР»СЊРєРѕ РѕР±РІРѕРґРєР° (stroke) */
     .btn-theme svg#theme-icon,
     .btn-theme svg#theme-icon * {
         fill: none !important;
@@ -254,7 +254,7 @@ nav ul {
         stroke-width: 2px !important;
     }
 
-/* Кнопка "Назад" */
+/* РљРЅРѕРїРєР° "РќР°Р·Р°Рґ" */
 .btn-back {
     position: absolute;
     left: 0;
@@ -288,7 +288,7 @@ nav ul {
     border-color: #777777;
 }
 
-/* Стили базовых меню-плиток */
+/* РЎС‚РёР»Рё Р±Р°Р·РѕРІС‹С… РјРµРЅСЋ-РїР»РёС‚РѕРє */
 .btn-grid {
     display: block;
     margin-top: 20px;
@@ -336,7 +336,7 @@ nav ul {
     font-weight: normal;
 }
 
-/* Кнопки со стрелками */
+/* РљРЅРѕРїРєРё СЃРѕ СЃС‚СЂРµР»РєР°РјРё */
 .btn-arrow {
     padding: 10px 20px;
     background-color: #8CBEFF;
@@ -362,7 +362,7 @@ nav ul {
     background-color: #2A3543 !important; 
 }
 
-/* Универсальная серая кнопка (Пройти заново) */
+/* РЈРЅРёРІРµСЂСЃР°Р»СЊРЅР°СЏ СЃРµСЂР°СЏ РєРЅРѕРїРєР° (РџСЂРѕР№С‚Рё Р·Р°РЅРѕРІРѕ) */
 .btn-gray {
     background-color: #A0AEC0 !important;
     color: #1A202C !important;
@@ -383,7 +383,7 @@ nav ul {
 
 
 /* ==========================================================================
-   БЛОК 5: КАРТОЧКИ МОНИТОРИНГА И ТАБЛИЦЫ КОНКУРСА БАЛЛОВ
+   Р‘Р›РћРљ 5: РљРђР РўРћР§РљР РњРћРќРРўРћР РРќР“Рђ Р РўРђР‘Р›РР¦Р« РљРћРќРљРЈР РЎРђ Р‘РђР›Р›РћР’
    ========================================================================== */
 
 .spec-card {
@@ -436,7 +436,7 @@ nav ul {
     color: #8CBEFF;
 }
 
-/* Переключатели «Бюджет/Платно» */
+/* РџРµСЂРµРєР»СЋС‡Р°С‚РµР»Рё В«Р‘СЋРґР¶РµС‚/РџР»Р°С‚РЅРѕВ» */
 .badge-container {
     display: inline-flex;
     gap: 8px;
@@ -480,7 +480,7 @@ nav ul {
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
     }
 
-/* Статистическая плашка конкурса */
+/* РЎС‚Р°С‚РёСЃС‚РёС‡РµСЃРєР°СЏ РїР»Р°С€РєР° РєРѕРЅРєСѓСЂСЃР° */
 .stat-box {
     border: 1px solid #E2E8F0;
     border-radius: 16px;
@@ -528,7 +528,7 @@ nav ul {
     color: #8CBEFF;
 }
 
-/* Таблица баллов конкурса */
+/* РўР°Р±Р»РёС†Р° Р±Р°Р»Р»РѕРІ РєРѕРЅРєСѓСЂСЃР° */
 .bar-table-wrapper {
     overflow-x: auto;
     margin-bottom: 20px;
@@ -540,7 +540,7 @@ nav ul {
     border: 1px solid #3A3B3D;
 }
 
-/* Автоматическое сужение таблиц под контент */
+/* РђРІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРµ СЃСѓР¶РµРЅРёРµ С‚Р°Р±Р»РёС† РїРѕРґ РєРѕРЅС‚РµРЅС‚ */
 .section-title + .bar-table-wrapper {
     width: fit-content;
     max-width: 100%;
@@ -583,7 +583,7 @@ nav ul {
     border: 1px solid #3A3B3D;
 }
 
-/* Цвета шансов зачисления */
+/* Р¦РІРµС‚Р° С€Р°РЅСЃРѕРІ Р·Р°С‡РёСЃР»РµРЅРёСЏ */
 .cell-green {
     background-color: #66BB6A;
     color: #000000;
@@ -614,7 +614,7 @@ nav ul {
     color: #FFFFFF;
 }
 
-/* Сообщение об отсутствии набора */
+/* РЎРѕРѕР±С‰РµРЅРёРµ РѕР± РѕС‚СЃСѓС‚СЃС‚РІРёРё РЅР°Р±РѕСЂР° */
 .no-paid-msg {
     margin-top: 25px;
     padding: 20px;
@@ -635,7 +635,7 @@ nav ul {
 
 
 /* ==========================================================================
-   БЛОК 6: СЛАЙДЕРЫ, КНИГИ-ИНФОРМАТОРЫ И ФОТО-ЛАЙТБОКСЫ
+   Р‘Р›РћРљ 6: РЎР›РђР™Р”Р•Р Р«, РљРќРР“Р-РРќР¤РћР РњРђРўРћР Р« Р Р¤РћРўРћ-Р›РђР™РўР‘РћРљРЎР«
    ========================================================================== */
 
 .slider-container {
@@ -719,7 +719,7 @@ nav ul {
     flex-wrap: nowrap;
 }
 
-/* Полноэкранный просмотр изображений (лайтбокс) */
+/* РџРѕР»РЅРѕСЌРєСЂР°РЅРЅС‹Р№ РїСЂРѕСЃРјРѕС‚СЂ РёР·РѕР±СЂР°Р¶РµРЅРёР№ (Р»Р°Р№С‚Р±РѕРєСЃ) */
 .lightbox {
     position: fixed;
     top: 0;
@@ -774,10 +774,10 @@ nav ul {
 
 
 /* ==========================================================================
-   БЛОК 7: ИНТЕРАКТИВНЫЙ ПОМОЩНИК АБИТУРИЕНТА (ВИДЖЕТ ЧАТА)
+   Р‘Р›РћРљ 7: РРќРўР•Р РђРљРўРР’РќР«Р™ РџРћРњРћР©РќРРљ РђР‘РРўРЈР РР•РќРўРђ (Р’РР”Р–Р•Рў Р§РђРўРђ)
    ========================================================================== */
 
-/* Общий контейнер виджета */
+/* РћР±С‰РёР№ РєРѕРЅС‚РµР№РЅРµСЂ РІРёРґР¶РµС‚Р° */
 .ai-widget {
     position: fixed;
     bottom: 20px;
@@ -785,7 +785,7 @@ nav ul {
     z-index: 99999;
 }
 
-/* Кнопка открытия чата */
+/* РљРЅРѕРїРєР° РѕС‚РєСЂС‹С‚РёСЏ С‡Р°С‚Р° */
 .ai-toggle-btn {
     position: fixed !important;
     bottom: 20px !important;
@@ -816,7 +816,7 @@ nav ul {
         fill: #ffffff !important;
     }
 
-/* Окно диалога ассистента */
+/* РћРєРЅРѕ РґРёР°Р»РѕРіР° Р°СЃСЃРёСЃС‚РµРЅС‚Р° */
 .ai-window {
     position: fixed !important;
     bottom: 90px;
@@ -848,7 +848,7 @@ nav ul {
 
 
 /* =======================================================
-   НАПРАВЛЯЮЩИЕ ИЗМЕНЕНИЯ РАЗМЕРОВ (JQUERY UI RESIZABLE)
+   РќРђРџР РђР’Р›РЇР®Р©РР• РР—РњР•РќР•РќРРЇ Р РђР—РњР•Р РћР’ (JQUERY UI RESIZABLE)
    ========================================================= */
 
 .ai-resizer {
@@ -1073,10 +1073,10 @@ nav ul {
 
 
 /* ==========================================================================
-   БЛОК 8: ЛИЧНЫЙ КАБИНЕТ АБИТУРИЕНТА И ЧЕК-ЛИСТЫ ДОКУМЕНТОВ
+   Р‘Р›РћРљ 8: Р›РР§РќР«Р™ РљРђР‘РРќР•Рў РђР‘РРўРЈР РР•РќРўРђ Р Р§Р•Рљ-Р›РРЎРўР« Р”РћРљРЈРњР•РќРўРћР’
    ========================================================================== */
 
-/* Кнопка вызова Личного Кабинета */
+/* РљРЅРѕРїРєР° РІС‹Р·РѕРІР° Р›РёС‡РЅРѕРіРѕ РљР°Р±РёРЅРµС‚Р° */
 .cabinet-toggle-btn {
     position: fixed;
     top: 25px;
@@ -1107,7 +1107,7 @@ nav ul {
         fill: currentColor;
     }
 
-/* Окно Личного Кабинета */
+/* РћРєРЅРѕ Р›РёС‡РЅРѕРіРѕ РљР°Р±РёРЅРµС‚Р° */
 .cabinet-window {
     position: fixed;
     top: 85px;
@@ -1121,7 +1121,7 @@ nav ul {
     flex-direction: column;
     overflow: hidden;
     border: 1px solid #E2E8F0;
-    z-index: 100050 !important; /* Перекрывает кнопку чата */
+    z-index: 100050 !important; /* РџРµСЂРµРєСЂС‹РІР°РµС‚ РєРЅРѕРїРєСѓ С‡Р°С‚Р° */
     animation: pageFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
@@ -1153,7 +1153,7 @@ nav ul {
     gap: 8px;
 }
 
-/* Вкладки "Чек-лист" / "Выбор специальности" */
+/* Р’РєР»Р°РґРєРё "Р§РµРє-Р»РёСЃС‚" / "Р’С‹Р±РѕСЂ СЃРїРµС†РёР°Р»СЊРЅРѕСЃС‚Рё" */
 .cabinet-tabs {
     display: flex;
     border-bottom: 1px solid #E2E8F0;
@@ -1203,7 +1203,7 @@ nav ul {
     color: #E2E8F0;
 }
 
-/* Селекторы фильтров Личного Кабинета */
+/* РЎРµР»РµРєС‚РѕСЂС‹ С„РёР»СЊС‚СЂРѕРІ Р›РёС‡РЅРѕРіРѕ РљР°Р±РёРЅРµС‚Р° */
 .cab-checklist-filters {
     display: flex;
     flex-direction: column;
@@ -1245,7 +1245,7 @@ nav ul {
     border-color: #4A5D75;
 }
 
-/* Неактивный выпадающий список (disabled) */
+/* РќРµР°РєС‚РёРІРЅС‹Р№ РІС‹РїР°РґР°СЋС‰РёР№ СЃРїРёСЃРѕРє (disabled) */
 .cab-select:disabled {
     background-color: #F1F5F9 !important;
     color: #94A3B8 !important;
@@ -1262,7 +1262,7 @@ nav ul {
     opacity: 0.5 !important;
 }
 
-/* Стили чек-листа */
+/* РЎС‚РёР»Рё С‡РµРє-Р»РёСЃС‚Р° */
 .cab-checklist-list {
     display: flex;
     flex-direction: column;
@@ -1293,7 +1293,7 @@ nav ul {
         opacity: 0.5;
     }
 
-/* Стили Профориентационного теста */
+/* РЎС‚РёР»Рё РџСЂРѕС„РѕСЂРёРµРЅС‚Р°С†РёРѕРЅРЅРѕРіРѕ С‚РµСЃС‚Р° */
 .cab-quiz-question {
     font-weight: bold;
     margin-bottom: 12px;
@@ -1346,7 +1346,7 @@ nav ul {
     color: #8CBEFF;
 }
 
-/* Кнопка "Назад" в тестах */
+/* РљРЅРѕРїРєР° "РќР°Р·Р°Рґ" РІ С‚РµСЃС‚Р°С… */
 .cab-quiz-back-btn {
     background: transparent !important;
     border: none !important;
@@ -1386,7 +1386,7 @@ nav ul {
         background-color: rgba(99, 179, 237, 0.12) !important;
     }
 
-/* Карточка результатов теста в кабинете */
+/* РљР°СЂС‚РѕС‡РєР° СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ С‚РµСЃС‚Р° РІ РєР°Р±РёРЅРµС‚Рµ */
 .cab-quiz-result-title {
     font-weight: bold;
     color: #007bff;
@@ -1448,7 +1448,7 @@ nav ul {
 
 
 /* ==========================================================================
-   БЛОК 9: ГЛАВНЫЙ ЭКРАН И ПОИСКОВЫЙ КАЛЬКУЛЯТОР (INDEX.HTML)
+   Р‘Р›РћРљ 9: Р“Р›РђР’РќР«Р™ Р­РљР РђРќ Р РџРћРРЎРљРћР’Р«Р™ РљРђР›Р¬РљРЈР›РЇРўРћР  (INDEX.HTML)
    ========================================================================== */
 
 .academy-bg-title {
@@ -1529,7 +1529,7 @@ nav ul {
         transition: transform 0.2s ease, background-color 0.3s ease, color 0.3s ease;
     }
 
-        /* Добавили эффект затемнения и подъема для светлой темы */
+        /* Р”РѕР±Р°РІРёР»Рё СЌС„С„РµРєС‚ Р·Р°С‚РµРјРЅРµРЅРёСЏ Рё РїРѕРґСЉРµРјР° РґР»СЏ СЃРІРµС‚Р»РѕР№ С‚РµРјС‹ */
         .btn-grid-main .btn-item:hover {
             background-color: #72aeff;
             transform: translateY(-2px);
@@ -1544,7 +1544,7 @@ nav ul {
         background-color: #4A5D75 !important;
     }
 
-/* "Вы недавно смотрели..." */
+/* "Р’С‹ РЅРµРґР°РІРЅРѕ СЃРјРѕС‚СЂРµР»Рё..." */
 .recently-viewed {
     display: flex;
     justify-content: flex-start;
@@ -1588,7 +1588,7 @@ nav ul {
 .recently-viewed-links a:hover {
     text-decoration: underline;
 }
-/* Строка поиска-калькулятора балла */
+/* РЎС‚СЂРѕРєР° РїРѕРёСЃРєР°-РєР°Р»СЊРєСѓР»СЏС‚РѕСЂР° Р±Р°Р»Р»Р° */
 .search-container {
     position: relative;
     width: 100%;
@@ -1634,7 +1634,7 @@ nav ul {
         color: #4A5568;
     }
 
-/* Результаты поиска по баллам */
+/* Р РµР·СѓР»СЊС‚Р°С‚С‹ РїРѕРёСЃРєР° РїРѕ Р±Р°Р»Р»Р°Рј */
 .search-results-box {
     border: 2px solid #8CBEFF;
     border-radius: 24px;
@@ -1697,7 +1697,7 @@ nav ul {
     color: #A0AEC0;
 }
 
-/* Классы цветов вероятности поступления */
+/* РљР»Р°СЃСЃС‹ С†РІРµС‚РѕРІ РІРµСЂРѕСЏС‚РЅРѕСЃС‚Рё РїРѕСЃС‚СѓРїР»РµРЅРёСЏ */
 .text-green {
     color: #2ecc71;
     font-weight: bold;
@@ -1715,7 +1715,7 @@ nav ul {
 
 
 /* ==========================================================================
-   БЛОК 10: СТИЛИ ВИДЖЕТА ОБРАТНОГО ОТСЧЕТА (COUNTDOWN TIMER)
+   Р‘Р›РћРљ 10: РЎРўРР›Р Р’РР”Р–Р•РўРђ РћР‘Р РђРўРќРћР“Рћ РћРўРЎР§Р•РўРђ (COUNTDOWN TIMER)
    ========================================================================== */
 
 .countdown-timer {
@@ -1772,7 +1772,7 @@ nav ul {
 
 
 /* ==================================================
-   БЛОК 11:СТИЛИ ПАНЕЛИ БЫСТРЫХ ВОПРОСОВ В ЧАТЕ
+   Р‘Р›РћРљ 11:РЎРўРР›Р РџРђРќР•Р›Р Р‘Р«РЎРўР Р«РҐ Р’РћРџР РћРЎРћР’ Р’ Р§РђРўР•
    =================================================== */
 
 .ai-quick-questions {
@@ -1850,7 +1850,7 @@ nav ul {
 
 
 /* ==========================================================================
-   БЛОК 12: ИНТЕРАКТИВНАЯ АКАДЕМИЧЕСКАЯ АНИМАЦИЯ ЗАГРУЗКИ (МОРТАБОРД)
+   Р‘Р›РћРљ 12: РРќРўР•Р РђРљРўРР’РќРђРЇ РђРљРђР”Р•РњРР§Р•РЎРљРђРЇ РђРќРРњРђР¦РРЇ Р—РђР“Р РЈР—РљР (РњРћР РўРђР‘РћР Р”)
    ========================================================================== */
 
 .academy-loader-container {
@@ -1932,7 +1932,7 @@ nav ul {
 
 
 /* ====================================
-   БЛОК 13: ФОНЫ СТРАНИЦ ДЛЯ ДВУХ ТЕМ 
+   Р‘Р›РћРљ 13: Р¤РћРќР« РЎРўР РђРќРР¦ Р”Р›РЇ Р”Р’РЈРҐ РўР•Рњ 
    ===================================*/
 
 body:not(.body-main) {
@@ -1950,10 +1950,10 @@ body:not(.body-main) {
 
 
 /* ==========================================================================
-   БЛОК 14:  АДАПТИВНЫЕ МЕДИА-ЗАПРОСЫ (RESPONSIVENESS)
+   Р‘Р›РћРљ 14:  РђР”РђРџРўРР’РќР«Р• РњР•Р”РРђ-Р—РђРџР РћРЎР« (RESPONSIVENESS)
    ========================================================================== */
 
-/* --- Адаптация под десктопы и средние экраны (1290px) --- */
+/* --- РђРґР°РїС‚Р°С†РёСЏ РїРѕРґ РґРµСЃРєС‚РѕРїС‹ Рё СЃСЂРµРґРЅРёРµ СЌРєСЂР°РЅС‹ (1290px) --- */
 @media (max-width: 1290px) {
     .academy-bg-title {
         text-align: center;
@@ -1992,15 +1992,15 @@ body:not(.body-main) {
     }
 }
 
-/* --- Адаптация под сенсорные экраны и планшеты (1024px) --- */
+/* --- РђРґР°РїС‚Р°С†РёСЏ РїРѕРґ СЃРµРЅСЃРѕСЂРЅС‹Рµ СЌРєСЂР°РЅС‹ Рё РїР»Р°РЅС€РµС‚С‹ (1024px) --- */
 @media (max-width: 1024px) {
-    /* Отключение fixed-эффекта на мобильных для предотвращения прыжков фона */
+    /* РћС‚РєР»СЋС‡РµРЅРёРµ fixed-СЌС„С„РµРєС‚Р° РЅР° РјРѕР±РёР»СЊРЅС‹С… РґР»СЏ РїСЂРµРґРѕС‚РІСЂР°С‰РµРЅРёСЏ РїСЂС‹Р¶РєРѕРІ С„РѕРЅР° */
     body {
         background-attachment: scroll !important;
     }
 }
 
-/* --- Адаптация под смартфоны (768px) --- */
+/* --- РђРґР°РїС‚Р°С†РёСЏ РїРѕРґ СЃРјР°СЂС‚С„РѕРЅС‹ (768px) --- */
 @media (max-width: 768px) {
     body {
         display: flex !important;
@@ -2215,7 +2215,7 @@ body:not(.body-main) {
     }
 }
 
-/* --- Адаптация под сверхкомпактные мобильные экраны (576px) --- */
+/* --- РђРґР°РїС‚Р°С†РёСЏ РїРѕРґ СЃРІРµСЂС…РєРѕРјРїР°РєС‚РЅС‹Рµ РјРѕР±РёР»СЊРЅС‹Рµ СЌРєСЂР°РЅС‹ (576px) --- */
 @media (max-width: 576px) {
     .cabinet-window {
         width: 90% !important;
@@ -2263,7 +2263,7 @@ body:not(.body-main) {
     }
 }
 
-/* --- Адаптация под ультра-компактные мобильные экраны (480px) --- */
+/* --- РђРґР°РїС‚Р°С†РёСЏ РїРѕРґ СѓР»СЊС‚СЂР°-РєРѕРјРїР°РєС‚РЅС‹Рµ РјРѕР±РёР»СЊРЅС‹Рµ СЌРєСЂР°РЅС‹ (480px) --- */
 @media (max-width: 480px) {
     .cabinet-window {
         width: 100%;
@@ -2275,7 +2275,7 @@ body:not(.body-main) {
     }
 }
 /* ==========================================================================
-   ПАНЕЛЬ УПРАВЛЕНИЯ В ПРАВОМ ВЕРХНЕМ УГЛУ (КНОПКИ И БУРГЕР-МЕНЮ)
+   РџРђРќР•Р›Р¬ РЈРџР РђР’Р›Р•РќРРЇ Р’ РџР РђР’РћРњ Р’Р•Р РҐРќР•Рњ РЈР“Р›РЈ (РљРќРћРџРљР Р Р‘РЈР Р“Р•Р -РњР•РќР®)
    ========================================================================== */
 
 .header-controls {
@@ -2283,14 +2283,14 @@ body:not(.body-main) {
     top: 25px !important;
     right: 25px !important;
     display: flex !important;
-    flex-direction: row !important; /* Строго в одну линию */
+    flex-direction: row !important; /* РЎС‚СЂРѕРіРѕ РІ РѕРґРЅСѓ Р»РёРЅРёСЋ */
     align-items: center !important;
     justify-content: flex-end !important;
     gap: 12px !important;
     z-index: 100010 !important;
 }
 
-/* Оформление увеличенных круглых кнопок навигации */
+/* РћС„РѕСЂРјР»РµРЅРёРµ СѓРІРµР»РёС‡РµРЅРЅС‹С… РєСЂСѓРіР»С‹С… РєРЅРѕРїРѕРє РЅР°РІРёРіР°С†РёРё */
 .btn-home,
 .btn-theme,
 .btn-menu-trigger {
@@ -2310,7 +2310,7 @@ body:not(.body-main) {
     box-sizing: border-box !important;
     padding: 0 !important;
     margin: 0 !important;
-    color: #333333 !important; /* Единый цвет по умолчанию для всех иконок и полосок в светлой теме */
+    color: #333333 !important; /* Р•РґРёРЅС‹Р№ С†РІРµС‚ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РґР»СЏ РІСЃРµС… РёРєРѕРЅРѕРє Рё РїРѕР»РѕСЃРѕРє РІ СЃРІРµС‚Р»РѕР№ С‚РµРјРµ */
 }
 
 .dark-mode .btn-home,
@@ -2319,7 +2319,7 @@ body:not(.body-main) {
     background-color: rgba(45, 45, 45, 0.9) !important;
     border: 1px solid rgba(255, 255, 255, 0.15) !important;
     box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4) !important;
-    color: #CCCCCC !important; /* Единый цвет по умолчанию для всех иконок и полосок в темной теме */
+    color: #CCCCCC !important; /* Р•РґРёРЅС‹Р№ С†РІРµС‚ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РґР»СЏ РІСЃРµС… РёРєРѕРЅРѕРє Рё РїРѕР»РѕСЃРѕРє РІ С‚РµРјРЅРѕР№ С‚РµРјРµ */
 }
 
 .btn-home:hover,
@@ -2335,7 +2335,7 @@ body:not(.body-main) {
     background-color: rgba(65, 65, 65, 0.95) !important;
 }
 
-/* Размеры SVG иконок внутри кнопок */
+/* Р Р°Р·РјРµСЂС‹ SVG РёРєРѕРЅРѕРє РІРЅСѓС‚СЂРё РєРЅРѕРїРѕРє */
 .btn-home svg,
 .btn-theme svg,
 .btn-menu-trigger svg {
@@ -2357,12 +2357,12 @@ body:not(.body-main) {
     stroke: currentColor !important;
 }
 
-/* Контейнер выпадающего списка */
+/* РљРѕРЅС‚РµР№РЅРµСЂ РІС‹РїР°РґР°СЋС‰РµРіРѕ СЃРїРёСЃРєР° */
 .menu-wrapper {
     position: relative !important;
 }
 
-/* Выпадающая вертикальная карточка меню */
+/* Р’С‹РїР°РґР°СЋС‰Р°СЏ РІРµСЂС‚РёРєР°Р»СЊРЅР°СЏ РєР°СЂС‚РѕС‡РєР° РјРµРЅСЋ */
 .menu-drawer {
     position: absolute !important;
     top: 52px !important;
@@ -2386,7 +2386,7 @@ body:not(.body-main) {
     box-sizing: border-box !important;
 }
 
-    /* Состояние открытого меню */
+    /* РЎРѕСЃС‚РѕСЏРЅРёРµ РѕС‚РєСЂС‹С‚РѕРіРѕ РјРµРЅСЋ */
     .menu-drawer.open {
         opacity: 1 !important;
         transform: translateY(0) scale(1) !important;
@@ -2399,7 +2399,7 @@ body:not(.body-main) {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Стили элементов списка меню */
+/* РЎС‚РёР»Рё СЌР»РµРјРµРЅС‚РѕРІ СЃРїРёСЃРєР° РјРµРЅСЋ */
 .menu-item {
     display: flex !important;
     align-items: center !important;
@@ -2429,7 +2429,7 @@ body:not(.body-main) {
     color: #8CBEFF !important;
 }
 
-/* Разделитель внутри меню */
+/* Р Р°Р·РґРµР»РёС‚РµР»СЊ РІРЅСѓС‚СЂРё РјРµРЅСЋ */
 .menu-divider {
     height: 1px !important;
     background-color: rgba(0, 0, 0, 0.08) !important;
@@ -2440,7 +2440,7 @@ body:not(.body-main) {
     background-color: rgba(255, 255, 255, 0.08) !important;
 }
 
-/* Адаптивные параметры для мобильных экранов */
+/* РђРґР°РїС‚РёРІРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹ РґР»СЏ РјРѕР±РёР»СЊРЅС‹С… СЌРєСЂР°РЅРѕРІ */
 @media (max-width: 768px) {
     .header-controls {
         top: 15px !important;
@@ -2466,7 +2466,7 @@ body:not(.body-main) {
 
 
 /* ==========================================================================
-   ОБНОВЛЕННЫЙ БЛОК 4: ИДЕАЛЬНОЕ ЦЕНТРИРОВАНИЕ КНОПОК И СОВПАДЕНИЕ ЦВЕТА
+   РћР‘РќРћР’Р›Р•РќРќР«Р™ Р‘Р›РћРљ 4: РР”Р•РђР›Р¬РќРћР• Р¦Р•РќРўР РР РћР’РђРќРР• РљРќРћРџРћРљ Р РЎРћР’РџРђР”Р•РќРР• Р¦Р’Р•РўРђ
    ========================================================================== */
 
 .header-controls {
@@ -2479,11 +2479,11 @@ body:not(.body-main) {
     z-index: 100010 !important;
 }
 
-/* Оформление кнопок с общим цветовым поведением */
+/* РћС„РѕСЂРјР»РµРЅРёРµ РєРЅРѕРїРѕРє СЃ РѕР±С‰РёРј С†РІРµС‚РѕРІС‹Рј РїРѕРІРµРґРµРЅРёРµРј */
 .btn-home,
 .btn-theme,
 .btn-menu-trigger {
-    position: relative !important; /* Родитель позиционирования для линий */
+    position: relative !important; /* Р РѕРґРёС‚РµР»СЊ РїРѕР·РёС†РёРѕРЅРёСЂРѕРІР°РЅРёСЏ РґР»СЏ Р»РёРЅРёР№ */
     width: 52px !important;
     height: 52px !important;
     background-color: rgba(255, 255, 255, 0.85) !important;
@@ -2499,7 +2499,7 @@ body:not(.body-main) {
     box-sizing: border-box !important;
     padding: 0 !important;
     margin: 0 !important;
-    /* Базовый серый цвет для всех иконок и линий в светлой теме */
+    /* Р‘Р°Р·РѕРІС‹Р№ СЃРµСЂС‹Р№ С†РІРµС‚ РґР»СЏ РІСЃРµС… РёРєРѕРЅРѕРє Рё Р»РёРЅРёР№ РІ СЃРІРµС‚Р»РѕР№ С‚РµРјРµ */
     color: #4a5568 !important;
 }
 
@@ -2509,12 +2509,12 @@ body:not(.body-main) {
     background-color: rgba(45, 45, 45, 0.9) !important;
     border: 1px solid rgba(255, 255, 255, 0.15) !important;
     box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4) !important;
-    /* Ровный мягкий серый цвет для всех кнопок в темной теме */
+    /* Р РѕРІРЅС‹Р№ РјСЏРіРєРёР№ СЃРµСЂС‹Р№ С†РІРµС‚ РґР»СЏ РІСЃРµС… РєРЅРѕРїРѕРє РІ С‚РµРјРЅРѕР№ С‚РµРјРµ */
     color: #a0aec0 !important;
 }
 
-/* Эффект наведения для кнопки "Назад/Домой" (сохраняет голубую/синюю акцентную тему) */
-/* Применяем эффекты наведения только на компьютерах, где есть мышь */
+/* Р­С„С„РµРєС‚ РЅР°РІРµРґРµРЅРёСЏ РґР»СЏ РєРЅРѕРїРєРё "РќР°Р·Р°Рґ/Р”РѕРјРѕР№" (СЃРѕС…СЂР°РЅСЏРµС‚ РіРѕР»СѓР±СѓСЋ/СЃРёРЅСЋСЋ Р°РєС†РµРЅС‚РЅСѓСЋ С‚РµРјСѓ) */
+/* РџСЂРёРјРµРЅСЏРµРј СЌС„С„РµРєС‚С‹ РЅР°РІРµРґРµРЅРёСЏ С‚РѕР»СЊРєРѕ РЅР° РєРѕРјРїСЊСЋС‚РµСЂР°С…, РіРґРµ РµСЃС‚СЊ РјС‹С€СЊ */
 @media (hover: hover) {
     .btn-home:hover {
         transform: scale(1.08) !important;
@@ -2541,7 +2541,7 @@ body:not(.body-main) {
     }
 }
 
-/* Иконки внутри кнопок наследуют currentColor */
+/* РРєРѕРЅРєРё РІРЅСѓС‚СЂРё РєРЅРѕРїРѕРє РЅР°СЃР»РµРґСѓСЋС‚ currentColor */
 .btn-home svg,
 .btn-theme svg,
 .btn-menu-trigger svg {
@@ -2558,20 +2558,20 @@ body:not(.body-main) {
         fill: none !important;
     }
 
-/* МАТЕМАТИЧЕСКИ БЕЗУПРЕЧНОЕ ЦЕНТРИРОВАНИЕ ЛИНИЙ */
+/* РњРђРўР•РњРђРўРР§Р•РЎРљР Р‘Р•Р—РЈРџР Р•Р§РќРћР• Р¦Р•РќРўР РР РћР’РђРќРР• Р›РРќРР™ */
 .burger-line {
     position: absolute !important;
     top: 50% !important;
     left: 50% !important;
     width: 20px !important;
-    height: 1.8px !important; /* Эта строка отвечает за толщину */
+    height: 1.8px !important; /* Р­С‚Р° СЃС‚СЂРѕРєР° РѕС‚РІРµС‡Р°РµС‚ Р·Р° С‚РѕР»С‰РёРЅСѓ */
     margin-left: -10px !important;
     background-color: currentColor !important;
     border-radius: 2px !important;
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, background-color 0.3s ease !important;
 }
 
-    /* Сдвиги на мобильных */
+    /* РЎРґРІРёРіРё РЅР° РјРѕР±РёР»СЊРЅС‹С… */
     .burger-line:nth-child(1) {
         transform: translateY(-7px) !important;
     }
@@ -2584,7 +2584,7 @@ body:not(.body-main) {
         transform: translateY(7px) !important;
     }
 
-/* Анимация крестика: перенос линий в центр и поворот */
+/* РђРЅРёРјР°С†РёСЏ РєСЂРµСЃС‚РёРєР°: РїРµСЂРµРЅРѕСЃ Р»РёРЅРёР№ РІ С†РµРЅС‚СЂ Рё РїРѕРІРѕСЂРѕС‚ */
 .btn-menu-trigger.open .burger-line:nth-child(1) {
     transform: translateY(0) rotate(45deg) !important;
 }
@@ -2599,13 +2599,13 @@ body:not(.body-main) {
 
 
 /* ==========================================================================
-   ВЫПАДАЮЩАЯ КАРТОЧКА МЕНЮ
+   Р’Р«РџРђР”РђР®Р©РђРЇ РљРђР РўРћР§РљРђ РњР•РќР®
    ========================================================================== */
 
-/* Больше не требует wrapper-обертки */
+/* Р‘РѕР»СЊС€Рµ РЅРµ С‚СЂРµР±СѓРµС‚ wrapper-РѕР±РµСЂС‚РєРё */
 .menu-drawer {
     position: absolute !important;
-    top: 58px !important; /* Отступ вниз с учетом диаметра кнопки 52px */
+    top: 58px !important; /* РћС‚СЃС‚СѓРї РІРЅРёР· СЃ СѓС‡РµС‚РѕРј РґРёР°РјРµС‚СЂР° РєРЅРѕРїРєРё 52px */
     right: 0 !important;
     width: 240px !important;
     background: rgba(255, 255, 255, 0.95) !important;
@@ -2703,7 +2703,7 @@ body:not(.body-main) {
 
 
 /* ==========================================================================
-   АДАПТИВНОСТЬ ПОД МОБИЛЬНЫЕ УСТРОЙСТВА
+   РђР”РђРџРўРР’РќРћРЎРўР¬ РџРћР” РњРћР‘РР›Р¬РќР«Р• РЈРЎРўР РћР™РЎРўР’Рђ
    ========================================================================== */
 
 @media (max-width: 768px) {
@@ -2726,11 +2726,11 @@ body:not(.body-main) {
     .burger-line {
         left: 50% !important;
         width: 17px !important;
-        height: 1.8px !important; /* Толщина на мобильных установлена в 2.5px */
+        height: 1.8px !important; /* РўРѕР»С‰РёРЅР° РЅР° РјРѕР±РёР»СЊРЅС‹С… СѓСЃС‚Р°РЅРѕРІР»РµРЅР° РІ 2.5px */
         margin-left: -8.5px !important;
     }
 
-        /* Сдвиги на мобильных */
+        /* РЎРґРІРёРіРё РЅР° РјРѕР±РёР»СЊРЅС‹С… */
         .burger-line:nth-child(1) {
             transform: translateY(-6px) !important;
         }
@@ -2751,4 +2751,248 @@ body:not(.body-main) {
         top: 50px !important;
         width: 220px !important;
     }
+}
+/* ==========================================================================
+   Р‘Р›РћРљ 15: РЎРўРР›Р РЎРўР РђРќРР¦Р« РћР‘Р©Р•Р–РРўРР™ (DORMS PAGE)
+   ========================================================================== */
+
+.dorms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin: 25px 0;
+}
+
+.dorm-card {
+    background-color: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+}
+
+.dark-mode .dorm-card {
+    background-color: #2D2D2D;
+    border-color: #3A3B3D;
+}
+
+.dorm-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+.dark-mode .dorm-card:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.dorm-num {
+    font-size: 20px;
+    font-weight: 800;
+    color: #007bff;
+    margin-bottom: 5px;
+    padding-bottom: 2px;
+}
+
+.dark-mode .dorm-num {
+    color: #8CBEFF;
+}
+
+.dorm-address {
+    font-size: 13px;
+    font-weight: 700;
+    color: #718096;
+    margin-bottom: 12px;
+}
+
+.dark-mode .dorm-address {
+    color: #CBD5E1;
+}
+
+.dorm-stat-desc {
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: #2D3748;
+    margin-bottom: 15px;
+    flex-grow: 1;
+}
+
+.dark-mode .dorm-stat-desc {
+    color: #E2E8F0;
+}
+
+.dorm-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: auto;
+}
+
+.dorm-mini-badge {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 700;
+    background-color: #E2E8F0;
+    color: #4A5568;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.dark-mode .dorm-mini-badge {
+    background-color: #1A1A1A;
+    color: #A0AEC0;
+}
+
+.dorm-mini-badge.blue {
+    background-color: #D6E6FF;
+    color: #007bff;
+}
+
+.dark-mode .dorm-mini-badge.blue {
+    background-color: #1E2D3D;
+    color: #8CBEFF;
+}
+
+.dorms-desc-block {
+    background-color: #F8FAFC;
+    border-radius: 20px;
+    padding: 25px;
+    margin: 20px 0 30px 0;
+    border-left: 4px solid #8CBEFF;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.dark-mode .dorms-desc-block {
+    background-color: #2D2D2D;
+    border-left-color: #3B4B5E;
+}
+
+.dorms-desc-block p {
+    margin-bottom: 15px;
+    line-height: 1.6;
+    color: #2D3748;
+    font-size: 15px;
+}
+
+.dark-mode .dorms-desc-block p {
+    color: #E2E8F0;
+}
+
+.dorms-desc-block p:last-child {
+    margin-bottom: 0;
+}
+
+.document-checklist {
+    list-style: none;
+    padding: 0;
+    margin: 15px 0;
+}
+
+.document-checklist-item {
+    position: relative;
+    padding-left: 28px;
+    margin-bottom: 12px;
+    line-height: 1.5;
+    font-size: 14px;
+    color: #2D3748;
+}
+
+.dark-mode .document-checklist-item {
+    color: #E2E8F0;
+}
+
+.document-checklist-item::before {
+    content: "вњ“";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: #2ecc71;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.dark-mode .document-checklist-item::before {
+    color: #66BB6A;
+}
+
+.route-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.route-card {
+    background-color: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    padding: 20px;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.dark-mode .route-card {
+    background-color: #2D2D2D;
+    border-color: #3A3B3D;
+}
+
+.route-card-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #1A202C;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #E2E8F0;
+    padding-bottom: 8px;
+}
+
+.dark-mode .route-card-title {
+    color: #FFFFFF;
+    border-bottom-color: #3A3B3D;
+}
+
+.route-detail {
+    font-size: 14px;
+    margin-bottom: 8px;
+    line-height: 1.5;
+    color: #2D3748;
+}
+
+.dark-mode .route-detail {
+    color: #E2E8F0;
+}
+
+.route-detail:last-child {
+    margin-bottom: 0;
+}
+
+.route-detail strong {
+    color: #007bff;
+}
+
+.dark-mode .route-detail strong {
+    color: #8CBEFF;
+}
+
+/* РРЅС‚РµСЂР°РєС‚РёРІРЅР°СЏ РєР°СЂС‚Р° */
+.yandex-map-container {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    margin-top: 20px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.dark-mode .yandex-map-container {
+    border-color: #3A3B3D;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+#yandex-map {
+    width: 100%;
+    height: 100%;
 }
