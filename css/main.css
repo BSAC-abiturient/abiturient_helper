@@ -2514,29 +2514,31 @@ body:not(.body-main) {
 }
 
 /* Эффект наведения для кнопки "Назад/Домой" (сохраняет голубую/синюю акцентную тему) */
-.btn-home:hover {
-    transform: scale(1.08) !important;
-    background-color: rgba(255, 255, 255, 0.95) !important;
-    color: #007bff !important;
-}
+/* Применяем эффекты наведения только на компьютерах, где есть мышь */
+@media (hover: hover) {
+    .btn-home:hover {
+        transform: scale(1.08) !important;
+        background-color: rgba(255, 255, 255, 0.95) !important;
+        color: #007bff !important;
+    }
 
-.dark-mode .btn-home:hover {
-    background-color: rgba(65, 65, 65, 0.95) !important;
-    color: #8CBEFF !important;
-}
+    .dark-mode .btn-home:hover {
+        background-color: rgba(65, 65, 65, 0.95) !important;
+        color: #8CBEFF !important;
+    }
 
-/* Нейтральный интерактивный ховер для Смены темы и Меню (без голубого цвета) */
-.btn-theme:hover,
-.btn-menu-trigger:hover {
-    transform: scale(1.08) !important;
-    background-color: rgba(255, 255, 255, 0.95) !important;
-    color: #1a202c !important; /* Мягкий темный акцент в светлой теме */
-}
+    .btn-theme:hover,
+    .btn-menu-trigger:hover {
+        transform: scale(1.08) !important;
+        background-color: rgba(255, 255, 255, 0.95) !important;
+        color: #1a202c !important;
+    }
 
-.dark-mode .btn-theme:hover,
-.dark-mode .btn-menu-trigger:hover {
-    background-color: rgba(65, 65, 65, 0.95) !important;
-    color: #ffffff !important; /* Чистый белый акцент в темной теме */
+    .dark-mode .btn-theme:hover,
+    .dark-mode .btn-menu-trigger:hover {
+        background-color: rgba(65, 65, 65, 0.95) !important;
+        color: #ffffff !important;
+    }
 }
 
 /* Иконки внутри кнопок наследуют currentColor */
@@ -2562,14 +2564,14 @@ body:not(.body-main) {
     top: 50% !important;
     left: 50% !important;
     width: 20px !important;
-    height: 3px !important; /* Толщина линий увеличена до 3px */
+    height: 1.8px !important; /* Эта строка отвечает за толщину */
     margin-left: -10px !important;
-    background-color: currentColor !important; /* Берет точно такой же цвет, как иконка рядом */
+    background-color: currentColor !important;
     border-radius: 2px !important;
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, background-color 0.3s ease !important;
 }
 
-    /* Сбалансированные расстояния для толщины 3px */
+    /* Сдвиги на мобильных */
     .burger-line:nth-child(1) {
         transform: translateY(-7px) !important;
     }
@@ -2724,7 +2726,7 @@ body:not(.body-main) {
     .burger-line {
         left: 50% !important;
         width: 17px !important;
-        height: 2.5px !important; /* Толщина на мобильных установлена в 2.5px */
+        height: 1.8px !important; /* Толщина на мобильных установлена в 2.5px */
         margin-left: -8.5px !important;
     }
 

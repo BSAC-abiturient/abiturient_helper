@@ -730,14 +730,14 @@ function injectNavigationButtons() {
             </a>
             <div class="menu-divider"></div>
             <!-- Telegram-канал ВО -->
-            <a href="https://t.me/bsac_by" target="_blank" class="menu-item" style="color: #0088cc !important;" onclick="window.toggleMenuDrawer()">
+            <a href="https://t.me/+v4NV9J9rqqg5OTgy" target="_blank" class="menu-item" style="color: #0088cc !important;" onclick="window.toggleMenuDrawer()">
                 <svg viewBox="0 0 24 24" width="18" height="18" style="fill: #0088cc !important; margin-right: 6px; flex-shrink: 0;">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.69-.52.36-1 .53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.35-.49.97-.74 3.79-1.65 6.32-2.73 7.59-3.25 3.61-1.48 4.36-1.74 4.85-1.75.11 0 .35.03.5.16.13.12.17.29.18.42-.01.06-.01.12-.02.19z"/>
                 </svg>
                 Telegram ВО
             </a>
             <!-- Telegram-канал ССО -->
-            <a href="https://t.me/bsac_sso_chat" target="_blank" class="menu-item" style="color: #0088cc !important;" onclick="window.toggleMenuDrawer()">
+            <a href="https://t.me/+v-EXEwGcWasxZTdi" target="_blank" class="menu-item" style="color: #0088cc !important;" onclick="window.toggleMenuDrawer()">
                 <svg viewBox="0 0 24 24" width="18" height="18" style="fill: #0088cc !important; margin-right: 6px; flex-shrink: 0;">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.69-.52.36-1 .53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.35-.49.97-.74 3.79-1.65 6.32-2.73 7.59-3.25 3.61-1.48 4.36-1.74 4.85-1.75.11 0 .35.03.5.16.13.12.17.29.18.42-.01.06-.01.12-.02.19z"/>
                 </svg>
