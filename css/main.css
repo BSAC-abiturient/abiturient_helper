@@ -2208,48 +2208,38 @@ body:not(.body-main) {
     .cabinet-window {
         position: fixed !important;
         top: 15px !important;
-        left: 10px !important;
-        right: 10px !important;
-        width: calc(100% - 20px) !important;
-        max-width: calc(100% - 20px) !important;
-        max-height: calc(100vh - 30px) !important;
-        overflow-y: auto !important;
+        bottom: 15px !important;
+        left: 15px !important;
+        right: 15px !important;
+        width: auto !important;
+        height: auto !important;
+        max-width: none !important;
+        max-height: none !important;
         box-sizing: border-box !important;
-        z-index: 2000 !important;
+        z-index: 100050 !important; /* Увеличено, чтобы быть строго поверх всех элементов */
         transform: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important; /* Фиксирует шапку и вкладки сверху */
+    }
+
+    .cabinet-body {
+        flex: 1 !important; /* Занимает всю свободную высоту */
+        height: auto !important;
+        max-height: none !important;
+        overflow-y: auto !important; /* Прокрутка только внутри контента */
     }
 }
 
 /* --- Адаптация под сверхкомпактные мобильные экраны (576px) --- */
+/* --- Адаптация под сверхкомпактные мобильные экраны (576px) --- */
 @media (max-width: 576px) {
-    .cabinet-window {
-        width: 90% !important;
-        max-width: 340px !important;
-        height: 480px !important;
-        border-radius: 16px !important;
-        top: 40px !important;
-        left: 50% !important;
-        right: auto !important;
-        bottom: auto !important;
-        transform: translateX(-50%) !important;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
-        overflow: hidden !important;
-    }
-
     .cabinet-header-title {
         font-size: 14px !important;
         white-space: nowrap !important;
         overflow: visible !important;
         text-overflow: clip !important;
         max-width: none !important;
-    }
-
-    .cabinet-body {
-        height: 385px !important;
-        max-height: 385px !important;
-        overflow-y: auto !important;
-        padding: 12px 14px !important;
-        box-sizing: border-box !important;
     }
 
     .cab-filter-row {
@@ -2268,17 +2258,6 @@ body:not(.body-main) {
     }
 }
 
-/* --- Адаптация под ультра-компактные мобильные экраны (480px) --- */
-@media (max-width: 480px) {
-    .cabinet-window {
-        width: 100%;
-        height: 400px;
-        bottom: 55px;
-        left: 15px;
-        right: 15px;
-        top: auto;
-    }
-}
 /* ==========================================================================
    ПАНЕЛЬ УПРАВЛЕНИЯ В ПРАВОМ ВЕРХНЕМ УГЛУ (КНОПКИ И БУРГЕР-МЕНЮ)
    ========================================================================== */
