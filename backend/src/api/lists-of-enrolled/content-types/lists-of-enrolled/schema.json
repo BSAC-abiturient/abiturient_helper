@@ -1,0 +1,44 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lists_of_enrolleds",
+  "info": {
+    "singularName": "lists-of-enrolled",
+    "pluralName": "lists-of-enrolleds",
+    "displayName": "ListsOfEnrolled"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "file": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": true
+    },
+    "education_level": {
+      "type": "enumeration",
+      "enum": [
+        "sso9",
+        "sso11",
+        "vo11",
+        "vosso"
+      ]
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": [
+        "budget",
+        "paid"
+      ]
+    }
+  }
+}
