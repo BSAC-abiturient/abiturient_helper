@@ -362,6 +362,113 @@ export interface AdminUser extends Schema.CollectionType {
   };
 }
 
+export interface ApiArchiveArchive extends Schema.CollectionType {
+  collectionName: 'archives';
+  info: {
+    description: '';
+    displayName: 'Archive';
+    pluralName: 'archives';
+    singularName: 'archive';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    category: Attribute.Enumeration<['budget', 'paid']>;
+    createdAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::archive.archive',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    education_level: Attribute.Enumeration<
+      ['sso9', 'sso11', 'ssopto', 'vo11', 'vosso']
+    >;
+    form_of_study: Attribute.Enumeration<['dnev', 'zaoch']>;
+    publishedAt: Attribute.DateTime;
+    score: Attribute.Decimal;
+    specialty_name: Attribute.String;
+    updatedAt: Attribute.DateTime;
+    updatedBy: Attribute.Relation<
+      'api::archive.archive',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    year: Attribute.Integer;
+  };
+}
+
+export interface ApiDocumentDocument extends Schema.CollectionType {
+  collectionName: 'documents';
+  info: {
+    description: '';
+    displayName: 'Document';
+    pluralName: 'documents';
+    singularName: 'document';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::document.document',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    file: Attribute.Media<'images' | 'videos' | 'audios' | 'files', true>;
+    publishedAt: Attribute.DateTime;
+    subtitle: Attribute.String;
+    title: Attribute.String;
+    updatedAt: Attribute.DateTime;
+    updatedBy: Attribute.Relation<
+      'api::document.document',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiListsOfEnrolledListsOfEnrolled
+  extends Schema.CollectionType {
+  collectionName: 'lists_of_enrolleds';
+  info: {
+    description: '';
+    displayName: 'ListsOfEnrolled';
+    pluralName: 'lists-of-enrolleds';
+    singularName: 'lists-of-enrolled';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    category: Attribute.Enumeration<['budget', 'paid']>;
+    createdAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::lists-of-enrolled.lists-of-enrolled',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    education_level: Attribute.Enumeration<['sso9', 'sso11', 'vo11', 'vosso']>;
+    file: Attribute.Media<'images' | 'files' | 'videos' | 'audios', true>;
+    form_of_study: Attribute.Enumeration<['dnev', 'zaoch']>;
+    publishedAt: Attribute.DateTime;
+    title: Attribute.String;
+    updatedAt: Attribute.DateTime;
+    updatedBy: Attribute.Relation<
+      'api::lists-of-enrolled.lists-of-enrolled',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface PluginContentReleasesRelease extends Schema.CollectionType {
   collectionName: 'strapi_releases';
   info: {
@@ -798,6 +905,9 @@ declare module '@strapi/types' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
+      'api::archive.archive': ApiArchiveArchive;
+      'api::document.document': ApiDocumentDocument;
+      'api::lists-of-enrolled.lists-of-enrolled': ApiListsOfEnrolledListsOfEnrolled;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

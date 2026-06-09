@@ -4,7 +4,8 @@
   "info": {
     "singularName": "lists-of-enrolled",
     "pluralName": "lists-of-enrolleds",
-    "displayName": "ListsOfEnrolled"
+    "displayName": "ListsOfEnrolled",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -15,14 +16,15 @@
       "type": "string"
     },
     "file": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
       "allowedTypes": [
         "images",
         "files",
         "videos",
         "audios"
-      ],
-      "type": "media",
-      "multiple": true
+      ]
     },
     "education_level": {
       "type": "enumeration",
@@ -38,6 +40,13 @@
       "enum": [
         "budget",
         "paid"
+      ]
+    },
+    "form_of_study": {
+      "type": "enumeration",
+      "enum": [
+        "dnev",
+        "zaoch"
       ]
     }
   }
