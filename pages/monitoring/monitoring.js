@@ -728,6 +728,32 @@ function injectNavigationButtons() {
                 </svg>
                 Контакты и Карта
             </a>
+            <a href="${pathPrefix}pages/info/forms.html" class="menu-item" onclick="window.toggleMenuDrawer()">
+                <svg class="menu-item-icon" viewBox="0 0 24 24">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                Бланки и заявления
+            </a>
+            <a href="${pathPrefix}pages/info/prev_scores.html" class="menu-item" onclick="window.toggleMenuDrawer()">
+                <svg class="menu-item-icon" viewBox="0 0 24 24">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+                Баллы прошлого года
+            </a>
+            <a href="${pathPrefix}pages/info/enrollment.html" class="menu-item" onclick="window.toggleMenuDrawer()">
+                <svg class="menu-item-icon" viewBox="0 0 24 24">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <polyline points="16 11 18 13 22 9"></polyline>
+                </svg>
+                Списки зачисленных
+            </a>
             <div class="menu-divider"></div>
             <!-- Telegram-канал ВО -->
             <a href="https://t.me/+v4NV9J9rqqg5OTgy" target="_blank" class="menu-item" style="color: #0088cc !important;" onclick="window.toggleMenuDrawer()">
