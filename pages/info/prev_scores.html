@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <script>
+        try {
+            if (localStorage.getItem('theme') === 'dark') {
+                document.documentElement.classList.add('dark-mode');
+            }
+        } catch (e) {
+            console.warn(e);
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../../Fon/avatar.jpeg" type="image/jpeg">
+    <title>Баллы прошлого года — БГАС</title>
+    <link rel="stylesheet" href="../../css/main.css">
+</head>
+<body>
+    <div class="container">
+        <header style="text-align: left; border: none; padding: 0;">
+            <a href="../../index.html" class="btn-back">← Назад</a>
+        </header>
+        <main style="margin-top: 20px;">
+            <h1 class="spec-title" style="font-size: 32px; margin-bottom: 5px;">Баллы прошлых лет</h1>
+            <p class="info-line" style="margin-bottom: 25px; opacity: 0.8;">Архив проходных баллов приемных кампаний прошлых лет</p>
+
+            <div id="scores-container" class="route-container">
+                <div class="academy-loader-container">
+                    <div class="loader-text">Подключение к базе данных...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const STRAPI_URL = 'http://localhost:1337';
+
+        async function loadArchives() {
+            try {
+                // Запрашиваем архивные баллы из таблицы archives с лимитом на 100 записей
+                const response = await fetch(`${STRAPI_URL}/api/archives?pagination[limit]=100`);
+                const result = await response.json();
+                const records = result.data || [];
+                const container = document.getElementById('scores-container');
+                container.innerHTML = '';
+
+                if (records.length === 0) {
+                    container.innerHTML = '<div class="no-paid-msg">Архивные данные отсутствуют</div>';
+                    return;
+                }
+
+                // Группируем полученные данные по годам
+                const groups = {};
+                records.forEach(rec => {
+                    const item = rec.attributes || rec;
+                    const year = item.year || 'Другой';
+                    if (!groups[year]) groups[year] = [];
+                    groups[year].push(item);
+                });
+
+                // Выводим сгруппированные списки от новых годов к старым
+                Object.keys(groups).sort((a, b) => b - a).forEach(year => {
+                    const groupTitle = document.createElement('h2');
+                    groupTitle.className = 'section-title';
+                    groupTitle.innerText = `Приемная кампания ${year} года`;
+                    container.appendChild(groupTitle);
+
+                    const card = document.createElement('div');
+                    card.className = 'route-card';
+                    card.style.padding = '15px 20px';
+
+                    let innerHtml = '';
+                    groups[year].forEach((item, idx) => {
+                        const isBudget = item.category === 'budget' ? 'Бюджет' : 'Платно';
+                        const badgeColor = item.category === 'budget' ? '#2e7d32' : '#f39c12';
+
+                        innerHtml += `
+                            <div class="route-detail" style="font-size: 14.5px; margin-bottom: ${idx === groups[year].length - 1 ? '0' : '12px'}; border-bottom: ${idx === groups[year].length - 1 ? 'none' : '1px dashed rgba(113, 128, 150, 0.15)'}; padding-bottom: 8px;">
+                                <strong>${item.specialty_name}</strong><br>
+                                <span style="font-size:12px; color: ${badgeColor}; font-weight:bold;">${isBudget}</span> —
+                                проходной балл: <span style="font-weight:bold; color:#007bff;">${item.score}</span>
+                            </div>
+                        `;
+                    });
+                    card.innerHTML = innerHtml;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.error("Ошибка загрузки архива баллов:", error);
+                document.getElementById('scores-container').innerHTML = '<div class="no-paid-msg">Не удалось загрузить архив. Проверьте подключение к Strapi.</div>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadArchives);
+    </script>
+    <script src="../../pages/monitoring/monitoring.js"></script>
+</body>
+</html>
