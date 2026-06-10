@@ -3148,3 +3148,45 @@ body:not(.body-main) {
 .dark-mode .leader-title {
     color: #CBD5E1;
 }
+
+/* ==========================================================================
+   БЛОК 18: АДАПТИВНЫЙ ИНЛАЙН-ПЛЕЕР ДЛЯ ВИДЕО (YOUTUBE EMBED)
+   ========================================================================== */
+
+.video-section-title {
+    color: #007bff;
+    font-size: 18px;
+    font-weight: 700;
+    margin: 25px 0 10px 0;
+}
+
+.dark-mode .video-section-title {
+    color: #8CBEFF;
+}
+
+.video-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* Пропорции 16:9 для идеальной адаптивности на любых экранах */
+    height: 0;
+    overflow: hidden;
+    border-radius: 16px;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+    margin: 15px 0 25px 0;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.dark-mode .video-container {
+    border-color: #3A3B3D;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
+}
+
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
