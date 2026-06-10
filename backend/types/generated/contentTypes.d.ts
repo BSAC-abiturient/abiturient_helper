@@ -469,6 +469,44 @@ export interface ApiListsOfEnrolledListsOfEnrolled
   };
 }
 
+export interface ApiSpecialtySpecialty extends Schema.CollectionType {
+  collectionName: 'specialties';
+  info: {
+    displayName: 'Specialty';
+    pluralName: 'specialties';
+    singularName: 'specialty';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    applications_distribution: Attribute.JSON;
+    category: Attribute.Enumeration<['budget', 'paid']>;
+    createdAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::specialty.specialty',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    education_level: Attribute.Enumeration<
+      ['sso9', 'sso11', 'ssopto', 'vo11', 'vosso']
+    >;
+    form_of_study: Attribute.Enumeration<['dnev', 'zaoch']>;
+    name: Attribute.String;
+    plan: Attribute.Integer;
+    publishedAt: Attribute.DateTime;
+    total_applications: Attribute.Integer;
+    updatedAt: Attribute.DateTime;
+    updatedBy: Attribute.Relation<
+      'api::specialty.specialty',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface PluginContentReleasesRelease extends Schema.CollectionType {
   collectionName: 'strapi_releases';
   info: {
@@ -908,6 +946,7 @@ declare module '@strapi/types' {
       'api::archive.archive': ApiArchiveArchive;
       'api::document.document': ApiDocumentDocument;
       'api::lists-of-enrolled.lists-of-enrolled': ApiListsOfEnrolledListsOfEnrolled;
+      'api::specialty.specialty': ApiSpecialtySpecialty;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;
