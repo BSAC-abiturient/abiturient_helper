@@ -1,3 +1,5 @@
+const cronTasks = require('./cron');
+
 module.exports = ({ env }) => ({
   host: env('HOST', '0.0.0.0'),
   port: env.int('PORT', 1337),
@@ -5,6 +7,11 @@ module.exports = ({ env }) => ({
     keys: env.array('APP_KEYS'),
   },
   webhooks: {
-    populateRelations: env.bool('WEBHOOKS_POPULATE_RELATIONS', false),
+    populateRelations: env.bool('WEBHOOKS_POPULATE_RELATIONS', true),
+  },
+  // Включаем встроенный планировщик и передаем ему наши задачи
+  cron: {
+    enabled: true,
+    tasks: cronTasks,
   },
 });
