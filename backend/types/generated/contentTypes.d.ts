@@ -887,7 +887,6 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
   };
   options: {
     draftAndPublish: false;
-    timestamps: true;
   };
   attributes: {
     blocked: Attribute.Boolean & Attribute.DefaultTo<false>;
@@ -900,11 +899,15 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'admin::user'
     > &
       Attribute.Private;
+    education_base: Attribute.String;
+    education_level: Attribute.String;
     email: Attribute.Email &
       Attribute.Required &
       Attribute.SetMinMaxLength<{
         minLength: 6;
       }>;
+    otp_code: Attribute.String;
+    otp_expires: Attribute.DateTime;
     password: Attribute.Password &
       Attribute.Private &
       Attribute.SetMinMaxLength<{
@@ -917,6 +920,8 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'manyToOne',
       'plugin::users-permissions.role'
     >;
+    score: Attribute.Decimal;
+    submitted_specialty: Attribute.String;
     updatedAt: Attribute.DateTime;
     updatedBy: Attribute.Relation<
       'plugin::users-permissions.user',
