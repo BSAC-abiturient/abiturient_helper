@@ -83,7 +83,7 @@ function findVoHeaderRow(sheet, dataRow, isVoSso) {
   return isVoSso ? 63 : 31;
 }
 
-// Восстановленное динамическое вычисление планов объединенных ячеек для ВО
+// Вычисление планов объединенных ячеек для сокращенного ВО
 function getGroupedPlans(sheet, currentOffset) {
   let totalPlan = 0;
   let startRow = currentOffset;
@@ -259,7 +259,7 @@ module.exports = createCoreController('api::specialty.specialty', ({ strapi }) =
 
         let plan = 0;
         let total = 0;
-        let distribution = [];
+        let distribution = {}; // Теперь храним структурированный JSON
 
         const dataRow = anchorRow;
         let groupInfo = { startRow: dataRow, endRow: dataRow, sumPlan: 0 };
@@ -277,30 +277,65 @@ module.exports = createCoreController('api::specialty.specialty', ({ strapi }) =
           let currentMax = config.isVoSso ? 300 : 400;
           const headerRowIndex = findVoHeaderRow(sheet, dataRow, config.isVoSso);
 
-          // Сканируем строго до балла 100
+          const commonDist = [];
           const maxCols = config.isVoSso ? 51 : 71;
+
           for (let col = 11; col <= maxCols; col++) {
-            // Суммируем количество заявлений по всем строкам объединенной группы для каждого балла
             let count = 0;
             for (let r = groupInfo.startRow; r <= groupInfo.endRow; r++) {
               count += parseInt(getVal(sheet, r, col), 10) || 0;
             }
 
             if (count > 0) {
-              distribution.push({ score: currentMax, count });
+              commonDist.push({ score: currentMax, count });
             }
             currentMax -= 5;
           }
+
+          // Структура для ВО: общий конкурс и суммарные метаданные по целевикам и льготникам
+          distribution = {
+            common: commonDist,
+            lgota: [],
+            target: [],
+            targetTotal: parseInt(getVal(sheet, dataRow, 7), 10) || 0,
+            noExamsTotal: parseInt(getVal(sheet, dataRow, 8), 10) || 0,
+            outOfCompetitionTotal: parseInt(getVal(sheet, dataRow, 9), 10) || 0
+          };
         } else {
           plan = parseInt(getVal(sheet, dataRow, 2), 10) || 0;
+          const planTarget = parseInt(getVal(sheet, dataRow, 3), 10) || 0;
           total = parseInt(getVal(sheet, dataRow, 75), 10) || 0;
 
+          const commonDist = [];
+          const lgotaDist = [];
+          const targetDist = [];
+
+          // 1. Считываем общий конкурс (строка специальности)
           for (let col = 4, score = 10.0; col <= 74; col++, score = +(score - 0.1).toFixed(1)) {
             let count = parseInt(getVal(sheet, dataRow, col), 10) || 0;
-            if (count > 0) {
-              distribution.push({ score: +score.toFixed(1), count });
-            }
+            if (count > 0) commonDist.push({ score: +score.toFixed(1), count });
           }
+
+          // 2. Считываем льготников вне конкурса (строка специальности + 2)
+          for (let col = 4, score = 10.0; col <= 74; col++, score = +(score - 0.1).toFixed(1)) {
+            let count = parseInt(getVal(sheet, dataRow + 2, col), 10) || 0;
+            if (count > 0) lgotaDist.push({ score: +score.toFixed(1), count });
+          }
+
+          // 3. Считываем целевое обучение (строка специальности + 3)
+          for (let col = 4, score = 10.0; col <= 74; col++, score = +(score - 0.1).toFixed(1)) {
+            let count = parseInt(getVal(sheet, dataRow + 3, col), 10) || 0;
+            if (count > 0) targetDist.push({ score: +score.toFixed(1), count });
+          }
+
+          // Структурированный JSON для ССО
+          distribution = {
+            common: commonDist,
+            lgota: lgotaDist,
+            target: targetDist,
+            planTarget: planTarget,
+            targetTotal: parseInt(getVal(sheet, dataRow + 3, 75), 10) || 0
+          };
         }
 
         strapi.log.info(
@@ -324,7 +359,7 @@ module.exports = createCoreController('api::specialty.specialty', ({ strapi }) =
           category: config.category,
           plan: plan,
           total_applications: total,
-          applications_distribution: distribution,
+          applications_distribution: distribution, // Сохраняем структурированный объект
           publishedAt: new Date()
         };
 
@@ -337,7 +372,6 @@ module.exports = createCoreController('api::specialty.specialty', ({ strapi }) =
         updatedCount++;
       }
 
-      // Безопасная запись ответа для предотвращения падения Cron
       if (ctx) {
         ctx.body = {
           success: true,

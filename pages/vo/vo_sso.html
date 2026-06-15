@@ -86,8 +86,23 @@
                 setScore('');
             };
 
-            const calculatePositionVO = (distribution, userScore) => {
-                if (!distribution || !Array.isArray(distribution)) return 1;
+            // Универсальный безопасный парсер JSON-распределения
+            const parseDistribution = (dist) => {
+                if (!dist) return [];
+                let parsed = dist;
+                if (typeof dist === 'string') {
+                    try {
+                        parsed = JSON.parse(dist);
+                    } catch (e) {
+                        return [];
+                    }
+                }
+                return parsed.common || parsed || [];
+            };
+
+            const calculatePositionVO = (rawDistribution, userScore) => {
+                const distribution = parseDistribution(rawDistribution);
+                if (distribution.length === 0) return 1;
 
                 let countAhead = 0;
                 distribution.forEach(app => {

@@ -1,4 +1,6 @@
-﻿let currentCategory = 'budget';
+﻿// pages/monitoring/monitoring.js
+
+let currentCategory = 'budget';
 let timerInterval = null;
 let cachedStrapiData = null; // Локальный кэш записей этой специальности (бюджет + платно)
 
@@ -72,46 +74,76 @@ const specialtyMetadata = {
     }
 };
 
-// Функция определения параметров специальности на основе адреса страницы и заголовка
+// Функция определения параметров специальности на основе ключевых слов из тега <title> и файлов
 function getSpecQueryFromDocument() {
-    const title = document.title.toLowerCase();
+    const title = document.title;
     const filename = window.location.pathname.split('/').pop().toLowerCase();
 
     let name = "";
     let level = "";
     let form = "dnev";
 
-    // Уровень образования
-    if (filename.includes('sso_9') || title.includes('9 кл')) {
+    const titleLower = title.toLowerCase();
+
+    // 1. Изолированное определение уровня образования и формы обучения
+    if (filename.includes('sso_9')) {
         level = 'sso9';
-    } else if (filename.includes('sso_11') || title.includes('11 кл')) {
+    } else if (filename.includes('sso_11')) {
         level = 'sso11';
-        if (filename.includes('zaoch') || title.includes('заоч')) form = 'zaoch';
-    } else if (filename.includes('pto') || title.includes('пто')) {
+        if (filename.includes('zaoch')) form = 'zaoch';
+    } else if (filename.includes('sso_pto')) {
         level = 'ssopto';
-    } else if (filename.includes('vo_11') || (title.includes('во') && !title.includes('ссо'))) {
+    } else if (filename.includes('vo_11')) {
         level = 'vo11';
-    } else if (filename.includes('vo_sso') || title.includes('после ссо')) {
+    } else if (filename.includes('vo_sso')) {
         level = 'vosso';
-        if (filename.includes('zaoch') || title.includes('заоч')) form = 'zaoch';
+        if (filename.includes('zaoch')) form = 'zaoch';
+    } else {
+        // Резервное сопоставление по точному тексту
+        if (titleLower.includes('9 класс') || titleLower.includes('после 9')) {
+            level = 'sso9';
+        } else if (titleLower.includes('11 класс') || titleLower.includes('после 11')) {
+            if (titleLower.includes('высшее') || titleLower.includes(' во')) {
+                level = 'vo11';
+            } else {
+                level = 'sso11';
+                if (titleLower.includes('заоч')) form = 'zaoch';
+            }
+        } else if (titleLower.includes('после ссо') || titleLower.includes('сокращенн')) {
+            level = 'vosso';
+            if (titleLower.includes('заоч')) form = 'zaoch';
+        } else if (titleLower.includes('pto') || titleLower.includes('пто')) {
+            level = 'ssopto';
+        }
     }
 
-    // Название специальности
-    if (filename.includes('spec1') || title.includes('веб-ресурсов') || title.includes('автоматизац')) {
-        name = level === 'vosso' ? "Системы и сети инфокоммуникаций" : (level === 'vo11' ? "Автоматизация технологических процессов и производств" : "Разработка и сопровождение веб-ресурсов");
-        if (level === 'ssopto') name = "Почтовая деятельность";
-    } else if (filename.includes('spec2') || title.includes('телекоммуникаций') || title.includes('системы и сети')) {
-        name = level.startsWith('vo') ? "Системы и сети инфокоммуникаций" : "Техническая эксплуатация систем и сетей телекоммуникаций";
-    } else if (filename.includes('spec3') || title.includes('кабельные') || title.includes('прикладная')) {
-        name = level.startsWith('vo') ? "Прикладная информатика" : "Информационные кабельные сети";
-    } else if (filename.includes('spec4') || title.includes('радиосвязи') || title.includes('цифровые')) {
-        name = level.startsWith('vo') ? "Цифровые клиентские сервисы и почтово-логистические системы" : "Техническая эксплуатация систем радиосвязи, радиовещания и телевидения";
-    } else if (filename.includes('spec5') || title.includes('мультимедийных') || title.includes('маркетинг')) {
-        name = level.startsWith('vo') ? (level === 'vosso' ? "Прикладная информатика" : "Маркетинг") : "Техническая эксплуатация мультимедийных систем";
-    } else if (filename.includes('spec6') || title.includes('почтовая')) {
-        name = level.startsWith('vo') ? "Почтовая связь" : "Почтовая деятельность";
-    } else if (filename.includes('spec7') || title.includes('тестирование')) {
+    // 2. Идентификация названия специальности
+    if (titleLower.includes("веб-ресурсов")) {
+        name = "Разработка и сопровождение веб-ресурсов";
+    } else if (titleLower.includes("тестирование")) {
         name = "Тестирование программного обеспечения";
+    } else if (titleLower.includes("телекоммуникаций")) {
+        name = "Техническая эксплуатация систем и сетей телекоммуникаций";
+    } else if (titleLower.includes("кабельные")) {
+        name = "Информационные кабельные сети";
+    } else if (titleLower.includes("радиосвязи") || titleLower.includes("радиовещания")) {
+        name = "Техническая эксплуатация систем радиосвязи, радиовещания и телевидения";
+    } else if (titleLower.includes("мультимедийных")) {
+        name = "Техническая эксплуатация мультимедийных систем";
+    } else if (titleLower.includes("почтовая деятельность")) {
+        name = "Почтовая деятельность";
+    } else if (titleLower.includes("автоматизация")) {
+        name = "Автоматизация технологических процессов и производств";
+    } else if (titleLower.includes("системы и сети")) {
+        name = "Системы и сети инфокоммуникаций";
+    } else if (titleLower.includes("прикладная")) {
+        name = "Прикладная информатика";
+    } else if (titleLower.includes("цифровые")) {
+        name = "Цифровые клиентские сервисы и почтово-логистические системы";
+    } else if (titleLower.includes("маркетинг")) {
+        name = "Маркетинг";
+    } else if (titleLower.includes("почтовая связь")) {
+        name = "Почтовая связь";
     }
 
     return { name, level, form };
@@ -231,7 +263,7 @@ function injectTimerElement() {
     startCountdown();
 }
 
-// Построение HTML страницы на основе данных из БД Strapi и метаданных
+// Построение HTML страницы на основе структурированного JSON из БД Strapi
 function renderMonitoringPage(record) {
     const { name, level, form } = getSpecQueryFromDocument();
     const isVoMode = level.startsWith('vo');
@@ -268,29 +300,7 @@ function renderMonitoringPage(record) {
 
     const plan = record.plan || 0;
     const total = record.total_applications || 0;
-    const distribution = record.applications_distribution || [];
-
-    // Преобразуем массив распределения баллов для правильной отрисовки шкалы
-    let applications = [];
-    let allScores = [];
-
-    distribution.forEach(item => {
-        const scoreVal = parseFloat(item.score);
-        const countVal = parseInt(item.count, 10) || 0;
-        if (countVal > 0) {
-            applications.push({
-                score: scoreVal,
-                label: isVoMode ? `${scoreVal - 4}-${scoreVal}` : scoreVal.toFixed(1),
-                count: countVal
-            });
-            for (let i = 0; i < countVal; i++) {
-                allScores.push(scoreVal);
-            }
-        }
-    });
-
-    // Сортировка по убыванию баллов
-    allScores.sort((a, b) => b - a);
+    const rawDist = record.applications_distribution || {};
 
     let html = `
     <div class="spec-card">
@@ -304,36 +314,147 @@ function renderMonitoringPage(record) {
         </div>
         <div class="info-line"><strong>Форма обучения:</strong> ${educationForm}</div>
         <div class="info-line"><strong>Прием осуществляется на основе:</strong> ${base}</div>
-        <div class="info-line"><strong>Срок обучения:</strong> ${duration}</div>
+        <div class="info-line"><strong>Срок обучения:</strong> ${duration}</div>`;
+
+    if (isVoMode) {
+        // Отрисовка уровня ВО: Сводная плашка целевых и льготников вверху
+        const targetTotal = rawDist.targetTotal || 0;
+        const noExams = rawDist.noExamsTotal || 0;
+        const outOfComp = rawDist.outOfCompetitionTotal || 0;
+        const totalLgota = noExams + outOfComp;
+
+        html += `
         <div class="info-line"><strong>План приема:</strong> ${plan}</div>
         <div class="stat-box">
             <div class="info-line"><strong>Всего заявлений подано:</strong> ${total}</div>
+            <div class="stat-row">По общему конкурсу: ${total - totalLgota - targetTotal}</div>
+            <div class="stat-row">Льготные вне конкурса: ${totalLgota}</div>
+            <div class="stat-row">Целевые: ${targetTotal}</div>
         </div>
     </div>`;
 
-    if (applications.length > 0) {
-        html += `\n<h2 class="section-title">Заявления по баллам:</h2>
-        <div class="bar-table-wrapper"><table class="bar-table"><thead><tr>`;
-        applications.forEach(a => html += `<th>${a.label}</th>`);
-        html += `</tr></thead><tbody><tr>`;
+        // Таблица общего конкурса по баллам для ВО
+        const commonList = rawDist.common || [];
+        if (commonList.length > 0) {
+            let allScores = [];
+            commonList.forEach(item => {
+                for (let i = 0; i < item.count; i++) allScores.push(item.score);
+            });
+            allScores.sort((a, b) => b - a);
 
-        applications.forEach(a => {
-            let cellClass = 'cell-red';
-            if (plan > 0) {
-                if (allScores.length < plan) {
-                    cellClass = 'cell-green';
-                } else {
-                    const cutoffScore = allScores[plan - 1];
-                    if (a.score > cutoffScore) cellClass = 'cell-green';
-                    else if (a.score === cutoffScore) cellClass = 'cell-yellow';
-                    else cellClass = 'cell-red';
+            html += `\n<h2 class="section-title">Заявления по баллам:</h2>
+            <div class="bar-table-wrapper"><table class="bar-table"><thead><tr>`;
+            commonList.forEach(a => html += `<th>${a.score - 4}-${a.score}</th>`);
+            html += `</tr></thead><tbody><tr>`;
+
+            commonList.forEach(a => {
+                let cellClass = 'cell-red';
+                if (plan > 0) {
+                    if (allScores.length < plan) {
+                        cellClass = 'cell-green';
+                    } else {
+                        const cutoff = allScores[plan - 1];
+                        if (a.score > cutoff) cellClass = 'cell-green';
+                        else if (a.score === cutoff) cellClass = 'cell-yellow';
+                        else cellClass = 'cell-red';
+                    }
                 }
-            }
-            html += `<td class="${cellClass}">${a.count}</td>`;
-        });
-        html += `</tr></tbody></table></div>`;
+                html += `<td class="${cellClass}">${a.count}</td>`;
+            });
+            html += `</tr></tbody></table></div>`;
+        }
     } else {
-        html += `<div class="no-paid-msg">Пока не подано ни одного заявления</div>`;
+        // Отрисовка уровня ССО: 3 раздельные таблицы по баллам
+        const planTarget = rawDist.planTarget || 0;
+        const targetTotal = rawDist.targetTotal || 0;
+
+        const commonList = rawDist.common || [];
+        const lgotaList = rawDist.lgota || [];
+        const targetList = rawDist.target || [];
+
+        const totalCommon = commonList.reduce((sum, item) => sum + item.count, 0);
+        const totalLgota = lgotaList.reduce((sum, item) => sum + item.count, 0);
+
+        html += `
+        <div class="info-line"><strong>План приема:</strong> ${plan} | <strong>Целевой план:</strong> ${planTarget}</div>
+        <div class="stat-box">
+            <div class="info-line"><strong>Всего заявлений подано:</strong> ${totalCommon + totalLgota + targetTotal}</div>
+            <div class="stat-row">По общему конкурсу: ${totalCommon}</div>
+            <div class="stat-row">Льготные вне конкурса: ${totalLgota}</div>
+            <div class="stat-row">Целевые: ${targetTotal}</div>
+        </div>
+    </div>`;
+
+        // 1. Таблица: Общий конкурс
+        if (commonList.length > 0) {
+            let allScores = [];
+            commonList.forEach(item => {
+                for (let i = 0; i < item.count; i++) allScores.push(item.score);
+            });
+            allScores.sort((a, b) => b - a);
+            const planForCommon = Math.max(plan - totalLgota - Math.min(targetTotal, planTarget), 0);
+
+            html += `\n<h2 class="section-title">Заявления по баллам:</h2>
+            <div class="bar-table-wrapper"><table class="bar-table"><thead><tr>`;
+            commonList.forEach(a => html += `<th>${a.score.toFixed(1)}</th>`);
+            html += `</tr></thead><tbody><tr>`;
+
+            commonList.forEach(a => {
+                let cellClass = 'cell-red';
+                if (planForCommon > 0) {
+                    if (allScores.length < planForCommon) {
+                        cellClass = 'cell-green';
+                    } else {
+                        const cutoff = allScores[planForCommon - 1];
+                        if (a.score > cutoff) cellClass = 'cell-green';
+                        else if (a.score === cutoff) cellClass = 'cell-yellow';
+                        else cellClass = 'cell-red';
+                    }
+                }
+                html += `<td class="${cellClass}">${a.count}</td>`;
+            });
+            html += `</tr></tbody></table></div>`;
+        }
+
+        // 2. Таблица: Льготники (Льготные вне конкурса)
+        if (lgotaList.length > 0) {
+            html += `\n<h2 class="section-title">Льготные вне конкурса по баллам:</h2>
+            <div class="bar-table-wrapper"><table class="bar-table"><thead><tr>`;
+            lgotaList.forEach(a => html += `<th>${a.score.toFixed(1)}</th>`);
+            html += `</tr></thead><tbody><tr>`;
+            lgotaList.forEach(a => html += `<td class="cell-green">${a.count}</td>`);
+            html += `</tr></tbody></table></div>`;
+        }
+
+        // 3. Таблица: Целевики (Целевое обучение)
+        if (targetList.length > 0) {
+            let allTargetScores = [];
+            targetList.forEach(item => {
+                for (let i = 0; i < item.count; i++) allTargetScores.push(item.score);
+            });
+            allTargetScores.sort((a, b) => b - a);
+
+            html += `\n<h2 class="section-title">Целевые по баллам:</h2>
+            <div class="bar-table-wrapper"><table class="bar-table"><thead><tr>`;
+            targetList.forEach(a => html += `<th>${a.score.toFixed(1)}</th>`);
+            html += `</tr></thead><tbody><tr>`;
+
+            targetList.forEach(a => {
+                let cellClass = 'cell-red';
+                if (planTarget > 0) {
+                    if (allTargetScores.length < planTarget) {
+                        cellClass = 'cell-green';
+                    } else {
+                        const cutoff = allTargetScores[planTarget - 1];
+                        if (a.score > cutoff) cellClass = 'cell-green';
+                        else if (a.score === cutoff) cellClass = 'cell-yellow';
+                        else cellClass = 'cell-red';
+                    }
+                }
+                html += `<td class="${cellClass}">${a.count}</td>`;
+            });
+            html += `</tr></tbody></table></div>`;
+        }
     }
 
     return html;

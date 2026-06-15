@@ -95,8 +95,24 @@
                 setScore('');
             };
 
-            const calculatePosition = (distribution, userScore) => {
-                if (!distribution || !Array.isArray(distribution)) return 1;
+            // Универсальный безопасный парсер JSON-распределения
+            const parseDistribution = (dist) => {
+                if (!dist) return [];
+                let parsed = dist;
+                if (typeof dist === 'string') {
+                    try {
+                        parsed = JSON.parse(dist);
+                    } catch (e) {
+                        return [];
+                    }
+                }
+                return parsed.common || parsed || [];
+            };
+
+            const calculatePosition = (rawDistribution, userScore) => {
+                const distribution = parseDistribution(rawDistribution);
+                if (distribution.length === 0) return 1;
+
                 const countAhead = distribution
                     .filter(app => app.score >= userScore)
                     .reduce((sum, app) => sum + app.count, 0);
@@ -239,9 +255,9 @@
                             <a href="../monitoring/mon_sso_9_spec1.html" className="btn-item">Разработка и сопровождение веб-ресурсов<br/><span className="spec-duration">(3 года 10 месяцев)</span></a>
                             <a href="../monitoring/mon_sso_9_spec2.html" className="btn-item">Техническая эксплуатация систем и сетей телекоммуникаций<br/><span className="spec-duration">(3 года 10 месяцев)</span></a>
                             <a href="../monitoring/mon_sso_9_spec3.html" className="btn-item">Информационные кабельные сети<br/><span className="spec-duration">(3 года 10 месяцев)</span></a>
-                            <a href="../monitoring/mon_sso_9_spec4.html" className="btn-item">Техническая эксплуатация систем радиосвязи, радиовещания и телевидения<br/><span className="spec-duration">(3 года 10 месяцев)</span></a>
-                            <a href="../monitoring/mon_sso_9_spec5.html" className="btn-item">Техническая эксплуатация мультимедийных систем<br/><span className="spec-duration">(3 года 10 месяцев)</span></a>
-                            <a href="../monitoring/mon_sso_9_spec6.html" className="btn-item">Почтовая деятельность<br/><span className="spec-duration">(3 года)</span></a>
+                            <a href="../monitoring/mon_sso_9_spec4.html" className="btn-item">Техническая эксплуатация систем радиосвязи, радиовещания и телевидения<br/><span class="spec-duration">(3 года 10 месяцев)</span></a>
+                            <a href="../monitoring/mon_sso_9_spec5.html" className="btn-item">Техническая эксплуатация мультимедийных систем<br/><span class="spec-duration">(3 года 10 месяцев)</span></a>
+                            <a href="../monitoring/mon_sso_9_spec6.html" className="btn-item">Почтовая деятельность<br/><span class="spec-duration">(3 года)</span></a>
                         </div>
                     )}
                 </div>
