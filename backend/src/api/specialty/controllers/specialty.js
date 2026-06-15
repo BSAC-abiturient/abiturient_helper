@@ -8,60 +8,61 @@ const XLSX_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?form
 
 const parsingConfig = [
   // --- ССО на базе 9 классов (sso9) ---
-  { name: "Разработка и сопровождение веб-ресурсов", section: "базового образования", level: "sso9", form: "dnev", category: "budget", fallbackRow: 126 },
-  { name: "Разработка и сопровождение веб-ресурсов", section: "базового образования (на платной", level: "sso9", form: "dnev", category: "paid", fallbackRow: 142 },
-  { name: "Тестирование программного обеспечения", section: "базового образования", level: "sso9", form: "dnev", category: "budget", fallbackRow: 158 },
-  { name: "Тестирование программного обеспечения", section: "базового образования (на платной", level: "sso9", form: "dnev", category: "paid", fallbackRow: 174 },
-  { name: "Техническая эксплуатация систем и сетей телекоммуникаций", section: "базового образования", level: "sso9", form: "dnev", category: "budget", fallbackRow: 190 },
-  { name: "Техническая эксплуатация систем и сетей телекоммуникаций", section: "базового образования (на платной", level: "sso9", form: "dnev", category: "paid", fallbackRow: 206 },
-  { name: "Информационные кабельные сети", section: "базового образования", level: "sso9", form: "dnev", category: "budget", fallbackRow: 222 },
-  { name: "Информационные кабельные сети", section: "базового образования (на платной", level: "sso9", form: "dnev", category: "paid", fallbackRow: 238 },
-  { name: "Техническая эксплуатация систем радиосвязи, радиовещания и телевидения", section: "базового образования", level: "sso9", form: "dnev", category: "budget", fallbackRow: 254 },
-  { name: "Техническая эксплуатация систем радиосвязи, радиовещания и телевидения", section: "базового образования (на платной", level: "sso9", form: "dnev", category: "paid", fallbackRow: 270 },
-  { name: "Техническая эксплуатация мультимедийных систем", section: "базового образования", level: "sso9", form: "dnev", category: "budget", fallbackRow: 286 },
-  { name: "Почтовая деятельность", section: "базового образования", level: "sso9", form: "dnev", category: "budget", fallbackRow: 302 },
-  { name: "Почтовая деятельность", section: "базового образования (на платной", level: "sso9", form: "dnev", category: "paid", fallbackRow: 318 },
+  { name: "Разработка и сопровождение веб-ресурсов", level: "sso9", form: "dnev", category: "budget" },
+  { name: "Разработка и сопровождение веб-ресурсов", level: "sso9", form: "dnev", category: "paid" },
+  { name: "Тестирование программного обеспечения", level: "sso9", form: "dnev", category: "budget" },
+  { name: "Тестирование программного обеспечения", level: "sso9", form: "dnev", category: "paid" },
+  { name: "Техническая эксплуатация систем и сетей телекоммуникаций", level: "sso9", form: "dnev", category: "budget" },
+  { name: "Техническая эксплуатация систем и сетей телекоммуникаций", level: "sso9", form: "dnev", category: "paid" },
+  { name: "Информационные кабельные сети", level: "sso9", form: "dnev", category: "budget" },
+  { name: "Информационные кабельные сети", level: "sso9", form: "dnev", category: "paid" },
+  { name: "Техническая эксплуатация систем радиосвязи, радиовещания и телевидения", level: "sso9", form: "dnev", category: "budget" },
+  { name: "Техническая эксплуатация систем радиосвязи, радиовещания и телевидения", level: "sso9", form: "dnev", category: "paid" },
+  { name: "Техническая эксплуатация мультимедийных систем", level: "sso9", form: "dnev", category: "budget" },
+  { name: "Почтовая деятельность", level: "sso9", form: "dnev", category: "budget" },
+  { name: "Почтовая деятельность", level: "sso9", form: "dnev", category: "paid" },
 
   // --- ССО на базе 11 классов (sso11) ---
-  { name: "Техническая эксплуатация систем и сетей телекоммуникаций", section: "среднего образования", level: "sso11", form: "dnev", category: "budget", fallbackRow: 366 },
-  { name: "Техническая эксплуатация систем и сетей телекоммуникаций", section: "среднего образования (на платной", level: "sso11", form: "dnev", category: "paid", fallbackRow: 382 },
-  { name: "Техническая эксплуатация систем радиосвязи, радиовещания и телевидения", section: "среднего образования", level: "sso11", form: "dnev", category: "budget", fallbackRow: 398 },
-  { name: "Техническая эксплуатация систем радиосвязи, радиовещания и телевидения", section: "среднего образования (на платной", level: "sso11", form: "dnev", category: "paid", fallbackRow: 414 },
-  { name: "Почтовая деятельность", section: "среднего образования", level: "sso11", form: "dnev", category: "budget", fallbackRow: 430 },
-  { name: "Почтовая деятельность", section: "среднего образования (на платной", level: "sso11", form: "dnev", category: "paid", fallbackRow: 446 },
-  { name: "Тестирование программного обеспечения", section: "среднего образования", level: "sso11", form: "dnev", category: "budget", fallbackRow: 334 },
-  { name: "Тестирование программного обеспечения", section: "среднего образования (на платной", level: "sso11", form: "dnev", category: "paid", fallbackRow: 350 },
+  { name: "Техническая эксплуатация систем и сетей телекоммуникаций", level: "sso11", form: "dnev", category: "budget" },
+  { name: "Техническая эксплуатация систем и сетей телекоммуникаций", level: "sso11", form: "dnev", category: "paid" },
+  { name: "Техническая эксплуатация систем радиосвязи, радиовещания и телевидения", level: "sso11", form: "dnev", category: "budget" },
+  { name: "Техническая эксплуатация систем радиосвязи, радиовещания и телевидения", level: "sso11", form: "dnev", category: "paid" },
+  { name: "Почтовая деятельность", level: "sso11", form: "dnev", category: "budget" },
+  { name: "Почтовая деятельность", level: "sso11", form: "dnev", category: "paid" },
+  { name: "Тестирование программного обеспечения", level: "sso11", form: "dnev", category: "budget" },
+  { name: "Тестирование программного обеспечения", level: "sso11", form: "dnev", category: "paid" },
 
-  { name: "Техническая эксплуатация систем и сетей телекоммуникаций", section: "среднего образования", level: "sso11", form: "zaoch", category: "budget", fallbackRow: 464 },
-  { name: "Техническая эксплуатация систем и сетей телекоммуникаций", section: "среднего образования (на платной", level: "sso11", form: "zaoch", category: "paid", fallbackRow: 480 },
-  { name: "Техническая эксплуатация систем радиосвязи, радиовещания и телевидения", section: "среднего образования", level: "sso11", form: "zaoch", category: "budget", fallbackRow: 496 },
-  { name: "Техническая эксплуатация систем радиосвязи, радиовещания и телевидения", section: "среднего образования (на платной", level: "sso11", form: "zaoch", category: "paid", fallbackRow: 512 },
-  { name: "Почтовая деятельность", section: "среднего образования", level: "sso11", form: "zaoch", category: "budget", fallbackRow: 528 },
-  { name: "Почтовая деятельность", section: "среднего образования (на платной", level: "sso11", form: "zaoch", category: "paid", fallbackRow: 544 },
+  // --- ССО Заочное отделение (sso11 zaoch) ---
+  { name: "Техническая эксплуатация систем и сетей телекоммуникаций", level: "sso11", form: "zaoch", category: "budget" },
+  { name: "Техническая эксплуатация систем и сетей телекоммуникаций", level: "sso11", form: "zaoch", category: "paid" },
+  { name: "Техническая эксплуатация систем радиосвязи, радиовещания и телевидения", level: "sso11", form: "zaoch", category: "budget" },
+  { name: "Техническая эксплуатация систем радиосвязи, радиовещания и телевидения", level: "sso11", form: "zaoch", category: "paid" },
+  { name: "Почтовая деятельность", level: "sso11", form: "zaoch", category: "budget" },
+  { name: "Почтовая деятельность", level: "sso11", form: "zaoch", category: "paid" },
 
   // --- ССО на базе ПТО (ssopto) ---
-  { name: "Почтовая деятельность", section: "профессионально-технического", level: "ssopto", form: "dnev", category: "budget", fallbackRow: 560 },
+  { name: "Почтовая деятельность", level: "ssopto", form: "dnev", category: "budget" },
 
   // --- ВО на базе 11 классов (vo11) ---
-  { name: "Автоматизация технологических процессов и производств", section: "общее высшее образование", level: "vo11", form: "dnev", category: "budget", fallbackRow: 32, isVo: true },
-  { name: "Системы и сети инфокоммуникаций", section: "общее высшее образование", level: "vo11", form: "dnev", category: "budget", fallbackRow: 33, isVo: true },
-  { name: "Системы и сети инфокоммуникаций", section: "высшее образование (на платной", level: "vo11", form: "dnev", category: "paid", fallbackRow: 50, isVo: true },
-  { name: "Прикладная информатика", section: "общее высшее образование", level: "vo11", form: "dnev", category: "budget", fallbackRow: 34, isVo: true },
-  { name: "Прикладная информатика", section: "высшее образование (на платной", level: "vo11", form: "dnev", category: "paid", fallbackRow: 51, isVo: true },
-  { name: "Цифровые клиентские сервисы и почтово-логистические системы", section: "общее высшее образование", level: "vo11", form: "dnev", category: "budget", fallbackRow: 35, isVo: true },
-  { name: "Маркетинг", section: "общее высшее образование", level: "vo11", form: "dnev", category: "budget", fallbackRow: 36, isVo: true },
-  { name: "Маркетинг", section: "высшее образование (на платной", level: "vo11", form: "dnev", category: "paid", fallbackRow: 52, isVo: true },
+  { name: "Автоматизация технологических процессов и производств", level: "vo11", form: "dnev", category: "budget", isVo: true },
+  { name: "Системы и сети инфокоммуникаций", level: "vo11", form: "dnev", category: "budget", isVo: true },
+  { name: "Системы и сети инфокоммуникаций", level: "vo11", form: "dnev", category: "paid", isVo: true },
+  { name: "Прикладная информатика", level: "vo11", form: "dnev", category: "budget", isVo: true },
+  { name: "Прикладная информатика", level: "vo11", form: "dnev", category: "paid", isVo: true },
+  { name: "Цифровые клиентские сервисы и почтово-логистические системы", level: "vo11", form: "dnev", category: "budget", isVo: true },
+  { name: "Маркетинг", level: "vo11", form: "dnev", category: "budget", isVo: true },
+  { name: "Маркетинг", level: "vo11", form: "dnev", category: "paid", isVo: true },
 
   // --- ВО на базе ССО (vosso) ---
-  { name: "Системы и сети инфокоммуникаций", section: "сокращенный срок", level: "vosso", form: "dnev", category: "budget", fallbackRow: 64, isVo: true, isVoSso: true },
-  { name: "Системы и сети инфокоммуникаций", section: "сокращенный срок (на платной", level: "vosso", form: "dnev", category: "paid", fallbackRow: 79, isVo: true, isVoSso: true },
-  { name: "Прикладная информатика", section: "сокращенный срок", level: "vosso", form: "dnev", category: "budget", fallbackRow: 66, isVo: true, isVoSso: true },
-  { name: "Прикладная информатика", section: "сокращенный срок (на платной", level: "vosso", form: "dnev", category: "paid", fallbackRow: 81, isVo: true, isVoSso: true },
-  { name: "Почтовая связь", section: "сокращенный срок", level: "vosso", form: "dnev", category: "budget", fallbackRow: 67, isVo: true, isVoSso: true },
-  { name: "Системы и сети инфокоммуникаций", section: "сокращенный срок", level: "vosso", form: "zaoch", category: "budget", fallbackRow: 93, isVo: true, isVoSso: true },
-  { name: "Системы и сети инфокоммуникаций", section: "сокращенный срок (на платной", level: "vosso", form: "zaoch", category: "paid", fallbackRow: 108, isVo: true, isVoSso: true },
-  { name: "Почтовая связь", section: "сокращенный срок", level: "vosso", form: "zaoch", category: "budget", fallbackRow: 96, isVo: true, isVoSso: true },
-  { name: "Почтовая связь", section: "сокращенный срок (на платной", level: "vosso", form: "zaoch", category: "paid", fallbackRow: 111, isVo: true, isVoSso: true }
+  { name: "Системы и сети инфокоммуникаций", level: "vosso", form: "dnev", category: "budget", isVo: true, isVoSso: true },
+  { name: "Системы и сети инфокоммуникаций", level: "vosso", form: "dnev", category: "paid", isVo: true, isVoSso: true },
+  { name: "Прикладная информатика", level: "vosso", form: "dnev", category: "budget", isVo: true, isVoSso: true },
+  { name: "Прикладная информатика", level: "vosso", form: "dnev", category: "paid", isVo: true, isVoSso: true },
+  { name: "Почтовая связь", level: "vosso", form: "dnev", category: "budget", isVo: true, isVoSso: true },
+  { name: "Системы и сети инфокоммуникаций", level: "vosso", form: "zaoch", category: "budget", isVo: true, isVoSso: true },
+  { name: "Системы и сети инфокоммуникаций", level: "vosso", form: "zaoch", category: "paid", isVo: true, isVoSso: true },
+  { name: "Почтовая связь", level: "vosso", form: "zaoch", category: "budget", isVo: true, isVoSso: true },
+  { name: "Почтовая связь", level: "vosso", form: "zaoch", category: "paid", isVo: true, isVoSso: true }
 ];
 
 function getVal(sheet, r, c) {
@@ -69,13 +70,26 @@ function getVal(sheet, r, c) {
   return sheet[addr] ? sheet[addr].v : '';
 }
 
-// Функция для нахождения сгруппированных планов (применяется для Сокращенной формы ВО)
+// Поиск строки заголовка баллов для ВО (поиск 400 или 300 вверх от строки специальности)
+function findVoHeaderRow(sheet, dataRow, isVoSso) {
+  const targetScore = isVoSso ? 300 : 400;
+  for (let r = dataRow - 1; r >= 0; r--) {
+    const val1 = parseInt(getVal(sheet, r, 11), 10);
+    const val2 = parseInt(getVal(sheet, r, 12), 10);
+    if (val1 === targetScore || val2 === targetScore) {
+      return r;
+    }
+  }
+  return isVoSso ? 63 : 31;
+}
+
+// Восстановленное динамическое вычисление планов объединенных ячеек для ВО
 function getGroupedPlans(sheet, currentOffset) {
   let totalPlan = 0;
   let startRow = currentOffset;
-  const limitRow = currentOffset >= 90 ? 93 : 64;
 
-  while (startRow > limitRow && getVal(sheet, startRow, 6) === "") {
+  // Поднимаемся вверх, пока колонка 6 (Всего заявлений) пустая (значит это объединенная ячейка)
+  while (startRow > 0 && getVal(sheet, startRow, 6) === "") {
     startRow--;
   }
 
@@ -89,41 +103,130 @@ function getGroupedPlans(sheet, currentOffset) {
     }
     endRow++;
   }
-  return { sumPlan: totalPlan, dataRow: startRow };
+  return { sumPlan: totalPlan, startRow, endRow };
 }
 
-// Глубокий поиск строки-якоря
-function findAnchorRow(sheet, sectionKeyword, specName) {
+// Алгоритм последовательного подсчета порядкового номера вхождения специальности на листе с 25 строки
+function findAnchorRow(sheet, level, form, category, specName) {
   const range = XLSX.utils.decode_range(sheet['!ref']);
-  let startRow = -1;
-  let endRow = range.e.r;
-
-  const keyword = sectionKeyword.toLowerCase().trim();
   const targetSpec = specName.toLowerCase().trim();
 
-  for (let r = range.s.r; r <= range.e.r; r++) {
-    let found = false;
+  // Вычисляем скорректированный порядковый номер вхождения (начиная с 0), который нам нужен
+  let targetOccurrence = 0;
+
+  if (specName === "Разработка и сопровождение веб-ресурсов") {
+    targetOccurrence = (category === 'paid') ? 1 : 0;
+  }
+  else if (specName === "Тестирование программного обеспечения") {
+    if (level === 'sso9') {
+      targetOccurrence = (category === 'paid') ? 1 : 0;
+    } else { // sso11
+      targetOccurrence = (category === 'paid') ? 3 : 2;
+    }
+  }
+  else if (specName === "Техническая эксплуатация систем и сетей телекоммуникаций") {
+    if (level === 'sso9') {
+      targetOccurrence = (category === 'paid') ? 1 : 0;
+    } else { // sso11
+      if (form === 'zaoch') {
+        targetOccurrence = (category === 'paid') ? 5 : 4;
+      } else { // dnev
+        targetOccurrence = (category === 'paid') ? 3 : 2;
+      }
+    }
+  }
+  else if (specName === "Информационные кабельные сети") {
+    targetOccurrence = (category === 'paid') ? 1 : 0;
+  }
+  else if (specName === "Техническая эксплуатация систем радиосвязи, радиовещания и телевидения") {
+    if (level === 'sso9') {
+      targetOccurrence = (category === 'paid') ? 1 : 0;
+    } else { // sso11
+      if (form === 'zaoch') {
+        targetOccurrence = (category === 'paid') ? 5 : 4;
+      } else { // dnev
+        targetOccurrence = (category === 'paid') ? 3 : 2;
+      }
+    }
+  }
+  else if (specName === "Техническая эксплуатация мультимедийных систем") {
+    targetOccurrence = 0;
+  }
+  else if (specName === "Почтовая деятельность") {
+    if (level === 'sso9') {
+      targetOccurrence = (category === 'paid') ? 1 : 0;
+    } else if (level === 'sso11') {
+      if (form === 'zaoch') {
+        targetOccurrence = (category === 'paid') ? 5 : 4;
+      } else { // dnev
+        targetOccurrence = (category === 'paid') ? 3 : 2;
+      }
+    } else if (level === 'ssopto') {
+      targetOccurrence = 6;
+    }
+  }
+  else if (specName === "Автоматизация технологических процессов и производств") {
+    targetOccurrence = 0;
+  }
+  else if (specName === "Системы и сети инфокоммуникаций") {
+    if (level === 'vo11') {
+      targetOccurrence = (category === 'paid') ? 1 : 0;
+    } else if (level === 'vosso') {
+      if (form === 'zaoch') {
+        targetOccurrence = (category === 'paid') ? 10 : 7; // Иерархические индексы с учетом строк специализаций
+      } else { // dnev
+        targetOccurrence = (category === 'paid') ? 5 : 3;
+      }
+    }
+  }
+  else if (specName === "Прикладная информатика") {
+    if (level === 'vo11') {
+      targetOccurrence = (category === 'paid') ? 1 : 0;
+    } else if (level === 'vosso') {
+      targetOccurrence = (category === 'paid') ? 3 : 2;
+    }
+  }
+  else if (specName === "Цифровые клиентские сервисы и почтово-логистические системы") {
+    targetOccurrence = 0;
+  }
+  else if (specName === "Маркетинг") {
+    targetOccurrence = (category === 'paid') ? 1 : 0;
+  }
+  else if (specName === "Почтовая связь") {
+    if (form === 'zaoch') {
+      targetOccurrence = (category === 'paid') ? 2 : 1;
+    } else { // dnev
+      targetOccurrence = 0;
+    }
+  }
+
+  let currentOccurrence = 0;
+
+  // Сканируем строки сверху вниз, начиная строго с r = 25 (чтобы пропустить все шапки и содержание в самом верху листа)
+  for (let r = 25; r <= range.e.r; r++) {
+    let isMatch = false;
     for (let col = 0; col <= 15; col++) {
-      const val = getVal(sheet, r, col)?.toString().toLowerCase() || '';
-      if (val.includes(keyword)) {
-        startRow = r;
-        found = true;
+      const val = getVal(sheet, r, col)?.toString().toLowerCase().trim() || '';
+      if (!val) continue;
+
+      if (val === targetSpec || (val.length > 5 && val.includes(targetSpec))) {
+        isMatch = true;
+        break;
+      }
+
+      const normVal = val.replace(/[^a-zа-я0-9]/g, '');
+      const normTarget = targetSpec.replace(/[^a-zа-я0-9]/g, '');
+      if (normVal.length >= 10 && normVal.includes(normTarget)) {
+        isMatch = true;
         break;
       }
     }
-    if (found) break;
-  }
 
-  if (startRow === -1) return -1;
-
-  endRow = Math.min(startRow + 150, range.e.r);
-
-  for (let r = startRow; r <= endRow; r++) {
-    for (let col = 0; col <= 15; col++) {
-      const val = getVal(sheet, r, col)?.toString().toLowerCase().trim() || '';
-      if (val === targetSpec || (val.length > 5 && val.includes(targetSpec))) {
-        return r;
+    if (isMatch) {
+      if (currentOccurrence === targetOccurrence) {
+        return r; // Нашли ровно нужное по счету вхождение специальности!
       }
+      currentOccurrence++;
     }
   }
 
@@ -138,55 +241,57 @@ module.exports = createCoreController('api::specialty.specialty', ({ strapi }) =
       const buffer = await response.arrayBuffer();
 
       const workbook = XLSX.read(buffer, { type: 'array' });
-      const sheetName = workbook.SheetNames[0];
-      const sheet = workbook.Sheets[sheetName];
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
 
       let updatedCount = 0;
 
       for (const config of parsingConfig) {
-        // Пробуем динамический поиск
-        let anchorRow = findAnchorRow(sheet, config.section, config.name);
-        let usingFallback = false;
+        // Реверсивный поиск строки по порядковому номеру вхождения
+        let anchorRow = findAnchorRow(sheet, config.level, config.form, config.category, config.name);
 
-        // Если динамический поиск не нашел строку, используем жестко зашитый fallback
+        // Если специальность не найдена динамически, выводим предупреждение и пропускаем её
         if (anchorRow === -1) {
-          anchorRow = config.fallbackRow;
-          usingFallback = true;
+          strapi.log.warn(
+            `[Парсер] Предупреждение: специальность "${config.name}" (${config.level}, ${config.category}) не найдена. Запись пропущена.`
+          );
+          continue;
         }
 
         let plan = 0;
         let total = 0;
         let distribution = [];
 
-        // Строка данных совпадает со строкой найденной специальности
         const dataRow = anchorRow;
+        let groupInfo = { startRow: dataRow, endRow: dataRow, sumPlan: 0 };
 
         if (config.isVo) {
-          // --- Высшее образование ---
           total = parseInt(getVal(sheet, dataRow, 6), 10) || 0;
 
           if (config.isVoSso) {
-            // Для сокращенной формы суммируем планы
-            const groupInfo = getGroupedPlans(sheet, dataRow);
+            groupInfo = getGroupedPlans(sheet, dataRow);
             plan = groupInfo.sumPlan;
           } else {
             plan = parseInt(getVal(sheet, dataRow, 4), 10) || 0;
           }
 
           let currentMax = config.isVoSso ? 300 : 400;
-          const headerRowIndex = config.isVoSso ? 63 : 31;
+          const headerRowIndex = findVoHeaderRow(sheet, dataRow, config.isVoSso);
 
-          for (let col = 11; col <= 100; col++) {
-            let count = parseInt(getVal(sheet, dataRow, col), 10) || 0;
-            let header = getVal(sheet, headerRowIndex, col) || getVal(sheet, headerRowIndex - 1, col);
-            if (!header && count === 0 && currentMax < (config.isVoSso ? 250 : 350)) break;
+          // Сканируем строго до балла 100
+          const maxCols = config.isVoSso ? 51 : 71;
+          for (let col = 11; col <= maxCols; col++) {
+            // Суммируем количество заявлений по всем строкам объединенной группы для каждого балла
+            let count = 0;
+            for (let r = groupInfo.startRow; r <= groupInfo.endRow; r++) {
+              count += parseInt(getVal(sheet, r, col), 10) || 0;
+            }
+
             if (count > 0) {
               distribution.push({ score: currentMax, count });
             }
             currentMax -= 5;
           }
         } else {
-          // --- Среднее специальное образование ---
           plan = parseInt(getVal(sheet, dataRow, 2), 10) || 0;
           total = parseInt(getVal(sheet, dataRow, 75), 10) || 0;
 
@@ -198,11 +303,9 @@ module.exports = createCoreController('api::specialty.specialty', ({ strapi }) =
           }
         }
 
-        // Логирование результатов для контроля
         strapi.log.info(
-          `[Парсер] Считана специальность: "${config.name}" (${config.level}, ${config.category}). ` +
-          `Строка в Excel: ${dataRow + 1} ${usingFallback ? '[Резерв]' : '[Динамика]'}. ` +
-          `План: ${plan}, Заявлений: ${total}, Распределение: ${distribution.length} групп.`
+          `[Парсер] Считано: "${config.name}" (${config.level}, ${config.category}). ` +
+          `Строка: ${dataRow + 1} [Вхождение]. План: ${plan}, Заявлений: ${total}.`
         );
 
         const existing = await strapi.db.query('api::specialty.specialty').findOne({
@@ -221,7 +324,8 @@ module.exports = createCoreController('api::specialty.specialty', ({ strapi }) =
           category: config.category,
           plan: plan,
           total_applications: total,
-          applications_distribution: distribution
+          applications_distribution: distribution,
+          publishedAt: new Date()
         };
 
         if (existing) {
@@ -233,15 +337,20 @@ module.exports = createCoreController('api::specialty.specialty', ({ strapi }) =
         updatedCount++;
       }
 
-      ctx.body = {
-        success: true,
-        message: `Успешно обработано специальностей: ${updatedCount}`,
-        timestamp: new Date()
-      };
+      // Безопасная запись ответа для предотвращения падения Cron
+      if (ctx) {
+        ctx.body = {
+          success: true,
+          message: `Успешно обработано специальностей: ${updatedCount}`,
+          timestamp: new Date()
+        };
+      }
 
     } catch (error) {
       strapi.log.error(error);
-      ctx.badRequest("Ошибка во время парсинга таблицы: " + error.message);
+      if (ctx && typeof ctx.badRequest === 'function') {
+        ctx.badRequest("Ошибка во время парсинга таблицы: " + error.message);
+      }
     }
   }
 }));
