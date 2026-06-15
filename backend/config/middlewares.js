@@ -4,7 +4,7 @@ module.exports = [
   {
     name: 'strapi::cors',
     config: {
-      origin: ['http://localhost:59652', 'http://localhost:1337', '*'], // Разрешаем доступ именно для вашего Live Server
+      origin: '*', // Разрешаем доступ со всех локальных адресов и Live Server без ограничений
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
       headers: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
       keepHeaderOnError: true,
