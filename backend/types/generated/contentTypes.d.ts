@@ -890,7 +890,6 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
   };
   attributes: {
     blocked: Attribute.Boolean & Attribute.DefaultTo<false>;
-    checklist_data: Attribute.JSON;
     confirmationToken: Attribute.String & Attribute.Private;
     confirmed: Attribute.Boolean & Attribute.DefaultTo<false>;
     createdAt: Attribute.DateTime;
@@ -907,7 +906,6 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       Attribute.SetMinMaxLength<{
         minLength: 6;
       }>;
-    favorites_data: Attribute.JSON;
     otp_code: Attribute.String;
     otp_expires: Attribute.DateTime;
     password: Attribute.Password &

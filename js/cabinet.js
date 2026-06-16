@@ -111,44 +111,16 @@ function PersonalCabinet({ isOpen, onClose }) {
 
     const STRAPI_URL = 'http://localhost:1337';
 
-    // Эффект закрытия окна при клике мимо Личного Кабинета
-    useEffect(() => {
-        if (!isOpen) return;
-
-        const handleOutsideClick = (e) => {
-            const cabinetEl = document.querySelector('.cabinet-window');
-            const toggleBtnEl = document.querySelector('.cabinet-toggle-btn');
-
-            if (
-                cabinetEl && !cabinetEl.contains(e.target) &&
-                (!toggleBtnEl || !toggleBtnEl.contains(e.target))
-            ) {
-                onClose();
-            }
-        };
-
-        document.addEventListener('click', handleOutsideClick, true);
-        document.addEventListener('touchstart', handleOutsideClick, { capture: true, passive: true });
-
-        return () => {
-            document.removeEventListener('click', handleOutsideClick, true);
-            document.removeEventListener('touchstart', handleOutsideClick, true);
-        };
-    }, [isOpen, onClose]);
-
     // Эффект синхронизации Избранного с localStorage
     useEffect(() => {
         const handleUpdate = () => {
             const favs = JSON.parse(localStorage.getItem('favorites_specs')) || [];
             setFavorites(favs);
-            if (user) {
-                syncDataWithStrapi(checkedItems, favs);
-            }
         };
         window.addEventListener('favoritesUpdated', handleUpdate);
         handleUpdate();
         return () => window.removeEventListener('favoritesUpdated', handleUpdate);
-    }, [user]);
+    }, []);
 
     // Эффект смены баз при изменении уровня образования на форме регистрации
     useEffect(() => {
@@ -188,37 +160,8 @@ function PersonalCabinet({ isOpen, onClose }) {
 
     if (!isOpen) return null;
 
-    // Отправка Избранного и Чек-листа в базу Strapi
-    const syncDataWithStrapi = async (updatedChecklist, updatedFavorites) => {
-        const jwt = localStorage.getItem('cab_jwt');
-        if (!jwt || !user) return;
-
-        try {
-            await fetch(`${STRAPI_URL}/api/users/${user.id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${jwt}`
-                },
-                body: JSON.stringify({
-                    checklist_data: updatedChecklist,
-                    favorites_data: updatedFavorites
-                })
-            });
-        } catch (e) {
-            console.warn("Сетевой сбой при синхронизации со Strapi:", e);
-        }
-    };
-
     const handleCheckboxChange = (id) => {
-        setCheckedItems(prev => {
-            const updated = { ...prev, [id]: !prev[id] };
-            localStorage.setItem('chk_checked_items', JSON.stringify(updated));
-            if (user) {
-                syncDataWithStrapi(updated, favorites);
-            }
-            return updated;
-        });
+        setCheckedItems(prev => ({ ...prev, [id]: !prev[id] }));
     };
 
     const handleScoreChange = (e) => {
@@ -302,17 +245,6 @@ function PersonalCabinet({ isOpen, onClose }) {
                 localStorage.setItem('cab_jwt', data.jwt);
                 localStorage.setItem('cab_user', JSON.stringify(data.user));
                 setUser(data.user);
-
-                if (data.user.checklist_data) {
-                    setCheckedItems(data.user.checklist_data);
-                    localStorage.setItem('chk_checked_items', JSON.stringify(data.user.checklist_data));
-                }
-                if (data.user.favorites_data) {
-                    setFavorites(data.user.favorites_data);
-                    localStorage.setItem('favorites_specs', JSON.stringify(data.user.favorites_data));
-                    window.dispatchEvent(new Event('favoritesUpdated'));
-                }
-
                 setIsRegWindowOpen(false);
                 setRegStep(1);
                 setRegEmail('');
@@ -789,7 +721,7 @@ function PersonalCabinet({ isOpen, onClose }) {
                             </div>
 
                             <div style={{ fontSize: '11.5px', opacity: 0.7, textAlign: 'left', lineHeight: '1.5', marginBottom: '12px' }}>
-                                * Примечание: Teкущий балл 2026 года формируется динамически на основе поданных в данный момент документов и изменится по ходу приемной кампании. Свободные места означают, что конкурс еще не полностью заполнен.
+                                * Примечание: Текущий балл 2026 года формируется динамически на основе поданных в данный момент документов и изменится по ходу приемной кампании. Свободные места означают, что конкурс еще не полностью заполнен.
                             </div>
 
                             <button
