@@ -4,6 +4,17 @@ let currentCategory = 'budget';
 let timerInterval = null;
 let cachedStrapiData = null; // Локальный кэш записей этой специальности (бюджет + платно)
 
+// Векторные иконки сердечек высокого контраста (контур адаптируется под цвет темы, не сливаясь со светлым фоном)
+const heartEmptySvg = `
+<svg viewBox="0 0 24 24" style="width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s ease;">
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+</svg>`;
+
+const heartFilledSvg = `
+<svg viewBox="0 0 24 24" style="width: 26px; height: 26px; fill: #ef5350; stroke: #ef5350; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s ease;">
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+</svg>`;
+
 // Словарь метаданных специальностей для красивого рендеринга карточек (чтобы не перегружать схему БД)
 const specialtyMetadata = {
     sso9: {
@@ -149,6 +160,34 @@ function getSpecQueryFromDocument() {
     return { name, level, form };
 }
 
+// Функции управления Избранным (Favorites)
+function isFavorite(name, level, form, category) {
+    const favs = JSON.parse(localStorage.getItem('favorites_specs')) || [];
+    return favs.some(f => f.name === name && f.level === level && f.form === form && f.category === category);
+}
+
+window.toggleFavorite = function (name, level, form, category, url) {
+    let favs = JSON.parse(localStorage.getItem('favorites_specs')) || [];
+    const index = favs.findIndex(f => f.name === name && f.level === level && f.form === form && f.category === category);
+
+    if (index !== -1) {
+        favs.splice(index, 1);
+    } else {
+        favs.push({ name, level, form, category, url });
+    }
+
+    localStorage.setItem('favorites_specs', JSON.stringify(favs));
+    window.dispatchEvent(new Event('favoritesUpdated')); // Сигнализируем React Кабинету об обновлении
+
+    // Перерисовываем кнопку-сердечко
+    const heartBtn = document.getElementById('favorite-toggle-btn');
+    if (heartBtn) {
+        const active = isFavorite(name, level, form, category);
+        heartBtn.innerHTML = active ? heartFilledSvg : heartEmptySvg;
+        heartBtn.title = active ? 'Убрать из избранного' : 'Добавить в избранное';
+    }
+};
+
 // Расчет времени окончания приемной кампании
 function getCampaignDates() {
     const { level } = getSpecQueryFromDocument();
@@ -278,11 +317,20 @@ function renderMonitoringPage(record) {
     const base = meta.base || "общего образования";
     const duration = typeof meta.duration === 'object' ? (meta.duration[name] || "3 года") : (meta.duration || "4 года");
 
+    // Проверка, добавлена ли специальность в избранное
+    const currentUrl = window.location.pathname;
+    const favActive = isFavorite(name, level, form, currentCategory);
+
     if (!record || record.plan === 0) {
         return `
         <div class="spec-card">
-            <h1 class="spec-title">${name}</h1>
-            <div class="info-line">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                <h1 class="spec-title" style="margin: 0;">${name}</h1>
+                <button id="favorite-toggle-btn" style="background: none !important; border: none; cursor: pointer; padding: 0; display: inline-flex; align-items: center; justify-content: center; color: inherit; transition: transform 0.2s;" onclick="window.toggleFavorite('${name.replace(/'/g, "\\'")}', '${level}', '${form}', '${currentCategory}', '${currentUrl}')" title="${favActive ? 'Убрать из избранного' : 'Добавить в избранное'}">
+                    ${favActive ? heartFilledSvg : heartEmptySvg}
+                </button>
+            </div>
+            <div class="info-line" style="margin-top: 15px;">
                 <strong>Прием:</strong>
                 <div class="badge-container">
                     <button class="badge badge-budget ${currentCategory === 'budget' ? 'active' : ''}" onclick="switchCategory('budget')">за счет средств бюджета</button>
@@ -304,8 +352,13 @@ function renderMonitoringPage(record) {
 
     let html = `
     <div class="spec-card">
-        <h1 class="spec-title">${name}</h1>
-        <div class="info-line">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+            <h1 class="spec-title" style="margin: 0;">${name}</h1>
+            <button id="favorite-toggle-btn" style="background: none !important; border: none; cursor: pointer; padding: 0; display: inline-flex; align-items: center; justify-content: center; color: inherit; transition: transform 0.2s;" onclick="window.toggleFavorite('${name.replace(/'/g, "\\'")}', '${level}', '${form}', '${currentCategory}', '${currentUrl}')" title="${favActive ? 'Убрать из избранного' : 'Добавить в избранное'}">
+                ${favActive ? heartFilledSvg : heartEmptySvg}
+            </button>
+        </div>
+        <div class="info-line" style="margin-top: 15px;">
             <strong>Прием:</strong>
             <div class="badge-container">
                 <button class="badge badge-budget ${currentCategory === 'budget' ? 'active' : ''}" onclick="switchCategory('budget')">за счет средств бюджета</button>
