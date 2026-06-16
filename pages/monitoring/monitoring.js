@@ -319,7 +319,6 @@ function renderMonitoringPage(record) {
     const currentUrl = window.location.pathname;
     const favActive = isFavorite(name, level, form, currentCategory);
 
-    if (!record || record.plan === 0) {
     // Защита от отсутствия набора: выводим сообщение только если и план, и поданные заявления равны 0
     if (!record || (record.plan === 0 && record.total_applications === 0)) {
         return `
@@ -478,7 +477,7 @@ function renderMonitoringPage(record) {
             html += `</tr></tbody></table></div>`;
         }
 
-        // 2. Таблица: Льготники (Льготные вне конкурса)
+        // 2. Таблица:  вне конкурса по баллам
         if (lgotaList.length > 0) {
             html += `\n<h2 class="section-title">Льготные вне конкурса по баллам:</h2>
             <div class="bar-table-wrapper"><table class="bar-table"><thead><tr>`;
