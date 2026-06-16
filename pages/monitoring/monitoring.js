@@ -1,6 +1,4 @@
-﻿// pages/monitoring/monitoring.js
-
-let currentCategory = 'budget';
+﻿let currentCategory = 'budget';
 let timerInterval = null;
 let cachedStrapiData = null; // Локальный кэш записей этой специальности (бюджет + платно)
 
@@ -322,6 +320,8 @@ function renderMonitoringPage(record) {
     const favActive = isFavorite(name, level, form, currentCategory);
 
     if (!record || record.plan === 0) {
+    // Защита от отсутствия набора: выводим сообщение только если и план, и поданные заявления равны 0
+    if (!record || (record.plan === 0 && record.total_applications === 0)) {
         return `
         <div class="spec-card">
             <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
@@ -348,7 +348,16 @@ function renderMonitoringPage(record) {
 
     const plan = record.plan || 0;
     const total = record.total_applications || 0;
-    const rawDist = record.applications_distribution || {};
+
+    // Безопасная расшифровка строки JSON в объект
+    let rawDist = record.applications_distribution || {};
+    if (typeof rawDist === 'string') {
+        try {
+            rawDist = JSON.parse(rawDist);
+        } catch (e) {
+            rawDist = {};
+        }
+    }
 
     let html = `
     <div class="spec-card">

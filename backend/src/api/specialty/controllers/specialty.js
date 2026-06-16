@@ -265,14 +265,16 @@ module.exports = createCoreController('api::specialty.specialty', ({ strapi }) =
         let groupInfo = { startRow: dataRow, endRow: dataRow, sumPlan: 0 };
 
         if (config.isVo) {
-          total = parseInt(getVal(sheet, dataRow, 6), 10) || 0;
-
           if (config.isVoSso) {
             groupInfo = getGroupedPlans(sheet, dataRow);
             plan = groupInfo.sumPlan;
           } else {
             plan = parseInt(getVal(sheet, dataRow, 4), 10) || 0;
+            groupInfo = { startRow: dataRow, endRow: dataRow };
           }
+
+          // Считываем Всего заявлений строго с первой строки объединенной группы
+          total = parseInt(getVal(sheet, groupInfo.startRow, 6), 10) || 0;
 
           let currentMax = config.isVoSso ? 300 : 400;
           const headerRowIndex = findVoHeaderRow(sheet, dataRow, config.isVoSso);
