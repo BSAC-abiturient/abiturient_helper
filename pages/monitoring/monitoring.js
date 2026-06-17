@@ -1,15 +1,17 @@
-﻿let currentCategory = 'budget';
+﻿// pages/monitoring/monitoring.js
+
+let currentCategory = 'budget';
 let timerInterval = null;
 let cachedStrapiData = null; // Локальный кэш записей этой специальности (бюджет + платно)
 
-// Векторные иконки сердечек высокого контраста (контур адаптируется под цвет темы, не сливаясь со светлым фоном)
+// Векторные иконки сердечек высокого контраста (stroke адаптируется под цвет темы)
 const heartEmptySvg = `
-<svg viewBox="0 0 24 24" style="width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s ease;">
+<svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s ease;">
     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
 </svg>`;
 
 const heartFilledSvg = `
-<svg viewBox="0 0 24 24" style="width: 26px; height: 26px; fill: #ef5350; stroke: #ef5350; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s ease;">
+<svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: #ef5350; stroke: #ef5350; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s ease;">
     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
 </svg>`;
 
@@ -83,76 +85,46 @@ const specialtyMetadata = {
     }
 };
 
-// Функция определения параметров специальности на основе ключевых слов из тега <title> и файлов
+// Функция определения параметров специальности на основе адреса страницы и заголовка
 function getSpecQueryFromDocument() {
-    const title = document.title;
+    const title = document.title.toLowerCase();
     const filename = window.location.pathname.split('/').pop().toLowerCase();
 
     let name = "";
     let level = "";
     let form = "dnev";
 
-    const titleLower = title.toLowerCase();
-
-    // 1. Изолированное определение уровня образования и формы обучения
-    if (filename.includes('sso_9')) {
+    // Уровень образования
+    if (filename.includes('sso_9') || title.includes('9 кл')) {
         level = 'sso9';
-    } else if (filename.includes('sso_11')) {
+    } else if (filename.includes('sso_11') || title.includes('11 кл')) {
         level = 'sso11';
-        if (filename.includes('zaoch')) form = 'zaoch';
-    } else if (filename.includes('sso_pto')) {
+        if (filename.includes('zaoch') || title.includes('заоч')) form = 'zaoch';
+    } else if (filename.includes('pto') || title.includes('пто')) {
         level = 'ssopto';
-    } else if (filename.includes('vo_11')) {
+    } else if (filename.includes('vo_11') || (title.includes('во') && !title.includes('ссо'))) {
         level = 'vo11';
-    } else if (filename.includes('vo_sso')) {
+    } else if (filename.includes('vo_sso') || title.includes('после ссо')) {
         level = 'vosso';
-        if (filename.includes('zaoch')) form = 'zaoch';
-    } else {
-        // Резервное сопоставление по точному тексту
-        if (titleLower.includes('9 класс') || titleLower.includes('после 9')) {
-            level = 'sso9';
-        } else if (titleLower.includes('11 класс') || titleLower.includes('после 11')) {
-            if (titleLower.includes('высшее') || titleLower.includes(' во')) {
-                level = 'vo11';
-            } else {
-                level = 'sso11';
-                if (titleLower.includes('заоч')) form = 'zaoch';
-            }
-        } else if (titleLower.includes('после ссо') || titleLower.includes('сокращенн')) {
-            level = 'vosso';
-            if (titleLower.includes('заоч')) form = 'zaoch';
-        } else if (titleLower.includes('pto') || titleLower.includes('пто')) {
-            level = 'ssopto';
-        }
+        if (filename.includes('zaoch') || title.includes('заоч')) form = 'zaoch';
     }
 
-    // 2. Идентификация названия специальности
-    if (titleLower.includes("веб-ресурсов")) {
-        name = "Разработка и сопровождение веб-ресурсов";
-    } else if (titleLower.includes("тестирование")) {
+    // Название специальности
+    if (filename.includes('spec1') || title.includes('веб-ресурсов') || title.includes('автоматизац')) {
+        name = level === 'vosso' ? "Системы и сети инфокоммуникаций" : (level === 'vo11' ? "Автоматизация технологических процессов и производств" : "Разработка и сопровождение веб-ресурсов");
+        if (level === 'ssopto') name = "Почтовая деятельность";
+    } else if (filename.includes('spec2') || title.includes('телекоммуникаций') || title.includes('системы и сети')) {
+        name = level.startsWith('vo') ? "Системы и сети инфокоммуникаций" : "Техническая эксплуатация систем и сетей телекоммуникаций";
+    } else if (filename.includes('spec3') || title.includes('кабельные') || title.includes('прикладная')) {
+        name = level.startsWith('vo') ? "Прикладная информатика" : "Информационные кабельные сети";
+    } else if (filename.includes('spec4') || title.includes('радиосвязи') || title.includes('цифровые')) {
+        name = level.startsWith('vo') ? "Цифровые клиентские сервисы и почтово-логистические системы" : "Техническая эксплуатация систем радиосвязи, радиовещания и телевидения";
+    } else if (filename.includes('spec5') || title.includes('мультимедийных') || title.includes('маркетинг')) {
+        name = level.startsWith('vo') ? (level === 'vosso' ? "Прикладная информатика" : "Маркетинг") : "Техническая эксплуатация мультимедийных систем";
+    } else if (filename.includes('spec6') || title.includes('почтовая')) {
+        name = level.startsWith('vo') ? "Почтовая связь" : "Почтовая деятельность";
+    } else if (filename.includes('spec7') || title.includes('тестирование')) {
         name = "Тестирование программного обеспечения";
-    } else if (titleLower.includes("телекоммуникаций")) {
-        name = "Техническая эксплуатация систем и сетей телекоммуникаций";
-    } else if (titleLower.includes("кабельные")) {
-        name = "Информационные кабельные сети";
-    } else if (titleLower.includes("радиосвязи") || titleLower.includes("радиовещания")) {
-        name = "Техническая эксплуатация систем радиосвязи, радиовещания и телевидения";
-    } else if (titleLower.includes("мультимедийных")) {
-        name = "Техническая эксплуатация мультимедийных систем";
-    } else if (titleLower.includes("почтовая деятельность")) {
-        name = "Почтовая деятельность";
-    } else if (titleLower.includes("автоматизация")) {
-        name = "Автоматизация технологических процессов и производств";
-    } else if (titleLower.includes("системы и сети")) {
-        name = "Системы и сети инфокоммуникаций";
-    } else if (titleLower.includes("прикладная")) {
-        name = "Прикладная информатика";
-    } else if (titleLower.includes("цифровые")) {
-        name = "Цифровые клиентские сервисы и почтово-логистические системы";
-    } else if (titleLower.includes("маркетинг")) {
-        name = "Маркетинг";
-    } else if (titleLower.includes("почтовая связь")) {
-        name = "Почтовая связь";
     }
 
     return { name, level, form };
@@ -300,7 +272,7 @@ function injectTimerElement() {
     startCountdown();
 }
 
-// Построение HTML страницы на основе структурированного JSON из БД Strapi
+// Построение HTML страницы на основе данных из БД Strapi и метаданных
 function renderMonitoringPage(record) {
     const { name, level, form } = getSpecQueryFromDocument();
     const isVoMode = level.startsWith('vo');
@@ -319,8 +291,7 @@ function renderMonitoringPage(record) {
     const currentUrl = window.location.pathname;
     const favActive = isFavorite(name, level, form, currentCategory);
 
-    // Защита от отсутствия набора: выводим сообщение только если и план, и поданные заявления равны 0
-    if (!record || (record.plan === 0 && record.total_applications === 0)) {
+    if (!record || record.plan === 0) {
         return `
         <div class="spec-card">
             <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
@@ -347,16 +318,29 @@ function renderMonitoringPage(record) {
 
     const plan = record.plan || 0;
     const total = record.total_applications || 0;
+    const distribution = record.applications_distribution || [];
 
-    // Безопасная расшифровка строки JSON в объект
-    let rawDist = record.applications_distribution || {};
-    if (typeof rawDist === 'string') {
-        try {
-            rawDist = JSON.parse(rawDist);
-        } catch (e) {
-            rawDist = {};
+    // Преобразуем массив распределения баллов для правильной отрисовки шкалы
+    let applications = [];
+    let allScores = [];
+
+    distribution.forEach(item => {
+        const scoreVal = parseFloat(item.score);
+        const countVal = parseInt(item.count, 10) || 0;
+        if (countVal > 0) {
+            applications.push({
+                score: scoreVal,
+                label: isVoMode ? `${scoreVal - 4}-${scoreVal}` : scoreVal.toFixed(1),
+                count: countVal
+            });
+            for (let i = 0; i < countVal; i++) {
+                allScores.push(scoreVal);
+            }
         }
-    }
+    });
+
+    // Сортировка по убыванию баллов
+    allScores.sort((a, b) => b - a);
 
     let html = `
     <div class="spec-card">
@@ -375,147 +359,36 @@ function renderMonitoringPage(record) {
         </div>
         <div class="info-line"><strong>Форма обучения:</strong> ${educationForm}</div>
         <div class="info-line"><strong>Прием осуществляется на основе:</strong> ${base}</div>
-        <div class="info-line"><strong>Срок обучения:</strong> ${duration}</div>`;
-
-    if (isVoMode) {
-        // Отрисовка уровня ВО: Сводная плашка целевых и льготников вверху
-        const targetTotal = rawDist.targetTotal || 0;
-        const noExams = rawDist.noExamsTotal || 0;
-        const outOfComp = rawDist.outOfCompetitionTotal || 0;
-        const totalLgota = noExams + outOfComp;
-
-        html += `
+        <div class="info-line"><strong>Срок обучения:</strong> ${duration}</div>
         <div class="info-line"><strong>План приема:</strong> ${plan}</div>
         <div class="stat-box">
             <div class="info-line"><strong>Всего заявлений подано:</strong> ${total}</div>
-            <div class="stat-row">По общему конкурсу: ${total - totalLgota - targetTotal}</div>
-            <div class="stat-row">Льготные вне конкурса: ${totalLgota}</div>
-            <div class="stat-row">Целевые: ${targetTotal}</div>
         </div>
     </div>`;
 
-        // Таблица общего конкурса по баллам для ВО
-        const commonList = rawDist.common || [];
-        if (commonList.length > 0) {
-            let allScores = [];
-            commonList.forEach(item => {
-                for (let i = 0; i < item.count; i++) allScores.push(item.score);
-            });
-            allScores.sort((a, b) => b - a);
+    if (applications.length > 0) {
+        html += `\n<h2 class="section-title">Заявления по баллам:</h2>
+        <div class="bar-table-wrapper"><table class="bar-table"><thead><tr>`;
+        applications.forEach(a => html += `<th>${a.label}</th>`);
+        html += `</tr></thead><tbody><tr>`;
 
-            html += `\n<h2 class="section-title">Заявления по баллам:</h2>
-            <div class="bar-table-wrapper"><table class="bar-table"><thead><tr>`;
-            commonList.forEach(a => html += `<th>${a.score - 4}-${a.score}</th>`);
-            html += `</tr></thead><tbody><tr>`;
-
-            commonList.forEach(a => {
-                let cellClass = 'cell-red';
-                if (plan > 0) {
-                    if (allScores.length < plan) {
-                        cellClass = 'cell-green';
-                    } else {
-                        const cutoff = allScores[plan - 1];
-                        if (a.score > cutoff) cellClass = 'cell-green';
-                        else if (a.score === cutoff) cellClass = 'cell-yellow';
-                        else cellClass = 'cell-red';
-                    }
+        applications.forEach(a => {
+            let cellClass = 'cell-red';
+            if (plan > 0) {
+                if (allScores.length < plan) {
+                    cellClass = 'cell-green';
+                } else {
+                    const cutoffScore = allScores[plan - 1];
+                    if (a.score > cutoffScore) cellClass = 'cell-green';
+                    else if (a.score === cutoffScore) cellClass = 'cell-yellow';
+                    else cellClass = 'cell-red';
                 }
-                html += `<td class="${cellClass}">${a.count}</td>`;
-            });
-            html += `</tr></tbody></table></div>`;
-        }
+            }
+            html += `<td class="${cellClass}">${a.count}</td>`;
+        });
+        html += `</tr></tbody></table></div>`;
     } else {
-        // Отрисовка уровня ССО: 3 раздельные таблицы по баллам
-        const planTarget = rawDist.planTarget || 0;
-        const targetTotal = rawDist.targetTotal || 0;
-
-        const commonList = rawDist.common || [];
-        const lgotaList = rawDist.lgota || [];
-        const targetList = rawDist.target || [];
-
-        const totalCommon = commonList.reduce((sum, item) => sum + item.count, 0);
-        const totalLgota = lgotaList.reduce((sum, item) => sum + item.count, 0);
-
-        html += `
-        <div class="info-line"><strong>План приема:</strong> ${plan} | <strong>Целевой план:</strong> ${planTarget}</div>
-        <div class="stat-box">
-            <div class="info-line"><strong>Всего заявлений подано:</strong> ${totalCommon + totalLgota + targetTotal}</div>
-            <div class="stat-row">По общему конкурсу: ${totalCommon}</div>
-            <div class="stat-row">Льготные вне конкурса: ${totalLgota}</div>
-            <div class="stat-row">Целевые: ${targetTotal}</div>
-        </div>
-    </div>`;
-
-        // 1. Таблица: Общий конкурс
-        if (commonList.length > 0) {
-            let allScores = [];
-            commonList.forEach(item => {
-                for (let i = 0; i < item.count; i++) allScores.push(item.score);
-            });
-            allScores.sort((a, b) => b - a);
-            const planForCommon = Math.max(plan - totalLgota - Math.min(targetTotal, planTarget), 0);
-
-            html += `\n<h2 class="section-title">Заявления по баллам:</h2>
-            <div class="bar-table-wrapper"><table class="bar-table"><thead><tr>`;
-            commonList.forEach(a => html += `<th>${a.score.toFixed(1)}</th>`);
-            html += `</tr></thead><tbody><tr>`;
-
-            commonList.forEach(a => {
-                let cellClass = 'cell-red';
-                if (planForCommon > 0) {
-                    if (allScores.length < planForCommon) {
-                        cellClass = 'cell-green';
-                    } else {
-                        const cutoff = allScores[planForCommon - 1];
-                        if (a.score > cutoff) cellClass = 'cell-green';
-                        else if (a.score === cutoff) cellClass = 'cell-yellow';
-                        else cellClass = 'cell-red';
-                    }
-                }
-                html += `<td class="${cellClass}">${a.count}</td>`;
-            });
-            html += `</tr></tbody></table></div>`;
-        }
-
-        // 2. Таблица:  вне конкурса по баллам
-        if (lgotaList.length > 0) {
-            html += `\n<h2 class="section-title">Льготные вне конкурса по баллам:</h2>
-            <div class="bar-table-wrapper"><table class="bar-table"><thead><tr>`;
-            lgotaList.forEach(a => html += `<th>${a.score.toFixed(1)}</th>`);
-            html += `</tr></thead><tbody><tr>`;
-            lgotaList.forEach(a => html += `<td class="cell-green">${a.count}</td>`);
-            html += `</tr></tbody></table></div>`;
-        }
-
-        // 3. Таблица: Целевики (Целевое обучение)
-        if (targetList.length > 0) {
-            let allTargetScores = [];
-            targetList.forEach(item => {
-                for (let i = 0; i < item.count; i++) allTargetScores.push(item.score);
-            });
-            allTargetScores.sort((a, b) => b - a);
-
-            html += `\n<h2 class="section-title">Целевые по баллам:</h2>
-            <div class="bar-table-wrapper"><table class="bar-table"><thead><tr>`;
-            targetList.forEach(a => html += `<th>${a.score.toFixed(1)}</th>`);
-            html += `</tr></thead><tbody><tr>`;
-
-            targetList.forEach(a => {
-                let cellClass = 'cell-red';
-                if (planTarget > 0) {
-                    if (allTargetScores.length < planTarget) {
-                        cellClass = 'cell-green';
-                    } else {
-                        const cutoff = allTargetScores[planTarget - 1];
-                        if (a.score > cutoff) cellClass = 'cell-green';
-                        else if (a.score === cutoff) cellClass = 'cell-yellow';
-                        else cellClass = 'cell-red';
-                    }
-                }
-                html += `<td class="${cellClass}">${a.count}</td>`;
-            });
-            html += `</tr></tbody></table></div>`;
-        }
+        html += `<div class="no-paid-msg">Пока не подано ни одного заявления</div>`;
     }
 
     return html;
@@ -666,13 +539,78 @@ function injectNavigationButtons() {
             <span class="burger-line"></span>
         </a>
         <div id="menu-drawer" class="menu-drawer">
-            <a href="${pathPrefix}pages/info/college.html" class="menu-item" onclick="window.toggleMenuDrawer()">📊 О Колледже (ССО)</a>
-            <a href="${pathPrefix}pages/info/university.html" class="menu-item" onclick="window.toggleMenuDrawer()">🏛️ Об Академии (ВО)</a>
-            <a href="${pathPrefix}pages/info/dorms.html" class="menu-item" onclick="window.toggleMenuDrawer()">🏢 Общежития БГАС</a>
-            <a href="${pathPrefix}pages/info/contacts.html" class="menu-item" onclick="window.toggleMenuDrawer()">📍 Контакты и Карта</a>
-            <a href="${pathPrefix}pages/info/forms.html" class="menu-item" onclick="window.toggleMenuDrawer()">📄 Бланки и заявления</a>
-            <a href="${pathPrefix}pages/info/prev_scores.html" class="menu-item" onclick="window.toggleMenuDrawer()">📈 Баллы прошлых лет</a>
-            <a href="${pathPrefix}pages/info/enrollment.html" class="menu-item" onclick="window.toggleMenuDrawer()">📋 Списки зачисленных</a>
+            <a href="${pathPrefix}pages/info/college.html" class="menu-item" onclick="window.toggleMenuDrawer()">
+                <svg class="menu-item-icon" viewBox="0 0 24 24">
+                    <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                    <line x1="9" y1="22" x2="9" y2="16"></line>
+                    <line x1="15" y1="22" x2="15" y2="16"></line>
+                    <line x1="9" y1="16" x2="15" y2="16"></line>
+                    <path d="M8 6h.01M16 6h.01M8 10h.01M16 10h.01"></path>
+                </svg>
+                О Колледже (ССО)
+            </a>
+            <a href="${pathPrefix}pages/info/university.html" class="menu-item" onclick="window.toggleMenuDrawer()">
+                <svg class="menu-item-icon" viewBox="0 0 24 24">
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                    <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"></path>
+                </svg>
+                Об Академии (ВО)
+            </a>
+            <a href="${pathPrefix}pages/info/dorms.html" class="menu-item" onclick="window.toggleMenuDrawer()">
+                <svg class="menu-item-icon" viewBox="0 0 24 24">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                Общежития БГАС
+            </a>
+            <a href="${pathPrefix}pages/info/contacts.html" class="menu-item" onclick="window.toggleMenuDrawer()">
+                <svg class="menu-item-icon" viewBox="0 0 24 24">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-10a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                Контакты и Карта
+            </a>
+            <a href="${pathPrefix}pages/info/forms.html" class="menu-item" onclick="window.toggleMenuDrawer()">
+                <svg class="menu-item-icon" viewBox="0 0 24 24">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                Бланки и заявления
+            </a>
+            <a href="${pathPrefix}pages/info/prev_scores.html" class="menu-item" onclick="window.toggleMenuDrawer()">
+                <svg class="menu-item-icon" viewBox="0 0 24 24">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+                Баллы прошлой кампании
+            </a>
+            <a href="${pathPrefix}pages/info/enrollment.html" class="menu-item" onclick="window.toggleMenuDrawer()">
+                <svg class="menu-item-icon" viewBox="0 0 24 24">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <polyline points="16 11 18 13 22 9"></polyline>
+                </svg>
+                Списки зачисленных
+            </a>
+            <div class="menu-divider"></div>
+            <!-- Telegram-канал ВО -->
+            <a href="https://t.me/+v4NV9J9rqqg5OTgy" target="_blank" class="menu-item" style="color: #0088cc !important;" onclick="window.toggleMenuDrawer()">
+                <svg viewBox="0 0 24 24" width="18" height="18" style="fill: #0088cc !important; margin-right: 6px; flex-shrink: 0;">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.69-.52.36-1 .53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.35-.49.97-.74 3.79-1.65 6.32-2.73 7.59-3.25 3.61-1.48 4.36-1.74 4.85-1.75.11 0 .35.03.5.16.13.12.17.29.18.42-.01.06-.01.12-.02.19z"/>
+                </svg>
+                Telegram ВО
+            </a>
+            <!-- Telegram-канал ССО -->
+            <a href="https://t.me/+v-EXEwGcWasxZTdi" target="_blank" class="menu-item" style="color: #0088cc !important;" onclick="window.toggleMenuDrawer()">
+                <svg viewBox="0 0 24 24" width="18" height="18" style="fill: #0088cc !important; margin-right: 6px; flex-shrink: 0;">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.69-.52.36-1 .53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.35-.49.97-.74 3.79-1.65 6.32-2.73 7.59-3.25 3.61-1.48 4.36-1.74 4.85-1.75.11 0 .35.03.5.16.13.12.17.29.18.42-.01.06-.01.12-.02.19z"/>
+                </svg>
+                Telegram ССО
+            </a>
         </div>
     `;
 
