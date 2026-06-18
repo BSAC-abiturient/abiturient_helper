@@ -136,11 +136,7 @@
 
                     return {
                         name: bSpec.name,
-                        url: bSpec.name.includes("Автоматизация") ? "../monitoring/mon_vo_11_spec1.html" :
-                             bSpec.name.includes("Системы") ? "../monitoring/mon_vo_11_spec2.html" :
-                             bSpec.name.includes("Прикладная") ? "../monitoring/mon_vo_11_spec3.html" :
-                             bSpec.name.includes("Цифровые") ? "../monitoring/mon_vo_11_spec4.html" :
-                             "../monitoring/mon_vo_11_spec5.html",
+                        url: `../monitoring/specialty.html?level=vo11&form=dnev&name=${encodeURIComponent(bSpec.name)}`,
                         budget: { position: bPos, plan: bSpec.plan },
                         paid: {
                             position: pPos,
@@ -246,11 +242,11 @@
 
                     {!score && (
                         <div className="btn-grid">
-                            <a href="../monitoring/mon_vo_11_spec1.html" className="btn-item">Автоматизация технологических процессов и производств<br/><span className="spec-duration">(4 года)</span></a>
-                            <a href="../monitoring/mon_vo_11_spec2.html" className="btn-item">Системы и сети инфокоммуникаций<br/><span className="spec-duration">(4 года)</span></a>
-                            <a href="../monitoring/mon_vo_11_spec3.html" className="btn-item">Прикладная информатика<br/><span className="spec-duration">(4 года)</span></a>
-                            <a href="../monitoring/mon_vo_11_spec4.html" className="btn-item">Цифровые клиентские сервисы и почтово-логистические системы<br/><span class="spec-duration">(4 года)</span></a>
-                            <a href="../monitoring/mon_vo_11_spec5.html" className="btn-item">Маркетинг<br/><span class="spec-duration">(4 года)</span></a>
+                            <a href="../monitoring/specialty.html?level=vo11&form=dnev&name=Автоматизация технологических процессов и производств" className="btn-item">Автоматизация технологических процессов и производств<br/><span className="spec-duration">(4 года)</span></a>
+                            <a href="../monitoring/specialty.html?level=vo11&form=dnev&name=Системы и сети инфокоммуникаций" className="btn-item">Системы и сети инфокоммуникаций<br/><span className="spec-duration">(4 года)</span></a>
+                            <a href="../monitoring/specialty.html?level=vo11&form=dnev&name=Прикладная информатика" className="btn-item">Прикладная информатика<br/><span className="spec-duration">(4 года)</span></a>
+                            <a href="../monitoring/specialty.html?level=vo11&form=dnev&name=Цифровые клиентские сервисы и почтово-логистические системы" className="btn-item">Цифровые клиентские сервисы и почтово-логистические системы<br/><span class="spec-duration">(4 года)</span></a>
+                            <a href="../monitoring/specialty.html?level=vo11&form=dnev&name=Маркетинг" className="btn-item">Маркетинг<br/><span class="spec-duration">(4 года)</span></a>
                         </div>
                     )}
                 </div>

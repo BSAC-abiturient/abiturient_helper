@@ -125,12 +125,12 @@
                 const paidSpecs = specialties.filter(s => s.category === 'paid');
 
                 const targetConfig = [
-                    { name: "Системы и сети инфокоммуникаций", form: "dnev", url: "../monitoring/mon_vo_sso_dnev_spec1.html", isStatic: false },
-                    { name: "Прикладная информатика", form: "dnev", url: "../monitoring/mon_vo_sso_dnev_spec2.html", isStatic: false },
-                    { name: "Почтовая связь", form: "dnev", url: "../monitoring/mon_vo_sso_dnev_spec3.html", isStatic: false },
-                    { name: "Системы и сети инфокоммуникаций", form: "zaoch", url: "../monitoring/mon_vo_sso_zaoch_spec4.html", isStatic: false },
-                    { name: "Прикладная информатика", form: "zaoch", url: "../monitoring/mon_vo_sso_zaoch_spec5.html", isStatic: true },
-                    { name: "Почтовая связь", form: "zaoch", url: "../monitoring/mon_vo_sso_zaoch_spec6.html", isStatic: false }
+                    { name: "Системы и сети инфокоммуникаций", form: "dnev", url: `../monitoring/specialty.html?level=vosso&form=dnev&name=${encodeURIComponent("Системы и сети инфокоммуникаций")}`, isStatic: false },
+                    { name: "Прикладная информатика", form: "dnev", url: `../monitoring/specialty.html?level=vosso&form=dnev&name=${encodeURIComponent("Прикладная информатика")}`, isStatic: false },
+                    { name: "Почтовая связь", form: "dnev", url: `../monitoring/specialty.html?level=vosso&form=dnev&name=${encodeURIComponent("Почтовая связь")}`, isStatic: false },
+                    { name: "Системы и сети инфокоммуникаций", form: "zaoch", url: `../monitoring/specialty.html?level=vosso&form=zaoch&name=${encodeURIComponent("Системы и сети инфокоммуникаций")}`, isStatic: false },
+                    { name: "Прикладная информатика", form: "zaoch", url: `../monitoring/specialty.html?level=vosso&form=zaoch&name=${encodeURIComponent("Прикладная информатика")}`, isStatic: false },
+                    { name: "Почтовая связь", form: "zaoch", url: `../monitoring/specialty.html?level=vosso&form=zaoch&name=${encodeURIComponent("Почтовая связь")}`, isStatic: false }
                 ];
 
                 results = targetConfig.map(cfg => {
@@ -283,17 +283,17 @@
                             <section className="column">
                                 <h3>Дневная форма получения образования</h3>
                                 <div className="btn-grid">
-                                    <a href="../monitoring/mon_vo_sso_dnev_spec1.html" className="btn-item">Системы и сети инфокоммуникаций<span className="spec-duration">(2,5 года)</span></a>
-                                    <a href="../monitoring/mon_vo_sso_dnev_spec2.html" className="btn-item">Прикладная информатика<span className="spec-duration">(2,5 года)</span></a>
-                                    <a href="../monitoring/mon_vo_sso_dnev_spec3.html" className="btn-item">Почтовая связь<span className="spec-duration">(3 года)</span></a>
+                                    <a href="../monitoring/specialty.html?level=vosso&form=dnev&name=Системы и сети инфокоммуникаций" className="btn-item">Системы и сети инфокоммуникаций<span className="spec-duration">(2,5 года)</span></a>
+                                    <a href="../monitoring/specialty.html?level=vosso&form=dnev&name=Прикладная информатика" className="btn-item">Прикладная информатика<span className="spec-duration">(2,5 года)</span></a>
+                                    <a href="../monitoring/specialty.html?level=vosso&form=dnev&name=Почтовая связь" className="btn-item">Почтовая связь<span className="spec-duration">(3 года)</span></a>
                                 </div>
                             </section>
                             <section className="column">
                                 <h3>Заочная форма получения образования</h3>
                                 <div className="btn-grid">
-                                    <a href="../monitoring/mon_vo_sso_zaoch_spec4.html" className="btn-item">Системы и сети инфокоммуникаций<span className="spec-duration">(3 года)</span></a>
-                                    <a href="../monitoring/mon_vo_sso_zaoch_spec5.html" className="btn-item">Прикладная информатика<span className="spec-duration">(3 года)</span></a>
-                                    <a href="../monitoring/mon_vo_sso_zaoch_spec6.html" className="btn-item">Почтовая связь<span className="spec-duration">(3,5 года)</span></a>
+                                    <a href="../monitoring/specialty.html?level=vosso&form=zaoch&name=Системы и сети инфокоммуникаций" className="btn-item">Системы и сети инфокоммуникаций<span className="spec-duration">(3 года)</span></a>
+                                    <a href="../monitoring/specialty.html?level=vosso&form=zaoch&name=Прикладная информатика" className="btn-item">Прикладная информатика<span className="spec-duration">(3 года)</span></a>
+                                    <a href="../monitoring/specialty.html?level=vosso&form=zaoch&name=Почтовая связь" className="btn-item">Почтовая связь<span className="spec-duration">(3,5 года)</span></a>
                                 </div>
                             </section>
                         </div>
