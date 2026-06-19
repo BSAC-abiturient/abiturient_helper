@@ -62,6 +62,7 @@
       "type": "relation",
       "relation": "manyToOne",
       "target": "plugin::users-permissions.role",
+      "with": "users-permissions",
       "inversedBy": "users",
       "configurable": false
     },
@@ -83,16 +84,15 @@
     "submitted_specialty": {
       "type": "string"
     },
-<<<<<<< Updated upstream
+    "alert_sent": {
+      "type": "boolean",
+      "default": false
+    },
     "checklist_data": {
       "type": "json"
     },
     "favorites_data": {
       "type": "json"
-=======
-    "alert_sent": {
-      "type": "boolean"
->>>>>>> Stashed changes
     }
   }
 }

@@ -1,5 +1,4 @@
-﻿
-const { useState, useEffect } = React;
+﻿const { useState, useEffect } = React;
 
 // Списки специальностей для динамического выбора в зависимости от уровня и базы
 const specialtiesDatabase = {
@@ -132,6 +131,11 @@ function PersonalCabinet({ isOpen, onClose }) {
         return savedUser ? JSON.parse(savedUser) : null;
     });
 
+    // СОСТОЯНИЯ УМНЫХ РЕКОМЕНДАЦИЙ (ТЕПЕРЬ НАХОДЯТСЯ СТРОГО ВНУТРИ ФУНКЦИИ)
+    const [recommendations, setRecommendations] = useState([]);
+    const [showRecBanner, setShowRecBanner] = useState(false);
+    const [recLoading, setRecLoading] = useState(false);
+
     // Отдельное окно регистрации
     const [isRegWindowOpen, setIsRegWindowOpen] = useState(false);
     const [regStep, setRegStep] = useState(1);
@@ -165,8 +169,15 @@ function PersonalCabinet({ isOpen, onClose }) {
 
     const STRAPI_URL = 'http://localhost:1337';
 
+    // Функция-санитайзер для автоматического исправления старых ссылок из БД
+    const getSanitizedUrl = (item) => {
+        const isRoot = window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/') || window.location.pathname === '';
+        const pathPrefix = isRoot ? 'pages/' : '../';
+        return `${pathPrefix}monitoring/specialty.html?level=${item.level}&form=${item.form}&name=${encodeURIComponent(item.name)}`;
+    };
+
     // ==========================================================================
-    // ФУНКЦИЯ СИНХРОНИЗАЦИИ С БЭКЕНДОМ (ОПРЕДЕЛЕНА ВВЕРХУ ДЛЯ ИСКЛЮЧЕНИЯ ОШИБОК ХОЙСТИНГА)
+    // ФУНКЦИЯ СИНХРОНИЗАЦИИ С БЭКЕНДОМ
     // ==========================================================================
     const syncDataWithStrapi = async (updatedChecklist, updatedFavorites) => {
         const jwt = localStorage.getItem('cab_jwt');
@@ -1101,7 +1112,7 @@ function PersonalCabinet({ isOpen, onClose }) {
 
                     {compareLoading ? (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 0' }}>
-                            <div className="loader-text" style={{ fontStyle: 'normal' }}>Считывание live-данных из базы Strapi...</div>
+                            <div className="loader-text" style={{ fontStyle: 'normal' }}>Считывание live-данных из базы...</div>
                         </div>
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -1257,49 +1268,49 @@ function PersonalCabinet({ isOpen, onClose }) {
                     </div>
 
                     <div className="cabinet-body">
-                            {showRecBanner && recommendations.length > 0 && (
-                                <div style={{
-                                    backgroundColor: 'rgba(239, 83, 80, 0.08)',
-                                    borderLeft: '4px solid #ef5350',
-                                    borderRadius: '12px',
-                                    padding: '12px 15px',
-                                    marginBottom: '15px',
-                                    textAlign: 'left'
-                                }}>
-                                    <strong style={{ color: '#ef5350', fontSize: '13.5px', display: 'block', marginBottom: '6px' }}>
-                                        ⚠️ Высокий риск непроизводства на бюджет!
-                                    </strong>
-                                    <span style={{ fontSize: '12px', lineHeight: '1.4', display: 'block', marginBottom: '8px', opacity: 0.9 }}>
-                                        Текущие баллы по специальности <strong style={{ color: 'inherit' }}>{user.submitted_specialty}</strong> выросли. Посмотрите подходящие по баллу альтернативы со свободными местами:
-                                    </span>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                        {recommendations.map((rec, idx) => (
-                                            <div key={idx} style={{
-                                                backgroundColor: 'rgba(255, 255, 255, 0.7)',
-                                                padding: '8px 10px',
-                                                borderRadius: '8px',
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'center',
-                                                fontSize: '11.5px'
+                        {showRecBanner && recommendations.length > 0 && (
+                            <div style={{
+                                backgroundColor: 'rgba(239, 83, 80, 0.08)',
+                                borderLeft: '4px solid #ef5350',
+                                borderRadius: '12px',
+                                padding: '12px 15px',
+                                marginBottom: '15px',
+                                textAlign: 'left'
+                            }}>
+                                <strong style={{ color: '#ef5350', fontSize: '13.5px', display: 'block', marginBottom: '6px' }}>
+                                    ⚠️ Высокий риск непроизводства на бюджет!
+                                </strong>
+                                <span style={{ fontSize: '12px', lineHeight: '1.4', display: 'block', marginBottom: '8px', opacity: 0.9 }}>
+                                    Текущие баллы по специальности <strong style={{ color: 'inherit' }}>{user.submitted_specialty}</strong> выросли. Посмотрите подходящие по баллу альтернативы со свободными местами:
+                                </span>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                    {recommendations.map((rec, idx) => (
+                                        <div key={idx} style={{
+                                            backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                                            padding: '8px 10px',
+                                            borderRadius: '8px',
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            fontSize: '11.5px'
+                                        }}>
+                                            <span style={{ fontWeight: 'bold', flex: 1, paddingRight: '10px' }}>
+                                                {rec.name}
+                                            </span>
+                                            <a href={rec.url} className="btn-arrow" style={{
+                                                padding: '3px 8px',
+                                                fontSize: '10px',
+                                                height: 'auto',
+                                                textDecoration: 'none',
+                                                whiteSpace: 'nowrap'
                                             }}>
-                                                <span style={{ fontWeight: 'bold', flex: 1, paddingRight: '10px' }}>
-                                                    {rec.name}
-                                                </span>
-                                                <a href={rec.url} className="btn-arrow" style={{
-                                                    padding: '3px 8px',
-                                                    fontSize: '10px',
-                                                    height: 'auto',
-                                                    textDecoration: 'none',
-                                                    whiteSpace: 'nowrap'
-                                                }}>
-                                                    {rec.hasFreeSeats ? 'Есть места' : 'Проходите'} →
-                                                </a>
-                                            </div>
-                                        ))}
-                                    </div>
+                                                {rec.hasFreeSeats ? 'Есть места' : 'Проходите'} →
+                                            </a>
+                                        </div>
+                                    ))}
                                 </div>
-                            )}
+                            </div>
+                        )}
                         {activeTab === 'checklist' && (
                             <div>
                                 <div className="cab-checklist-filters">
@@ -1435,7 +1446,7 @@ function PersonalCabinet({ isOpen, onClose }) {
 
                                                         <div style={{ flex: 1, minWidth: 0 }}>
                                                             <a
-                                                                href={item.url}
+                                                                href={getSanitizedUrl(item)}
                                                                 style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
                                                             >
                                                                 <strong style={{ fontSize: '13.5px', color: '#007bff', display: 'block', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
