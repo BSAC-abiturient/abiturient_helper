@@ -374,6 +374,13 @@ module.exports = createCoreController('api::specialty.specialty', ({ strapi }) =
         updatedCount++;
       }
 
+      // Вызов проверки позиций и отправки Email оповещений после завершения парсинга
+      try {
+        await checkUserAlerts();
+      } catch (alertError) {
+        strapi.log.error("Ошибка при проверке тревожных уведомлений: " + alertError.message);
+      }
+
       if (ctx) {
         ctx.body = {
           success: true,
@@ -390,3 +397,130 @@ module.exports = createCoreController('api::specialty.specialty', ({ strapi }) =
     }
   }
 }));
+
+/**
+ * Функция сверки зарегистрированных пользователей с общей базой данных конкурса
+ */
+async function checkUserAlerts() {
+  strapi.log.info('[Уведомления] Запуск проверки позиций абитуриентов...');
+
+  // Извлекаем только тех пользователей, у которых заполнена анкета при регистрации
+  const users = await strapi.db.query('plugin::users-permissions.user').findMany({
+    where: {
+      submitted_specialty: { $null: false },
+      score: { $null: false }
+    }
+  });
+
+  for (const user of users) {
+    const userScore = parseFloat(user.score);
+    if (isNaN(userScore)) continue;
+
+    // Очищаем название специальности от скобок
+    const cleanSpecName = user.submitted_specialty.replace(/\s*\(.*?\)\s*/g, '').trim();
+
+    let formOfStudy = 'dnev';
+    if (user.submitted_specialty.includes('Заочное') || user.submitted_specialty.includes('заоч')) {
+      formOfStudy = 'zaoch';
+    }
+
+    // Ищем соответствующую бюджетную специальность, содержащую полный список баллов из Excel
+    const specialty = await strapi.db.query('api::specialty.specialty').findOne({
+      where: {
+        name: cleanSpecName,
+        education_level: user.education_level,
+        form_of_study: formOfStudy,
+        category: 'budget'
+      }
+    });
+
+    if (!specialty || !specialty.plan) continue;
+
+    const plan = specialty.plan;
+    let dist = specialty.applications_distribution;
+    if (typeof dist === 'string') {
+      try {
+        dist = JSON.parse(dist);
+      } catch (e) {
+        dist = {};
+      }
+    }
+
+    // Получаем массив баллов всех (зарегистрированных и незарегистрированных) абитуриентов из Google Таблицы
+    const commonList = dist.common || dist || [];
+    let position = 1;
+
+    // Сравниваем балл пользователя со всей базой конкурса
+    if (user.education_level.startsWith('vo')) {
+      let countAhead = 0;
+      commonList.forEach(app => {
+        const minScore = app.score - 4;
+        if (userScore < minScore) {
+          countAhead += app.count;
+        } else if (userScore >= minScore && userScore <= app.score) {
+          countAhead += app.count;
+        }
+      });
+      position = countAhead + 1;
+    } else {
+      let allScores = [];
+      commonList.forEach(item => {
+        const countVal = parseInt(item.count, 10) || 0;
+        const scoreVal = parseFloat(item.score);
+        for (let i = 0; i < countVal; i++) {
+          allScores.push(scoreVal);
+        }
+      });
+      allScores.sort((a, b) => b - a);
+      position = allScores.filter(s => s >= userScore).length + 1;
+    }
+
+    const isDroppedOut = position > plan;
+
+    if (isDroppedOut) {
+      if (!user.alert_sent) {
+        try {
+          await strapi.plugins['email'].services.email.send({
+            to: user.email,
+            subject: '⚠️ Внимание: Изменение вашей позиции в конкурсе БГАС',
+            html: `
+              <div style="font-family: Arial, sans-serif; padding: 25px; color: #2D3748; line-height: 1.6; max-width: 600px; margin: 0 auto; border: 1px solid #E2E8F0; border-radius: 12px;">
+                <h2 style="color: #E53E3E; margin-top: 0; font-size: 20px;">Внимание, абитуриент!</h2>
+                <p>Сообщаем вам, что в результате последнего обновления конкурсной таблицы ваша позиция по специальности <strong>${user.submitted_specialty}</strong> изменилась.</p>
+                
+                <div style="background-color: #FFF5F5; border-left: 4px solid #E53E3E; padding: 15px 20px; border-radius: 6px; margin: 20px 0;">
+                  Вы сейчас занимаете <strong>${position}-е место</strong> в общем списке поданных заявлений при плане приема на бюджет <strong>${plan} мест</strong>.
+                </div>
+
+                <p>Вы вышли за пределы текущего проходного балла. Для сохранения шансов на поступление в академию рекомендуем войти в ваш <strong>Личный кабинет</strong> и открыть вкладку рекомендаций («Горячие окна») для выбора смежных направлений со свободными бюджетными местами.</p>
+                
+                <div style="text-align: center; margin-top: 25px;">
+                  <a href="https://your-domain.by/index.html" style="background-color: #3182CE; color: #FFFFFF; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Открыть Личный кабинет</a>
+                </div>
+                
+                <hr style="border: none; border-top: 1px solid #E2E8F0; margin-top: 30px;">
+                <small style="color: #718096; display: block; text-align: center;">Данное письмо сгенерировано автоматически системой мониторинга приемной комиссии БГАС.</small>
+              </div>
+            `
+          });
+
+          await strapi.db.query('plugin::users-permissions.user').update({
+            where: { id: user.id },
+            data: { alert_sent: true }
+          });
+          strapi.log.info(`[Уведомления] Предупреждение о вылете отправлено на ${user.email}`);
+        } catch (err) {
+          strapi.log.error(`[Уведомления] Ошибка при отправке на ${user.email}: ${err.message}`);
+        }
+      }
+    } else {
+      if (user.alert_sent) {
+        await strapi.db.query('plugin::users-permissions.user').update({
+          where: { id: user.id },
+          data: { alert_sent: false }
+        });
+        strapi.log.info(`[Уведомления] Абитуриент ${user.email} вернулся в проходной список.`);
+      }
+    }
+  }
+}
