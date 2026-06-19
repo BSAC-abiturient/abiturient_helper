@@ -1,6 +1,7 @@
-﻿// js/cabinet.js
-
-const { useState, useEffect } = React;
+﻿const { useState, useEffect } = React;
+const [recommendations, setRecommendations] = useState([]);
+const [showRecBanner, setShowRecBanner] = useState(false);
+const [recLoading, setRecLoading] = useState(false);
 
 // Списки специальностей для динамического выбора в зависимости от уровня и базы
 const specialtiesDatabase = {
@@ -227,6 +228,41 @@ function PersonalCabinet({ isOpen, onClose }) {
         window.addEventListener('favoritesUpdated', handleUpdate);
         handleUpdate();
         return () => window.removeEventListener('favoritesUpdated', handleUpdate);
+    }, [user]);
+
+    // Эффект для автоматической проверки рекомендаций при авторизации пользователя
+    useEffect(() => {
+        if (!user) {
+            setShowRecBanner(false);
+            setRecommendations([]);
+            return;
+        }
+
+        const fetchRecommendations = async () => {
+            setRecLoading(true);
+            try {
+                const response = await fetch(`${STRAPI_URL}/api/auth/recommendations`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        score: user.score,
+                        education_level: user.education_level,
+                        submitted_specialty: user.submitted_specialty
+                    })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    setShowRecBanner(data.showBanner);
+                    setRecommendations(data.recommendations || []);
+                }
+            } catch (e) {
+                console.warn("Ошибка при получении умных подсказок:", e);
+            } finally {
+                setRecLoading(false);
+            }
+        };
+
+        fetchRecommendations();
     }, [user]);
 
     // Эффект смены баз при изменении уровня образования на форме регистрации
@@ -1223,6 +1259,49 @@ function PersonalCabinet({ isOpen, onClose }) {
                     </div>
 
                     <div className="cabinet-body">
+                            {showRecBanner && recommendations.length > 0 && (
+                                <div style={{
+                                    backgroundColor: 'rgba(239, 83, 80, 0.08)',
+                                    borderLeft: '4px solid #ef5350',
+                                    borderRadius: '12px',
+                                    padding: '12px 15px',
+                                    marginBottom: '15px',
+                                    textAlign: 'left'
+                                }}>
+                                    <strong style={{ color: '#ef5350', fontSize: '13.5px', display: 'block', marginBottom: '6px' }}>
+                                        ⚠️ Высокий риск непроизводства на бюджет!
+                                    </strong>
+                                    <span style={{ fontSize: '12px', lineHeight: '1.4', display: 'block', marginBottom: '8px', opacity: 0.9 }}>
+                                        Текущие баллы по специальности <strong style={{ color: 'inherit' }}>{user.submitted_specialty}</strong> выросли. Посмотрите подходящие по баллу альтернативы со свободными местами:
+                                    </span>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                        {recommendations.map((rec, idx) => (
+                                            <div key={idx} style={{
+                                                backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                                                padding: '8px 10px',
+                                                borderRadius: '8px',
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                fontSize: '11.5px'
+                                            }}>
+                                                <span style={{ fontWeight: 'bold', flex: 1, paddingRight: '10px' }}>
+                                                    {rec.name}
+                                                </span>
+                                                <a href={rec.url} className="btn-arrow" style={{
+                                                    padding: '3px 8px',
+                                                    fontSize: '10px',
+                                                    height: 'auto',
+                                                    textDecoration: 'none',
+                                                    whiteSpace: 'nowrap'
+                                                }}>
+                                                    {rec.hasFreeSeats ? 'Есть места' : 'Проходите'} →
+                                                </a>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         {activeTab === 'checklist' && (
                             <div>
                                 <div className="cab-checklist-filters">
