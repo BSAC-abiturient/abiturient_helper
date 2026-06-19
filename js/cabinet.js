@@ -1,8 +1,5 @@
 ﻿
 const { useState, useEffect } = React;
-const [recommendations, setRecommendations] = useState([]);
-const [showRecBanner, setShowRecBanner] = useState(false);
-const [recLoading, setRecLoading] = useState(false);
 
 // Списки специальностей для динамического выбора в зависимости от уровня и базы
 const specialtiesDatabase = {
