@@ -1,6 +1,4 @@
-﻿// js/cabinet.js
-
-const { useState, useEffect } = React;
+﻿const { useState, useEffect } = React;
 
 // Списки специальностей для динамического выбора в зависимости от уровня и базы
 const specialtiesDatabase = {
