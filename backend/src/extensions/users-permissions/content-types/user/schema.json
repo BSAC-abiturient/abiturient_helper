@@ -82,6 +82,12 @@
     },
     "submitted_specialty": {
       "type": "string"
+    },
+    "checklist_data": {
+      "type": "json"
+    },
+    "favorites_data": {
+      "type": "json"
     }
   }
 }
