@@ -1,4 +1,5 @@
-﻿const { useState, useEffect } = React;
+﻿
+const { useState, useEffect } = React;
 const [recommendations, setRecommendations] = useState([]);
 const [showRecBanner, setShowRecBanner] = useState(false);
 const [recLoading, setRecLoading] = useState(false);
