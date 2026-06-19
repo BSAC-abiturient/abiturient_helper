@@ -47,16 +47,71 @@ const specialtiesDatabase = {
 };
 
 const specialtyMetadataLocal = {
-    sso9: { educationForm: "Дневная", base: "9 классов", duration: "3 г. 10 мес." },
-    sso11: {
-        dnev: { educationForm: "Дневная", base: "11 классов", duration: "2 г. 10 мес." },
-        zaoch: { educationForm: "Заочная", base: "11 классов", duration: "3 г. 10 мес." }
+    sso9: {
+        educationForm: "Дневная",
+        base: "9 классов",
+        duration: {
+            "Разработка и сопровождение веб-ресурсов": "3 г. 10 мес.",
+            "Техническая эксплуатация систем и сетей телекоммуникаций": "3 г. 10 мес.",
+            "Информационные кабельные сети": "3 г. 10 мес.",
+            "Техническая эксплуатация систем радиосвязи, радиовещания и телевидения": "3 г. 10 мес.",
+            "Техническая эксплуатация мультимедийных систем": "3 г. 10 мес.",
+            "Тестирование программного обеспечения": "3 года",
+            "Почтовая деятельность": "3 года"
+        }
     },
-    ssopto: { educationForm: "Дневная", base: "ПТО", duration: "2 года" },
-    vo11: { educationForm: "Дневная", base: "11 классов", duration: "4 года" },
+    sso11: {
+        dnev: {
+            educationForm: "Дневная",
+            base: "11 классов",
+            duration: {
+                "Техническая эксплуатация систем и сетей телекоммуникаций": "2 г. 10 мес.",
+                "Техническая эксплуатация систем радиосвязи, радиовещания и телевидения": "2 г. 10 мес.",
+                "Тестирование программного обеспечения": "2 года",
+                "Почтовая деятельность": "2 года"
+            }
+        },
+        zaoch: {
+            educationForm: "Заочная",
+            base: "11 классов",
+            duration: {
+                "Техническая эксплуатация систем и сетей телекоммуникаций": "3 г. 10 мес.",
+                "Техническая эксплуатация систем радиосвязи, радиовещания и телевидения": "3 г. 10 мес.",
+                "Почтовая деятельность": "3 года"
+            }
+        }
+    },
+    ssopto: {
+        educationForm: "Дневная",
+        base: "ПТО",
+        duration: {
+            "Почтовая деятельность": "2 года"
+        }
+    },
+    vo11: {
+        educationForm: "Дневная",
+        base: "11 классов",
+        duration: "4 года"
+    },
     vosso: {
-        dnev: { educationForm: "Дневная сокр.", base: "ССО", duration: "2,5 года" },
-        zaoch: { educationForm: "Заочная сокр.", base: "ССО", duration: "3 года" }
+        dnev: {
+            educationForm: "Дневная сокр.",
+            base: "ССО",
+            duration: {
+                "Системы и сети инфокоммуникаций": "2,5 года",
+                "Прикладная информатика": "2,5 года",
+                "Почтовая связь": "3 года"
+            }
+        },
+        zaoch: {
+            educationForm: "Заочная сокр.",
+            base: "ССО",
+            duration: {
+                "Системы и сети инфокоммуникаций": "3 года",
+                "Прикладная информатика": "3 года",
+                "Почтовая связь": "3,5 года"
+            }
+        }
     }
 };
 
@@ -404,12 +459,29 @@ function PersonalCabinet({ isOpen, onClose }) {
                     const totalApps = specAttributes.total_applications || 0;
                     competitionRatio = (totalApps / plan).toFixed(2);
 
-                    let allScores = [];
-                    (specAttributes.applications_distribution || []).forEach(dist => {
-                        for (let i = 0; i < dist.count; i++) {
-                            allScores.push(dist.score);
+                    // БЕЗОПАСНЫЙ РАЗБОР РАСПРЕДЕЛЕНИЯ ИЗ БАЗЫ STRAPI
+                    let rawDist = specAttributes.applications_distribution || {};
+                    if (typeof rawDist === 'string') {
+                        try {
+                            rawDist = JSON.parse(rawDist);
+                        } catch (e) {
+                            rawDist = {};
                         }
-                    });
+                    }
+
+                    // Берем массив общего конкурса (или резервный пустой массив)
+                    const commonList = rawDist.common || rawDist || [];
+
+                    let allScores = [];
+                    if (Array.isArray(commonList)) {
+                        commonList.forEach(dist => {
+                            const countVal = parseInt(dist.count, 10) || 0;
+                            const scoreVal = parseFloat(dist.score);
+                            for (let i = 0; i < countVal; i++) {
+                                allScores.push(scoreVal);
+                            }
+                        });
+                    }
                     allScores.sort((a, b) => b - a);
 
                     if (allScores.length > 0) {
