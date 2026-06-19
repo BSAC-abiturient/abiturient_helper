@@ -85,8 +85,50 @@ const specialtyMetadata = {
     }
 };
 
+// Вспомогательная функция для генерации подробного названия в истории
+function getDetailedTitle(name, level, form) {
+    let suffix = "";
+
+    if (level === 'sso9') {
+        suffix = " (после 9 кл.)";
+    } else if (level === 'sso11') {
+        if (form === 'zaoch') {
+            suffix = " (после 11 кл., заочн. ССО)";
+        } else {
+            suffix = " (после 11 кл., дневн. ССО)";
+        }
+    } else if (level === 'ssopto') {
+        suffix = " (после ПТО)";
+    } else if (level === 'vo11') {
+        suffix = " (после 11 кл., ВО)";
+    } else if (level === 'vosso') {
+        if (form === 'zaoch') {
+            suffix = " (после ССО, заочн. сокращ. ВО)";
+        } else {
+            suffix = " (после ССО, дневн. сокращ. ВО)";
+        }
+    }
+
+    return `${name}${suffix}`;
+}
 // Функция определения параметров специальности на основе ключевых слов из тега <title> и файлов
 function getSpecQueryFromDocument() {
+    const params = new URLSearchParams(window.location.search);
+
+    // Если параметры переданы в URL (новый метод)
+    if (params.has('name') && params.has('level')) {
+        const name = params.get('name');
+        const level = params.get('level');
+        const form = params.get('form') || 'dnev';
+
+        // Генерируем детальное имя и записываем в заголовок вкладки
+        const detailedTitle = getDetailedTitle(name, level, form);
+        document.title = detailedTitle;
+
+        return { name, level, form };
+    }
+
+    // Резервный старый метод по названию файла
     const title = document.title;
     const filename = window.location.pathname.split('/').pop().toLowerCase();
 
@@ -96,7 +138,6 @@ function getSpecQueryFromDocument() {
 
     const titleLower = title.toLowerCase();
 
-    // 1. Изолированное определение уровня образования и формы обучения
     if (filename.includes('sso_9')) {
         level = 'sso9';
     } else if (filename.includes('sso_11')) {
@@ -109,26 +150,8 @@ function getSpecQueryFromDocument() {
     } else if (filename.includes('vo_sso')) {
         level = 'vosso';
         if (filename.includes('zaoch')) form = 'zaoch';
-    } else {
-        // Резервное сопоставление по точному тексту
-        if (titleLower.includes('9 класс') || titleLower.includes('после 9')) {
-            level = 'sso9';
-        } else if (titleLower.includes('11 класс') || titleLower.includes('после 11')) {
-            if (titleLower.includes('высшее') || titleLower.includes(' во')) {
-                level = 'vo11';
-            } else {
-                level = 'sso11';
-                if (titleLower.includes('заоч')) form = 'zaoch';
-            }
-        } else if (titleLower.includes('после ссо') || titleLower.includes('сокращенн')) {
-            level = 'vosso';
-            if (titleLower.includes('заоч')) form = 'zaoch';
-        } else if (titleLower.includes('pto') || titleLower.includes('пто')) {
-            level = 'ssopto';
-        }
     }
 
-    // 2. Идентификация названия специальности
     if (titleLower.includes("веб-ресурсов")) {
         name = "Разработка и сопровождение веб-ресурсов";
     } else if (titleLower.includes("тестирование")) {
@@ -296,6 +319,23 @@ function injectTimerElement() {
         timerEl = document.createElement('div');
         timerEl.id = 'countdown-timer';
         timerEl.className = 'countdown-timer';
+
+        // Переводим таймер в относительный поток и сбрасываем абсолютные смещения
+        timerEl.style.setProperty('position', 'relative', 'important');
+        timerEl.style.setProperty('left', 'auto', 'important');
+        timerEl.style.setProperty('right', 'auto', 'important');
+        timerEl.style.setProperty('top', 'auto', 'important');
+        timerEl.style.setProperty('transform', 'none', 'important');
+        timerEl.style.setProperty('margin', '0', 'important');
+
+        // Жестко фиксируем высоту на 38px (как у кнопки «Назад»)
+        timerEl.style.setProperty('height', '38px', 'important');
+        timerEl.style.setProperty('padding', '0 16px', 'important');
+        timerEl.style.setProperty('display', 'inline-flex', 'important');
+        timerEl.style.setProperty('align-items', 'center', 'important');
+        timerEl.style.setProperty('box-sizing', 'border-box', 'important');
+
+        // Флекс-контейнер шапки автоматически растолкает их по краям (Назад - влево, Таймер - вправо)
         header.appendChild(timerEl);
     }
 
@@ -527,14 +567,12 @@ async function loadAndRender() {
         const { name, level, form } = getSpecQueryFromDocument();
         if (!name) return;
 
-        // Если кэш еще не собран, делаем один запрос для получения обеих форм (Бюджет и Платно)
         if (!cachedStrapiData) {
-            const response = await fetch(`http://localhost:1337/api/specialties?filters[name][$eq]=${encodeURIComponent(name)}&filters[education_level][$eq]=${level}&filters[form_of_study][$eq]=${form}&pagination[pageSize]=10`);
+            const response = await fetch(`http://localhost:1337/api/specialties?filters[name][$eq]=${encodeURIComponent(name)}&filters[education_level][$eq]=${level}&filters[form_of_study][$eq]=${form}&pagination[pageSize]=100`);
             const json = await response.json();
             cachedStrapiData = json.data || [];
         }
 
-        // Фильтруем данные из кэша по текущей категории (budget/paid)
         const currentRecordData = cachedStrapiData.find(item => {
             const attrs = item.attributes || item;
             return attrs.category === currentCategory;
@@ -553,6 +591,9 @@ async function loadAndRender() {
             if (timerEl) timerEl.remove();
             if (timerInterval) clearInterval(timerInterval);
         }
+
+        // ВЫЗЫВАЕМ СОХРАНЕНИЕ В ИСТОРИЮ ТУТ (когда заголовок гарантированно поменялся на название специальности)
+        saveToHistory();
 
     } catch (error) {
         console.error("Ошибка загрузки данных из Strapi API:", error);
@@ -591,11 +632,14 @@ document.addEventListener('DOMContentLoaded', () => {
 // Сохранение в историю просмотров
 function saveToHistory() {
     const specTitle = document.title;
-    const specUrl = window.location.pathname;
+    // ИСПРАВЛЕНИЕ: сохраняем путь вместе с параметрами запроса (?level=...&name=...), а не только имя файла
+    const specUrl = window.location.pathname + window.location.search;
     const isSpecPage = document.getElementById('monitor-content') !== null;
 
-    if (isSpecPage && specTitle && specUrl && !specUrl.endsWith('index.html') && !specUrl.endsWith('/')) {
+    if (isSpecPage && specTitle && specUrl && !specUrl.includes('index.html') && specUrl !== '/') {
         let history = JSON.parse(localStorage.getItem('recently_viewed_specs')) || [];
+
+        // Проверяем дубликаты по полному URL
         history = history.filter(item => item.url !== specUrl);
         history.unshift({ title: specTitle, url: specUrl });
 
@@ -761,7 +805,6 @@ function toggleTheme() {
 
 document.addEventListener('DOMContentLoaded', () => {
     injectNavigationButtons();
-    saveToHistory();
     const isDark = document.documentElement.classList.contains('dark-mode');
     updateThemeIcon(isDark);
 });

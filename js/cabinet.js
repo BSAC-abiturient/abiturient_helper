@@ -857,37 +857,37 @@ function PersonalCabinet({ isOpen, onClose }) {
             if (winner === 'web') return {
                 name: "Разработка и сопровождение веб-ресурсов",
                 desc: "Проектирование веб-интерфейсов, верстка шаблонов сайтов и написание клиентского кода на JavaScript.",
-                url: "pages/monitoring/mon_sso_9_spec1.html"
+                url: "pages/monitoring/specialty.html?level=sso9&form=dnev&name=Разработка и сопровождение веб-ресурсов"
             };
             if (winner === 'po') return {
                 name: "Тестирование программного обеспечения",
                 desc: "Контроль качества программных продуктов, автоматизация тестов, составление баг-репортов и аудит QA.",
-                url: "pages/monitoring/mon_sso_9_spec7.html"
+                url: "pages/monitoring/specialty.html?level=sso9&form=dnev&name=Тестирование программного обеспечения"
             };
             if (winner === 'cable') return {
                 name: "Информационные кабельные сети",
                 desc: "Монтаж и обслуживание волоконно-оптических (ВОЛС) и локальных проводных инфокоммуникационных линий связи.",
-                url: "pages/monitoring/mon_sso_9_spec3.html"
+                url: "pages/monitoring/specialty.html?level=sso9&form=dnev&name=Информационные кабельные сети"
             };
             if (winner === 'radio') return {
                 name: "Техническая эксплуатация систем радиосвязи, вещания и телевидения",
                 desc: "Обеспечение стабильной работы радиовещательных станций, спутниковых систем и цифрового ТВ.",
-                url: "pages/monitoring/mon_sso_9_spec4.html"
+                url: "pages/monitoring/specialty.html?level=sso9&form=dnev&name=Техническая эксплуатация систем радиосвязи, вещания и телевидения"
             };
             if (winner === 'multi') return {
                 name: "Техническая эксплуатация мультимедийных систем",
                 desc: "Профессиональная настройка студийного, концертного звука, акустических платформ и мультимедиа-экранов.",
-                url: "pages/monitoring/mon_sso_9_spec5.html"
+                url: "pages/monitoring/specialty.html?level=sso9&form=dnev&name=Техническая эксплуатация мультимедийных систем"
             };
             if (winner === 'post') return {
                 name: "Почтовая деятельность (9 кл.)",
                 desc: "Логистическое управление распределением отправлений, координация доставок и автоматизированный клиентский сервис.",
-                url: "pages/monitoring/mon_sso_9_spec6.html"
+                url: "pages/monitoring/specialty.html?level=sso9&form=dnev&name=Почтовая деятельность"
             };
             return {
                 name: "Техническая эксплуатация систем и сетей телекоммуникаций",
                 desc: "Администрирование серверов связи, маршрутизация потоков данных и конфигурирование АТС.",
-                url: "pages/monitoring/mon_sso_9_spec2.html"
+                url: "pages/monitoring/specialty.html?level=sso9&form=dnev&name=Техническая эксплуатация систем и сетей телекоммуникаций"
             };
         }
 
@@ -895,38 +895,38 @@ function PersonalCabinet({ isOpen, onClose }) {
             if (winner === 'po') return {
                 name: "Тестирование программного обеспечения (11 кл., Дневное)",
                 desc: "Быстрый вход в ИТ-индустрию через практическое освоение ручного и автоматического тестирования ПО за 2 года.",
-                url: "pages/monitoring/mon_sso_11_dnev_spec4.html"
+                url: "pages/monitoring/specialty.html?level=sso11&form=dnev&name=Тестирование программного обеспечения"
             };
             if (winner === 'radio') {
                 return targetForm === 'zaoch' ? {
-                    name: "Радиосвязь и ТВ (Заочное)",
+                    name: "Техническая эксплуатация систем радиосвязи, вещания и телевидения (Заочное)",
                     desc: "Заочное обучение эксплуатации радиоэлектронного оборудования связи и систем вещания.",
-                    url: "pages/monitoring/mon_sso_11_zaoch_spec6.html"
+                    url: "pages/monitoring/specialty.html?level=sso11&form=zaoch&name=Техническая эксплуатация систем радиосвязи, вещания и телевидения"
                 } : {
-                    name: "Радиосвязь и ТВ (Дневное)",
+                    name: "Техническая эксплуатация систем радиосвязи, вещания и телевидения (Дневное)",
                     desc: "Очное обучение построению радиолиний, спутниковых сетей вещания и мобильной телефонии.",
-                    url: "pages/monitoring/mon_sso_11_dnev_spec2.html"
+                    url: "pages/monitoring/specialty.html?level=sso11&form=dnev&name=Техническая эксплуатация систем радиосвязи, вещания и телевидения"
                 };
             }
             if (winner === 'post') {
                 return targetForm === 'zaoch' ? {
                     name: "Почтовая деятельность (Заочное)",
                     desc: "Заочный курс менеджмента почтово-транспортных сетей и систем складского распределения.",
-                    url: "pages/monitoring/mon_sso_11_zaoch_spec7.html"
+                    url: "pages/monitoring/specialty.html?level=sso11&form=zaoch&name=Почтовая деятельность"
                 } : {
                     name: "Почтовая деятельность (Дневное)",
                     desc: "Очное обучение цифровой транспортной логистике, управлению потоками отправлений и сервисам обслуживания.",
-                    url: "pages/monitoring/mon_sso_11_dnev_spec3.html"
+                    url: "pages/monitoring/specialty.html?level=sso11&form=dnev&name=Почтовая деятельность"
                 };
             }
             return targetForm === 'zaoch' ? {
-                name: "Телекоммуникации (Заочное)",
+                name: "Техническая эксплуатация систем и сетей телекоммуникаций (Заочное)",
                 desc: "Заочное освоение сетевого администрирования и эксплуатации современных систем связи.",
-                url: "pages/monitoring/mon_sso_11_zaoch_spec5.html"
+                url: "pages/monitoring/specialty.html?level=sso11&form=zaoch&name=Техническая эксплуатация систем и сетей телекоммуникаций"
             } : {
-                name: "Телекоммуникации (Дневное)",
+                name: "Техническая эксплуатация систем и сетей телекоммуникаций (Дневное)",
                 desc: "Очное освоение монтажа оптических трасс, настройки маршрутизаторов и серверов связи.",
-                url: "pages/monitoring/mon_sso_11_dnev_spec1.html"
+                url: "pages/monitoring/specialty.html?level=sso11&form=dnev&name=Техническая эксплуатация систем и сетей телекоммуникаций"
             };
         }
 
@@ -934,27 +934,27 @@ function PersonalCabinet({ isOpen, onClose }) {
             if (winner === 'info') return {
                 name: "Прикладная информатика (ВО)",
                 desc: "Комплексная инженерно-математическая подготовка full-stack разработчиков и архитекторов ИС.",
-                url: "pages/monitoring/mon_vo_11_spec3.html"
+                url: "pages/monitoring/specialty.html?level=vo11&form=dnev&name=Прикладная информатика"
             };
             if (winner === 'auto') return {
                 name: "Автоматизация технологических процессов и производств",
                 desc: "Программирование микроконтроллеров и промышленных ПЛК, робототехнические комплексы и индустрия 4.0.",
-                url: "pages/monitoring/mon_vo_11_spec1.html"
+                url: "pages/monitoring/specialty.html?level=vo11&form=dnev&name=Автоматизация технологических процессов и производств"
             };
             if (winner === 'market') return {
                 name: "Маркетинг (ВО)",
                 desc: "Анализ отраслевых рынков услуг связи, разработка веб-рекламы, продуктовый менеджмент и PR.",
-                url: "pages/monitoring/mon_vo_11_spec5.html"
+                url: "pages/monitoring/specialty.html?level=vo11&form=dnev&name=Маркетинг"
             };
             if (winner === 'post_logistics') return {
                 name: "Цифровые клиентские сервисы и почтово-логистические системы",
                 desc: "Почтово-логистические хабы, программирование логистических цепочек и интеграция баз данных доставок.",
-                url: "pages/monitoring/mon_vo_11_spec4.html"
+                url: "pages/monitoring/specialty.html?level=vo11&form=dnev&name=Цифровые клиентские сервисы и почтово-логистические системы"
             };
             return {
                 name: "Системы и сети инфокоммуникаций (11 кл.)",
                 desc: "Магистральное проектирование оптоволоконных, космических и сотовых инфраструктур передачи информации.",
-                url: "pages/monitoring/mon_vo_11_spec2.html"
+                url: "pages/monitoring/specialty.html?level=vo11&form=dnev&name=Системы и сети инфокоммуникаций"
             };
         }
     };

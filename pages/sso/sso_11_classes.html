@@ -137,21 +137,9 @@
                     const paidRatio = pSpec && pSpec.plan > 0 ? (pPos / pSpec.plan) : Infinity;
                     const bestRatio = Math.min(budgetRatio, paidRatio);
 
-                    let targetUrl = "../monitoring/mon_sso_11_dnev_spec1.html";
-                    if (bSpec.form_of_study === 'zaoch') {
-                        if (bSpec.name.includes("телекоммуникаций")) targetUrl = "../monitoring/mon_sso_11_zaoch_spec5.html";
-                        else if (bSpec.name.includes("радиосвязи")) targetUrl = "../monitoring/mon_sso_11_zaoch_spec6.html";
-                        else if (bSpec.name.includes("Почтовая")) targetUrl = "../monitoring/mon_sso_11_zaoch_spec7.html";
-                    } else {
-                        if (bSpec.name.includes("телекоммуникаций")) targetUrl = "../monitoring/mon_sso_11_dnev_spec1.html";
-                        else if (bSpec.name.includes("радиосвязи")) targetUrl = "../monitoring/mon_sso_11_dnev_spec2.html";
-                        else if (bSpec.name.includes("Почтовая")) targetUrl = "../monitoring/mon_sso_11_dnev_spec3.html";
-                        else if (bSpec.name.includes("Тестирование")) targetUrl = "../monitoring/mon_sso_11_dnev_spec4.html";
-                    }
-
                     return {
                         name: `${bSpec.name} (${bSpec.form_of_study === 'dnev' ? 'Дневное' : 'Заочное'})`,
-                        url: targetUrl,
+                        url: `../monitoring/specialty.html?level=sso11&form=${bSpec.form_of_study}&name=${encodeURIComponent(bSpec.name)}`,
                         budget: { position: bPos, plan: bSpec.plan },
                         paid: {
                             position: pPos,
@@ -260,18 +248,18 @@
                             <div className="column">
                                 <h3>Дневная форма получения образования</h3>
                                 <div className="btn-grid">
-                                    <a href="../monitoring/mon_sso_11_dnev_spec1.html" className="btn-item">Техническая эксплуатация систем и сетей телекоммуникаций<span className="spec-duration">(2 года 10 месяцев)</span></a>
-                                    <a href="../monitoring/mon_sso_11_dnev_spec2.html" className="btn-item">Техническая эксплуатация систем радиосвязи, радиовещания и телевидения<span className="spec-duration">(2 года 10 месяцев)</span></a>
-                                    <a href="../monitoring/mon_sso_11_dnev_spec3.html" className="btn-item">Почтовая деятельность<span className="spec-duration">(2 года)</span></a>
-                                    <a href="../monitoring/mon_sso_11_dnev_spec4.html" className="btn-item">Тестирование программного обеспечения<span className="spec-duration">(2 года)</span></a>
+                                    <a href="../monitoring/specialty.html?level=sso11&form=dnev&name=Техническая эксплуатация систем и сетей телекоммуникаций" className="btn-item">Техническая эксплуатация систем и сетей телекоммуникаций<span className="spec-duration">(2 года 10 месяцев)</span></a>
+                                    <a href="../monitoring/specialty.html?level=sso11&form=dnev&name=Техническая эксплуатация систем радиосвязи, радиовещания и телевидения" className="btn-item">Техническая эксплуатация систем радиосвязи, радиовещания и телевидения<span className="spec-duration">(2 года 10 месяцев)</span></a>
+                                    <a href="../monitoring/specialty.html?level=sso11&form=dnev&name=Почтовая деятельность" className="btn-item">Почтовая деятельность<span className="spec-duration">(2 года)</span></a>
+                                    <a href="../monitoring/specialty.html?level=sso11&form=dnev&name=Тестирование программного обеспечения" className="btn-item">Тестирование программного обеспечения<span className="spec-duration">(2 года)</span></a>
                                 </div>
                             </div>
                             <div className="column">
                                 <h3>Заочная форма получения образования</h3>
                                 <div className="btn-grid">
-                                    <a href="../monitoring/mon_sso_11_zaoch_spec5.html" className="btn-item">Техническая эксплуатация систем и сетей телекоммуникаций<span className="spec-duration">(3 года 10 месяцев)</span></a>
-                                    <a href="../monitoring/mon_sso_11_zaoch_spec6.html" className="btn-item">Техническая эксплуатация систем радиосвязи, радиовещания и телевидения<span className="spec-duration">(2 года 10 месяцев)</span></a>
-                                    <a href="../monitoring/mon_sso_11_zaoch_spec7.html" className="btn-item">Почтовая деятельность<span className="spec-duration">(2 года)</span></a>
+                                    <a href="../monitoring/specialty.html?level=sso11&form=zaoch&name=Техническая эксплуатация систем и сетей телекоммуникаций" className="btn-item">Техническая эксплуатация систем и сетей телекоммуникаций<span className="spec-duration">(3 года 10 месяцев)</span></a>
+                                    <a href="../monitoring/specialty.html?level=sso11&form=zaoch&name=Техническая эксплуатация систем радиосвязи, радиовещания и телевидения" className="btn-item">Техническая эксплуатация систем радиосвязи, радиовещания и телевидения<span className="spec-duration">(2 года 10 месяцев)</span></a>
+                                    <a href="../monitoring/specialty.html?level=sso11&form=zaoch&name=Почтовая деятельность" className="btn-item">Почтовая деятельность<span className="spec-duration">(2 года)</span></a>
                                 </div>
                             </div>
                         </div>
