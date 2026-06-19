@@ -83,16 +83,11 @@
     "submitted_specialty": {
       "type": "string"
     },
-<<<<<<< Updated upstream
     "checklist_data": {
       "type": "json"
     },
     "favorites_data": {
       "type": "json"
-=======
-    "alert_sent": {
-      "type": "boolean"
->>>>>>> Stashed changes
     }
   }
 }

@@ -889,7 +889,6 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     draftAndPublish: false;
   };
   attributes: {
-    alert_sent: Attribute.Boolean;
     blocked: Attribute.Boolean & Attribute.DefaultTo<false>;
     checklist_data: Attribute.JSON;
     confirmationToken: Attribute.String & Attribute.Private;
