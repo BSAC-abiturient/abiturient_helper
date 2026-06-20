@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <script>
+        try {
+            if (localStorage.getItem('theme') === 'dark') {
+                document.documentElement.classList.add('dark-mode');
+            }
+        } catch (e) {
+            console.warn(e);
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../../Fon/avatar.jpeg" type="image/jpeg">
+    <title>Списки зачисленных — БГАС</title>
+    <link rel="stylesheet" href="../../css/main.css">
+</head>
+<body>
+    <div class="container">
+        <header style="text-align: left; border: none; padding: 0;">
+            <a href="../../index.html" class="btn-back">← Назад</a>
+        </header>
+        <main style="margin-top: 20px;">
+            <h1 class="spec-title" style="font-size: 32px; margin-bottom: 5px;">Списки зачисленных</h1>
+            <p class="info-line" style="margin-bottom: 25px; opacity: 0.8;">Официальные утвержденные списки зачисления абитуриентов БГАС</p>
+
+            <div id="enrolled-container" class="route-container">
+                <div class="academy-loader-container">
+                    <div class="loader-text">Подключение к базе данных...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const STRAPI_URL = 'http://localhost:1337';
+
+        // Извлекаем прямую ссылку на медиа-файл из Strapi без сторонней обработки
+        function getStrapiFileUrl(item, strapiUrl) {
+            const fileFields = ['file', 'document', 'attachment', 'upload', 'doc'];
+
+            for (const field of fileFields) {
+                const media = item[field];
+                if (!media) continue;
+
+                if (media.data && media.data.attributes && media.data.attributes.url) {
+                    return strapiUrl + media.data.attributes.url;
+                }
+
+                if (media.data && Array.isArray(media.data) && media.data.length > 0) {
+                    const firstFile = media.data[0].attributes || media.data[0];
+                    if (firstFile.url) return strapiUrl + firstFile.url;
+                }
+
+                if (media.url) {
+                    return strapiUrl + media.url;
+                }
+
+                if (Array.isArray(media) && media.length > 0 && media[0].url) {
+                    return strapiUrl + media[0].url;
+                }
+            }
+            return null;
+        }
+
+        async function loadEnrolledLists() {
+            try {
+                const response = await fetch(`${STRAPI_URL}/api/lists-of-enrolleds?populate=*`);
+                const result = await response.json();
+                const lists = result.data || [];
+                const container = document.getElementById('enrolled-container');
+                container.innerHTML = '';
+
+                if (lists.length === 0) {
+                    container.innerHTML = '<div class="no-paid-msg">Списки в данный момент отсутствуют</div>';
+                    return;
+                }
+
+                lists.forEach(list => {
+                    const item = list.attributes || list;
+                    const title = item.title;
+
+                    let levelLabel = 'Среднее специальное';
+                    if (item.education_level === 'vo11' || item.education_level === 'vosso') {
+                        levelLabel = 'Высшее образование';
+                    }
+
+                    const fileUrl = getStrapiFileUrl(item, STRAPI_URL);
+
+                    const card = document.createElement('div');
+                    card.className = 'route-card';
+                    card.style.marginBottom = '15px';
+                    card.style.display = 'flex';
+                    card.style.justifyContent = 'space-between';
+                    card.style.alignItems = 'center';
+                    card.style.padding = '15px 20px';
+
+                    // Кнопка возвращена в режим прямого скачивания со словом "Скачать"
+                    let actionButtonHtml = '';
+                    if (fileUrl) {
+                        actionButtonHtml = `<a href="${fileUrl}" download target="_blank" rel="noopener noreferrer" class="btn-arrow" style="font-size: 12px; text-decoration: none;">Скачать</a>`;
+                    } else {
+                        actionButtonHtml = `<button onclick="alert('Запись о зачислении создана, но сам файл со списком еще не прикреплен к этой записи в панели управления Strapi.')" class="btn-arrow btn-gray" style="font-size: 12px; cursor: pointer; border: none; padding: 8px 12px;">Нет файла</button>`;
+                    }
+
+                    card.innerHTML = `
+                            <div class="route-detail" style="font-size: 15px; margin: 0; font-weight: bold; padding-right: 10px;">
+                                📋 ${title} <br>
+                                <span style="font-size: 11px; opacity: 0.7; font-weight: normal;">Уровень: ${levelLabel}</span>
+                            </div>
+                            ${actionButtonHtml}
+                        `;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.error("Ошибка загрузки списков зачисленных:", error);
+                document.getElementById('enrolled-container').innerHTML = '<div class="no-paid-msg">Не удалось загрузить списки зачисленных. Проверьте запуск Strapi.</div>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadEnrolledLists);
+    </script>
+    <script src="../../pages/monitoring/monitoring.js"></script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <script>
+        try {
+            if (localStorage.getItem('theme') === 'dark') {
+                document.documentElement.classList.add('dark-mode');
+            }
+        } catch (e) {
+            console.warn("Доступ к localStorage заблокирован:", e);
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../../Fon/avatar.jpeg" type="image/jpeg">
+    <title>Мониторинг специальности | БГАС</title>
+    <link class="main-css" rel="stylesheet" href="../../css/main.css">
+</head>
+<body>
+
+    <div class="container">
+        <!-- Шапка содержит только кнопку Назад и таймер на одной линии -->
+        <header style="display: flex; justify-content: space-between; align-items: center; width: 100%; position: relative; padding-bottom: 25px !important; box-sizing: border-box;">
+            <!-- Принудительно делаем кнопку «Назад» относительной и задаем ей высоту ровно 38px -->
+            <a href="#" class="btn-back" style="position: relative !important; left: auto !important; top: auto !important; margin: 0 !important; display: inline-flex !important; align-items: center !important; height: 38px !important; box-sizing: border-box !important; padding: 0 15px !important;" onclick="history.back(); return false;">← Назад</a>
+        </header>
+
+        <main>
+            <div id="loading-overlay" class="academy-loader-container">
+                <div class="cap-wrapper">
+                    <svg class="mortarboard-svg" viewBox="0 0 64 64">
+                        <path d="M16 32 V38 C16 43 23 46 32 46 C41 46 48 43 48 38 V32" fill="none" stroke="#007bff" stroke-width="3" stroke-linecap="round" />
+                        <polygon points="32,10 58,22 32,34 6,22" fill="#007bff" stroke="#007bff" stroke-width="1" />
+                        <path class="cap-tassel" d="M32,22 L46,27 V37" fill="none" stroke="#ff9800" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                        <circle cx="32" cy="22" r="2" fill="#ffffff" />
+                    </svg>
+                </div>
+                <div class="loader-text">Загрузка данных...</div>
+            </div>
+
+            <div id="monitor-content" style="display: none;"></div>
+        </main>
+    </div>
+
+    <script src="monitoring.js"></script>
+</body>
+</html>

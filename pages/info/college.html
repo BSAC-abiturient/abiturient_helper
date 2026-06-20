@@ -1,0 +1,110 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <!-- Предотвращение мерцания темы (FOUC) -->
+    <script>
+        try {
+            if (localStorage.getItem('theme') === 'dark') {
+                document.documentElement.classList.add('dark-mode');
+            }
+        } catch (e) {
+            console.warn("Конфиденциальный режим или настройки браузера блокируют доступ к localStorage:", e);
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../../Fon/avatar.jpeg" type="image/jpeg">
+    <title>О Колледже (ССО) — БГАС</title>
+    <link rel="stylesheet" href="../../css/main.css">
+</head>
+<body>
+
+    <div class="container">
+        <header style="text-align: left; border: none; padding: 0;">
+            <a href="../../index.html" class="btn-back">← Назад</a>
+        </header>
+
+        <main id="college-content" style="margin-top: 20px;">
+            <h1 class="spec-title" style="font-size: 32px; margin-bottom: 5px;">Колледж ИКТ</h1>
+            <p class="info-line" style="margin-bottom: 25px; opacity: 0.8;">Обособленное подразделение «Колледж информационно-коммуникационных технологий»</p>
+
+            <!-- Основное описание -->
+            <div class="dorms-desc-block" style="margin-top: 10px;">
+                <p><strong>Колледж информационно-коммуникационных технологий (ИКТ)</strong> является государственным образовательным учреждением и функционирует как обособленное подразделение учреждения образования «Белорусская государственная академия связи».</p>
+                <p>Учебное заведение выступает в качестве одного из ведущих центров среднего специального образования Республики Беларусь, обеспечивающего подготовку высококлассных специалистов в сфере связи, телекоммуникаций и современных информационных технологий.</p>
+            </div>
+
+            <!-- Встроенный интерактивный видео-плеер Колледжа ИКТ -->
+            <h2 class="video-section-title">Видеознакомство с коллеждем</h2>
+            <div class="video-container">
+                <iframe src="https://www.youtube.com/embed/xYEWfn2Mic0"
+                        title="Видео о Колледже ИКТ"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowfullscreen>
+                </iframe>
+            </div>
+
+            <!-- Структура колледжа -->
+            <h2 class="section-title">Структура колледжа</h2>
+            <p class="info-line" style="margin-bottom: 15px;">В структуру Колледжа ИКТ входят 4 специализированных отделения:</p>
+
+            <div class="route-container" style="margin-bottom: 25px;">
+                <div class="route-card" style="padding: 18px 22px;">
+                    <div class="route-detail" style="font-size: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                        <span>📬</span> <strong>Отделение почтовых и информационных технологий</strong>
+                    </div>
+                    <div class="route-detail" style="font-size: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                        <span>📺</span> <strong>Отделение систем средств радиосвязи и цифрового телевидения</strong>
+                    </div>
+                    <div class="route-detail" style="font-size: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                        <span>🌐</span> <strong>Отделение систем и сетей телекоммуникаций</strong>
+                    </div>
+                    <div class="route-detail" style="font-size: 15px; margin-bottom: 0; display: flex; align-items: center; gap: 8px;">
+                        <span>🎓</span> <strong>Отделение заочного и дистанционного образования</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- История создания -->
+            <h2 class="section-title">История создания</h2>
+            <div class="dorms-desc-block">
+                <p>История Колледжа информационно-коммуникационных технологий началась в <strong>2017 году</strong>. Решением Совета Академии и приказом Министерства связи и информатизации Республики Беларусь было создано обособленное подразделение «Институт профессионального образования».</p>
+                <p>Спустя год структура потерпела реорганизацию и была переименована, а в <strong>2020 году</strong> подразделение получил свое современное название — «Колледж информационно-коммуникационных технологий», окончательно закрепив за собой статус ключевого звена ССО в системе отраслевого образования.</p>
+            </div>
+
+            <!-- Информация для абитуриентов -->
+            <h2 class="section-title">Полезная информация для абитуриентов</h2>
+            <div class="stat-box" style="max-width: 100%; padding: 22px; margin-bottom: 25px;">
+                <ul class="document-checklist">
+                    <li class="document-checklist-item"><strong>База приема:</strong> Обучение осуществляется на основе общего базового образования (после 9 классов), общего среднего образования (после 11 классов) либо профессионально-технического образования (ПТО).</li>
+                    <li class="document-checklist-item"><strong>Сроки обучения:</strong> Для поступающих на базе 9 классов срок обучения составляет в среднем 3–4 года, для выпускников 11 классов — 2–4 года (в зависимости от формы обучения).</li>
+                    <li class="document-checklist-item"><strong>Условия зачисления:</strong> Прием документов осуществляется без экзаменов — на основе конкурса среднего балла документа об образовании.</li>
+                    <li class="document-checklist-item"><strong>Иногородним студентам:</strong> Всем иногородним учащимся дневной формы обучения гарантированно предоставляются места в благоустроенных общежитиях БГАС.</li>
+                    <li class="document-checklist-item"><strong>Практическая направленность:</strong> Программы обучения максимально ориентированы на практику и тесно связаны с реальным производственным сектором, что обеспечивает стопроцентную востребованность выпускников на рынке труда.</li>
+                </ul>
+            </div>
+
+            <!-- Руководство -->
+            <h2 class="section-title">Руководство</h2>
+            <div class="leadership-grid" style="margin-bottom: 20px;">
+                <!-- Ректор -->
+                <div class="leader-card">
+                    <div class="leader-role">Ректор БГАС</div>
+                    <div class="leader-name">Зеневич Андрей Олегович</div>
+                    <div class="leader-title">доктор технических наук, профессор</div>
+                </div>
+
+                <!-- Директор -->
+                <div class="leader-card">
+                    <div class="leader-role">Директор колледжа</div>
+                    <div class="leader-name">Шестак Владимир Валентинович</div>
+                    <div class="leader-title">директор обособленного подразделения "Колледж ИКТ"</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Подключаем логику ассистента и навигационных кнопок -->
+    <script src="../../pages/monitoring/monitoring.js"></script>
+</body>
+</html>

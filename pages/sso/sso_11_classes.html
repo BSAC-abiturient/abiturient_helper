@@ -1,7 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
-    <!-- БАЗОВАЯ ОПТИМИЗАЦИЯ ВЕБ-СТРАНИЦ (PERFORMANCE, SEO): Определение темной темы до рендеринга макета -->
     <script>
         try {
             if (localStorage.getItem('theme') === 'dark') {
@@ -17,14 +16,13 @@
     <title>Абитуриентам после 11 класса — ССО</title>
     <link rel="stylesheet" href="../../css/main.css">
 
-    <!-- БАЗОВАЯ ОПТИМИЗАЦИЯ ВЕБ-СТРАНИЦ (PERFORMANCE, SEO): CDN загрузка React, Babel и библиотеки XLSX -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- React и Babel из CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.3/babel.min.js"></script>
 </head>
 <body>
-   
+
     <div class="container">
         <header>
             <a href="sso_main.html" class="btn-back">← Назад</a>
@@ -47,73 +45,36 @@
         </main>
     </div>
 
-    <!-- ИСПОЛЬЗОВАНИЕ ФРЕЙМВОРКА REACT: Инициализация интерактивного калькулятора -->
     <script type="text/babel">
         const { useState, useEffect } = React;
-
-        const SHEET_ID = '1uFwZs-jzJiUkZk6U266bo4QbmwjAjoUcc0pKAabWhos';
-        const XLSX_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=xlsx`;
-
-        const specsConfig = [
-            { id: 1, name: "Техническая эксплуатация систем и сетей телекоммуникаций (Дневное)", offset: 356, hasPaid: true, offsetPaid: 372, url: "../monitoring/mon_sso_11_dnev_spec1.html" },
-            { id: 2, name: "Техническая эксплуатация систем радиосвязи, радиовещания и телевидения (Дневное)", offset: 388, hasPaid: true, offsetPaid: 404, url: "../monitoring/mon_sso_11_dnev_spec2.html" },
-            { id: 3, name: "Почтовая деятельность (Дневное)", offset: 420, hasPaid: true, offsetPaid: 436, url: "../monitoring/mon_sso_11_dnev_spec3.html" },
-            { id: 4, name: "Тестирование программного обеспечения (Дневное)", offset: 324, hasPaid: true, offsetPaid: 340, url: "../monitoring/mon_sso_11_dnev_spec4.html" },
-            { id: 5, name: "Техническая эксплуатация систем и сетей телекоммуникаций (Заочное)", offset: 454, hasPaid: true, offsetPaid: 470, url: "../monitoring/mon_sso_11_zaoch_spec5.html" },
-            { id: 6, name: "Техническая эксплуатация систем радиосвязи, радиовещания и телевидения (Заочное)", offset: 486, hasPaid: true, offsetPaid: 502, url: "../monitoring/mon_sso_11_zaoch_spec6.html" },
-            { id: 7, name: "Почтовая деятельность (Заочное)", offset: 518, hasPaid: true, offsetPaid: 534, url: "../monitoring/mon_sso_11_zaoch_spec7.html" }
-        ];
-
-        function getCell(sheet, r, c) {
-            if (!sheet) return '';
-            const addr = XLSX.utils.encode_cell({ r, c });
-            return sheet[addr] ? sheet[addr].v : '';
-        }
-
-        function parseBlockData(sheet, offset) {
-            const plan = parseInt(getCell(sheet, offset + 10, 2), 10) || 0;
-            let applications = [];
-            for (let col = 4, score = 10.0; col <= 74; col++, score = +(score - 0.1).toFixed(1)) {
-                let count = parseInt(getCell(sheet, offset + 10, col), 10) || 0;
-                if (count > 0) applications.push({ score: +score.toFixed(1), count });
-            }
-            return { plan, applications };
-        }
-
-        function getPosition(applications, userScore) {
-            const count = applications
-                .filter(app => app.score >= userScore)
-                .reduce((sum, app) => sum + app.count, 0);
-            return count + 1;
-        }
+        const API_URL = 'http://localhost:1337/api/specialties';
 
         function Sso11Calculator() {
             const [score, setScore] = useState('');
-            const [workbook, setWorkbook] = useState(null);
+            const [specialties, setSpecialties] = useState([]);
             const [loading, setLoading] = useState(true);
 
             useEffect(() => {
-                const loadWorkbook = async () => {
+                const loadData = async () => {
                     try {
-                        const fetchFunc = window.fetchXlsxWithCache || async function(url) {
-                            const res = await fetch(url);
-                            return res.arrayBuffer();
-                        };
-                        const buffer = await fetchFunc(XLSX_URL);
-                        const wb = XLSX.read(buffer, { type: 'array' });
-                        setWorkbook(wb);
+                        const res = await fetch(`${API_URL}?filters[education_level][$eq]=sso11&pagination[pageSize]=100`);
+                        const json = await res.json();
+                        const items = (json.data || []).map(item => ({
+                            id: item.id,
+                            ...(item.attributes || item)
+                        }));
+                        setSpecialties(items);
                         setLoading(false);
                     } catch (e) {
+                        console.error("Ошибка загрузки данных sso11", e);
                         setLoading(false);
                     }
                 };
-                loadWorkbook();
+                loadData();
             }, []);
 
-            /* ДОБАВЛЕНИЕ ИНТЕРАКТИВНЫХ КОМПОНЕНТОВ (СЛАЙДЕРЫ, ФОРМЫ, ФИЛЬТРЫ) С ОБРАБОТКОЙ ДАННЫХ ПОЛЬЗОВАТЕЛЯ: Считывание числового балла */
             const handleScoreInput = (e) => {
                 let val = e.target.value.replace(/[^0-9.,]/g, '').replace(',', '.');
-
                 const dotIndex = val.indexOf('.');
                 if (dotIndex !== -1) {
                     const integerPart = val.substring(0, dotIndex);
@@ -123,7 +84,6 @@
                     }
                     val = integerPart + '.' + fractionalPart;
                 }
-
                 const checkNum = parseFloat(val);
                 if (!isNaN(checkNum) && checkNum > 10) {
                     val = '10';
@@ -135,63 +95,79 @@
                 setScore('');
             };
 
-            let results = [];
-            let isValidScore = false;
-
-            /* ДОБАВЛЕНИЕ ИНТЕРАКТИВНЫХ КОМПОНЕНТОВ (СЛАЙДЕРЫ, ФОРМЫ, ФИЛЬТРЫ) С ОБРАБОТКОЙ ДАННЫХ ПОЛЬЗОВАТЕЛЯ: Динамический пересчет списков зачислений */
-            if (score && workbook) {
-                const userScore = parseFloat(score);
-                if (!isNaN(userScore) && userScore >= 1.0 && userScore <= 10.0) {
-                    isValidScore = true;
-                    const sheetBudget = workbook.Sheets[workbook.SheetNames[0]];
-                    let calculatedSpecs = [];
-
-                    specsConfig.forEach(spec => {
-                        const budgetData = parseBlockData(sheetBudget, spec.offset);
-                        const budgetPos = getPosition(budgetData.applications, userScore);
-
-                        let paidPos = 0;
-                        let paidPlan = 0;
-
-                        if (spec.hasPaid) {
-                            const paidData = parseBlockData(sheetBudget, spec.offsetPaid);
-                            paidPlan = paidData.plan;
-                            paidPos = getPosition(paidData.applications, userScore);
-                        }
-
-                        const budgetRatio = budgetData.plan > 0 ? (budgetPos / budgetData.plan) : Infinity;
-                        const paidRatio = paidPlan > 0 ? (paidPos / paidPlan) : Infinity;
-                        const bestRatio = Math.min(budgetRatio, paidRatio);
-
-                        calculatedSpecs.push({
-                            name: spec.name,
-                            url: spec.url,
-                            budget: { position: budgetPos, plan: budgetData.plan },
-                            paid: { position: paidPos, plan: paidPlan, exists: spec.hasPaid },
-                            bestRatio: bestRatio
-                        });
-                    });
-
-                    calculatedSpecs.sort((a, b) => {
-                        const aPassesBudget = a.budget.plan > 0 && a.budget.position <= a.budget.plan;
-                        const bPassesBudget = b.budget.plan > 0 && b.budget.position <= b.budget.plan;
-                        const aPassesPaid = a.paid.exists && a.paid.plan > 0 && a.paid.position <= a.paid.plan;
-                        const bPassesPaid = b.paid.exists && b.paid.plan > 0 && b.paid.position <= b.paid.plan;
-
-                        let aPriority = 3;
-                        if (aPassesBudget) aPriority = 1;
-                        else if (aPassesPaid) aPriority = 2;
-
-                        let bPriority = 3;
-                        if (bPassesBudget) bPriority = 1;
-                        else if (bPassesPaid) bPriority = 2;
-
-                        if (aPriority !== bPriority) return aPriority - bPriority;
-                        return a.bestRatio - b.bestRatio;
-                    });
-
-                    results = calculatedSpecs;
+            // Универсальный безопасный парсер JSON-распределения
+            const parseDistribution = (dist) => {
+                if (!dist) return [];
+                let parsed = dist;
+                if (typeof dist === 'string') {
+                    try {
+                        parsed = JSON.parse(dist);
+                    } catch (e) {
+                        return [];
+                    }
                 }
+                return parsed.common || parsed || [];
+            };
+
+            const calculatePosition = (rawDistribution, userScore) => {
+                const distribution = parseDistribution(rawDistribution);
+                if (distribution.length === 0) return 1;
+
+                const countAhead = distribution
+                    .filter(app => app.score >= userScore)
+                    .reduce((sum, app) => sum + app.count, 0);
+                return countAhead + 1;
+            };
+
+            const userScore = parseFloat(score);
+            const isValidScore = !isNaN(userScore) && userScore >= 1.0 && userScore <= 10.0;
+            let results = [];
+
+            if (isValidScore && specialties.length > 0) {
+                const budgetSpecs = specialties.filter(s => s.category === 'budget');
+                const paidSpecs = specialties.filter(s => s.category === 'paid');
+
+                results = budgetSpecs.map(bSpec => {
+                    const pSpec = paidSpecs.find(p => p.name === bSpec.name && p.form_of_study === bSpec.form_of_study);
+
+                    const bPos = calculatePosition(bSpec.applications_distribution, userScore);
+                    const pPos = pSpec ? calculatePosition(pSpec.applications_distribution, userScore) : 0;
+
+                    const budgetRatio = bSpec.plan > 0 ? (bPos / bSpec.plan) : Infinity;
+                    const paidRatio = pSpec && pSpec.plan > 0 ? (pPos / pSpec.plan) : Infinity;
+                    const bestRatio = Math.min(budgetRatio, paidRatio);
+
+                    return {
+                        name: `${bSpec.name} (${bSpec.form_of_study === 'dnev' ? 'Дневное' : 'Заочное'})`,
+                        url: `../monitoring/specialty.html?level=sso11&form=${bSpec.form_of_study}&name=${encodeURIComponent(bSpec.name)}`,
+                        budget: { position: bPos, plan: bSpec.plan },
+                        paid: {
+                            position: pPos,
+                            plan: pSpec ? pSpec.plan : 0,
+                            exists: !!pSpec
+                        },
+                        bestRatio: bestRatio
+                    };
+                });
+
+                results.sort((a, b) => {
+                    const aPassesBudget = a.budget.plan > 0 && a.budget.position <= a.budget.plan;
+                    const bPassesBudget = b.budget.plan > 0 && b.budget.position <= b.budget.plan;
+
+                    const aPassesPaid = a.paid.exists && a.paid.plan > 0 && a.paid.position <= a.paid.plan;
+                    const bPassesPaid = b.paid.exists && b.paid.plan > 0 && b.paid.position <= b.paid.plan;
+
+                    let aPriority = 3;
+                    if (aPassesBudget) aPriority = 1;
+                    else if (aPassesPaid) aPriority = 2;
+
+                    let bPriority = 3;
+                    if (bPassesBudget) bPriority = 1;
+                    else if (bPassesPaid) bPriority = 2;
+
+                    if (aPriority !== bPriority) return aPriority - bPriority;
+                    return a.bestRatio - b.bestRatio;
+                });
             }
 
             const getColorClass = (position, plan) => {
@@ -208,7 +184,7 @@
                         <input
                             type="text"
                             className="score-search-input"
-                            placeholder={loading ? "Загрузка данных..." : "Введите средний балл"}
+                            placeholder={loading ? "Загрузка..." : "Введите средний балл"}
                             value={score}
                             onChange={handleScoreInput}
                             disabled={loading}
@@ -224,6 +200,13 @@
                                 <div style={{ padding: '15px', textAlign: 'center', color: '#888' }}>
                                     Введите корректный балл от 1.0 до 10.0
                                 </div>
+                            ) : specialties.length === 0 ? (
+                                <div style={{ padding: '15px', textAlign: 'center', color: '#ef5350', fontWeight: 'bold' }}>
+                                    ⚠️ База данных пуста или недоступна. Запустите парсер:<br/>
+                                    <a href="http://localhost:1337/api/specialties/parse" target="_blank" style={{color: '#007bff', textDecoration: 'underline'}}>
+                                        http://localhost:1337/api/specialties/parse
+                                    </a>
+                                </div>
                             ) : (
                                 results.map((spec, idx) => {
                                     const bClass = getColorClass(spec.budget.position, spec.budget.plan);
@@ -238,7 +221,7 @@
                                                 </div>
                                             );
                                         } else {
-                                            paidHtml = <div className="search-paid-line">ваша позиция на платное: нет мест / план не задан</div>;
+                                            paidHtml = <div className="search-paid-line">ваша позиция на платное: нет мест</div>;
                                         }
                                     } else {
                                         paidHtml = <div className="search-paid-line">ваша позиция на платное: прием не осуществляется</div>;
@@ -265,18 +248,18 @@
                             <div className="column">
                                 <h3>Дневная форма получения образования</h3>
                                 <div className="btn-grid">
-                                    <a href="../monitoring/mon_sso_11_dnev_spec1.html" className="btn-item">Техническая эксплуатация систем и сетей телекоммуникаций<span className="spec-duration">(2 года 10 месяцев)</span></a>
-                                    <a href="../monitoring/mon_sso_11_dnev_spec2.html" className="btn-item">Техническая эксплуатация систем радиосвязи, радиовещания и телевидения<span className="spec-duration">(2 года 10 месяцев)</span></a>
-                                    <a href="../monitoring/mon_sso_11_dnev_spec3.html" className="btn-item">Почтовая деятельность<span className="spec-duration">(2 года)</span></a>
-                                    <a href="../monitoring/mon_sso_11_dnev_spec4.html" className="btn-item">Тестирование программного обеспечения<span className="spec-duration">(2 года)</span></a>
+                                    <a href="../monitoring/specialty.html?level=sso11&form=dnev&name=Техническая эксплуатация систем и сетей телекоммуникаций" className="btn-item">Техническая эксплуатация систем и сетей телекоммуникаций<span className="spec-duration">(2 года 10 месяцев)</span></a>
+                                    <a href="../monitoring/specialty.html?level=sso11&form=dnev&name=Техническая эксплуатация систем радиосвязи, радиовещания и телевидения" className="btn-item">Техническая эксплуатация систем радиосвязи, радиовещания и телевидения<span className="spec-duration">(2 года 10 месяцев)</span></a>
+                                    <a href="../monitoring/specialty.html?level=sso11&form=dnev&name=Почтовая деятельность" className="btn-item">Почтовая деятельность<span className="spec-duration">(2 года)</span></a>
+                                    <a href="../monitoring/specialty.html?level=sso11&form=dnev&name=Тестирование программного обеспечения" className="btn-item">Тестирование программного обеспечения<span className="spec-duration">(2 года)</span></a>
                                 </div>
                             </div>
                             <div className="column">
                                 <h3>Заочная форма получения образования</h3>
                                 <div className="btn-grid">
-                                    <a href="../monitoring/mon_sso_11_zaoch_spec5.html" className="btn-item">Техническая эксплуатация систем и сетей телекоммуникаций<span className="spec-duration">(3 года 10 месяцев)</span></a>
-                                    <a href="../monitoring/mon_sso_11_zaoch_spec6.html" className="btn-item">Техническая эксплуатация систем радиосвязи, радиовещания и телевидения<span className="spec-duration">(2 года 10 месяцев)</span></a>
-                                    <a href="../monitoring/mon_sso_11_zaoch_spec7.html" className="btn-item">Почтовая деятельность<span className="spec-duration">(2 года)</span></a>
+                                    <a href="../monitoring/specialty.html?level=sso11&form=zaoch&name=Техническая эксплуатация систем и сетей телекоммуникаций" className="btn-item">Техническая эксплуатация систем и сетей телекоммуникаций<span className="spec-duration">(3 года 10 месяцев)</span></a>
+                                    <a href="../monitoring/specialty.html?level=sso11&form=zaoch&name=Техническая эксплуатация систем радиосвязи, радиовещания и телевидения" className="btn-item">Техническая эксплуатация систем радиосвязи, радиовещания и телевидения<span className="spec-duration">(2 года 10 месяцев)</span></a>
+                                    <a href="../monitoring/specialty.html?level=sso11&form=zaoch&name=Почтовая деятельность" className="btn-item">Почтовая деятельность<span className="spec-duration">(2 года)</span></a>
                                 </div>
                             </div>
                         </div>

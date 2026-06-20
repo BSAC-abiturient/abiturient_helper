@@ -1,0 +1,207 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <script>
+        try {
+            if (localStorage.getItem('theme') === 'dark') {
+                document.documentElement.classList.add('dark-mode');
+            }
+        } catch (e) {
+            console.warn(e);
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../../Fon/avatar.jpeg" type="image/jpeg">
+    <title>Баллы прошлого года — БГАС</title>
+    <link rel="stylesheet" href="../../css/main.css">
+</head>
+<body>
+    <div class="container">
+        <header style="text-align: left; border: none; padding: 0;">
+            <a href="../../index.html" class="btn-back">← Назад</a>
+        </header>
+        <main style="margin-top: 20px;">
+            <h1 class="spec-title" style="font-size: 32px; margin-bottom: 5px;">Баллы прошлого года</h1>
+            <p class="info-line" style="margin-bottom: 25px; opacity: 0.8;">Архив проходных баллов приемной кампании прошлого года</p>
+
+            <div id="scores-container" class="route-container">
+                <div class="academy-loader-container">
+                    <div class="loader-text">Подключение к базе данных...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const STRAPI_URL = 'http://localhost:1337';
+
+        async function loadArchives() {
+            try {
+                // Запрашиваем архивные баллы из таблицы archives с запасом лимита записей
+                const response = await fetch(`${STRAPI_URL}/api/archives?pagination[limit]=150`);
+                const result = await response.json();
+                const records = result.data || [];
+                const container = document.getElementById('scores-container');
+                container.innerHTML = '';
+
+                if (records.length === 0) {
+                    container.innerHTML = '<div class="no-paid-msg">Архивные данные отсутствуют</div>';
+                    return;
+                }
+
+                // Объект для структурированной группировки
+                const groupedData = {};
+
+                records.forEach(rec => {
+                    const item = rec.attributes || rec;
+                    const specialty = item.specialty_name;
+                    const score = item.score;
+                    const category = item.category; // 'budget' или 'paid'
+
+                    // УМНЫЙ АВТОСКАНЕР ПОЛЕЙ: ищет значения 'zaoch'/'dnev' и уровни образования,
+                    // независимо от того, как именно вы назвали эти колонки в панели Strapi
+                    let form = 'dnev';
+                    let level = 'sso9';
+
+                    for (const key in item) {
+                        const val = String(item[key]).toLowerCase().trim();
+                        if (val === 'zaoch' || val === 'dnev') {
+                            form = val;
+                        }
+                        if (['sso9', 'sso11', 'ssopto', 'vo11', 'vosso'].includes(val)) {
+                            level = val;
+                        }
+                    }
+
+                    let groupKey = '';
+                    let groupTitle = '';
+
+                    // Классификация по академическим направлениям БГАС с исправленной грамматикой
+                    if (level === 'sso9') {
+                        groupKey = 'sso9';
+                        groupTitle = 'Среднее специальное образование (ССО) — на базе 9 классов';
+                    } else if (level === 'sso11') {
+                        if (form === 'zaoch') {
+                            groupKey = 'sso11_zaoch';
+                            groupTitle = 'Среднее специальное образование (ССО) — на базе 11 классов (Заочная форма)';
+                        } else {
+                            groupKey = 'sso11_dnev';
+                            groupTitle = 'Среднее специальное образование (ССО) — на базе 11 классов (Дневная форма)';
+                        }
+                    } else if (level === 'ssopto') {
+                        groupKey = 'ssopto';
+                        groupTitle = 'Среднее специальное образование (ССО) — на базе ПТО';
+                    } else if (level === 'vo11') {
+                        groupKey = 'vo11';
+                        groupTitle = 'Высшее образование (ВО) — на базе 11 классов';
+                    } else if (level === 'vosso') {
+                        if (form === 'zaoch') {
+                            groupKey = 'vosso_zaoch';
+                            groupTitle = 'Высшее образование (ВО) — на базе ССО (Заочная сокращенная форма)';
+                        } else {
+                            groupKey = 'vosso_dnev';
+                            groupTitle = 'Высшее образование (ВО) — на базе ССО (Дневная сокращенная форма)';
+                        }
+                    } else {
+                        groupKey = 'other';
+                        groupTitle = 'Другие специальности';
+                    }
+
+                    if (!groupedData[groupKey]) {
+                        groupedData[groupKey] = {
+                            title: groupTitle,
+                            specialties: {}
+                        };
+                    }
+
+                    // Объединяем бюджетные и платные баллы по имени специальности
+                    if (!groupedData[groupKey].specialties[specialty]) {
+                        groupedData[groupKey].specialties[specialty] = {
+                            budget: null,
+                            paid: null
+                        };
+                    }
+
+                    if (category === 'budget') {
+                        groupedData[groupKey].specialties[specialty].budget = score;
+                    } else if (category === 'paid') {
+                        groupedData[groupKey].specialties[specialty].paid = score;
+                    }
+                });
+
+                // Строгий академический порядок сортировки групп на странице
+                const groupOrder = ['sso9', 'sso11_dnev', 'sso11_zaoch', 'ssopto', 'vo11', 'vosso_dnev', 'vosso_zaoch', 'other'];
+
+                groupOrder.forEach(key => {
+                    const group = groupedData[key];
+                    if (!group || Object.keys(group.specialties).length === 0) return;
+
+                    // Заголовок группы: увеличен шрифт, добавлен стильный бордюр слева
+                    const groupTitleEl = document.createElement('h2');
+                    groupTitleEl.className = 'section-title';
+                    groupTitleEl.style.fontSize = '22px';
+                    groupTitleEl.style.fontWeight = '800';
+                    groupTitleEl.style.color = '#007bff';
+                    groupTitleEl.style.marginTop = '35px';
+                    groupTitleEl.style.marginBottom = '15px';
+                    groupTitleEl.style.borderLeft = '4px solid #007bff';
+                    groupTitleEl.style.paddingLeft = '12px';
+                    groupTitleEl.innerText = group.title;
+                    container.appendChild(groupTitleEl);
+
+                    // Карточка для списка специальностей группы
+                    const card = document.createElement('div');
+                    card.className = 'route-card';
+                    card.style.padding = '18px 20px';
+
+                    let innerHtml = '';
+                    const specialtiesNames = Object.keys(group.specialties);
+
+                    specialtiesNames.forEach((specName, idx) => {
+                        const scoreData = group.specialties[specName];
+
+                        // Формирование красивой строки вывода баллов
+                        let scoresLine = '';
+                        if (scoreData.budget !== null) {
+                            scoresLine += `Бюджет — <span style="font-weight: 800; color: #2e7d32;">${scoreData.budget}</span>`;
+                        } else {
+                            scoresLine += `Бюджет — <span style="color: #a0aec0; font-size: 13px;">прием не осуществлялся</span>`;
+                        }
+
+                        scoresLine += ' &nbsp;|&nbsp; ';
+
+                        if (scoreData.paid !== null) {
+                            // Цвет изменен на единый зеленый (#2e7d32)
+                            scoresLine += `Платно — <span style="font-weight: 800; color: #2e7d32;">${scoreData.paid}</span>`;
+                        } else {
+                            scoresLine += `Платно — <span style="color: #a0aec0; font-size: 13px;">прием не осуществлялся</span>`;
+                        }
+
+                        // Убираем нижнюю пунктирную линию у самого последнего элемента в карточке
+                        const isLastItem = idx === specialtiesNames.length - 1;
+                        innerHtml += `
+                                <div class="route-detail" style="font-size: 14.5px; margin-bottom: ${isLastItem ? '0' : '12px'}; border-bottom: ${isLastItem ? 'none' : '1px dashed rgba(113, 128, 150, 0.15)'}; padding-bottom: ${isLastItem ? '0' : '8px'};">
+                                    <strong style="color: #007bff; display: inline-block; margin-bottom: 4px;">${specName}</strong><br>
+                                    <span style="font-size: 13.5px; color: inherit;">
+                                        ${scoresLine}
+                                    </span>
+                                </div>
+                            `;
+                    });
+
+                    card.innerHTML = innerHtml;
+                    container.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error("Ошибка загрузки архива баллов:", error);
+                document.getElementById('scores-container').innerHTML = '<div class="no-paid-msg">Не удалось загрузить архив. Проверьте запуск и подключение к Strapi.</div>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadArchives);
+    </script>
+    <script src="../../pages/monitoring/monitoring.js"></script>
+</body>
+</html>

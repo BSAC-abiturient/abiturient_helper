@@ -1,0 +1,140 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <script>
+        try {
+            if (localStorage.getItem('theme') === 'dark') {
+                document.documentElement.classList.add('dark-mode');
+            }
+        } catch (e) {
+            console.warn(e);
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../../Fon/avatar.jpeg" type="image/jpeg">
+    <title>Бланки и заявления — БГАС</title>
+    <link rel="stylesheet" href="../../css/main.css">
+</head>
+<body>
+    <div class="container">
+        <header style="text-align: left; border: none; padding: 0;">
+            <a href="../../index.html" class="btn-back">← Назад</a>
+        </header>
+        <main style="margin-top: 20px;">
+            <h1 class="spec-title" style="font-size: 32px; margin-bottom: 5px;">Бланки и заявления</h1>
+            <p class="info-line" style="margin-bottom: 25px; opacity: 0.8;">Официальные бланки заявлений, договоров и образцы документов БГАС</p>
+
+            <div id="forms-list" class="route-container">
+                <div class="academy-loader-container">
+                    <div class="loader-text">Подключение к базе данных...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const STRAPI_URL = 'http://localhost:1337';
+
+        // Универсальный безопасный извлекатель ссылок с защитой от скачивания офисных документов
+        function getStrapiFileUrl(item, strapiUrl) {
+            const fileFields = ['file', 'document', 'attachment', 'upload', 'doc'];
+            let rawUrl = null;
+
+            for (const field of fileFields) {
+                const media = item[field];
+                if (!media) continue;
+
+                if (media.data && media.data.attributes && media.data.attributes.url) {
+                    rawUrl = strapiUrl + media.data.attributes.url;
+                    break;
+                }
+
+                if (media.data && Array.isArray(media.data) && media.data.length > 0) {
+                    const firstFile = media.data[0].attributes || media.data[0];
+                    if (firstFile.url) {
+                        rawUrl = strapiUrl + firstFile.url;
+                        break;
+                    }
+                }
+
+                if (media.url) {
+                    rawUrl = strapiUrl + media.url;
+                    break;
+                }
+
+                if (Array.isArray(media) && media.length > 0 && media[0].url) {
+                    rawUrl = strapiUrl + media[0].url;
+                    break;
+                }
+            }
+
+            if (!rawUrl) return null;
+
+            // Проверка формата файла
+            const lowerUrl = rawUrl.toLowerCase();
+            const isOfficeDocument = lowerUrl.endsWith('.doc') ||
+                lowerUrl.endsWith('.docx') ||
+                lowerUrl.endsWith('.xls') ||
+                lowerUrl.endsWith('.xlsx');
+
+            if (isOfficeDocument) {
+                // Если файл Word или Excel — открываем его через онлайн-просмотрщик Google в браузере
+                return 'https://docs.google.com/viewer?url=' + encodeURIComponent(rawUrl);
+            }
+
+            return rawUrl; // PDF и картинки открываем напрямую
+        }
+
+        async function loadDocuments() {
+            try {
+                const response = await fetch(`${STRAPI_URL}/api/documents?populate=*`);
+                const result = await response.json();
+                const documents = result.data || [];
+                const container = document.getElementById('forms-list');
+                container.innerHTML = '';
+
+                if (documents.length === 0) {
+                    container.innerHTML = '<div class="no-paid-msg">Документы временно отсутствуют</div>';
+                    return;
+                }
+
+                documents.forEach(doc => {
+                    const item = doc.attributes || doc;
+                    const title = item.title;
+                    const fileUrl = getStrapiFileUrl(item, STRAPI_URL);
+
+                    const card = document.createElement('div');
+                    card.className = 'route-card';
+                    card.style.marginBottom = '15px';
+                    card.style.display = 'flex';
+                    card.style.justifyContent = 'space-between';
+                    card.style.alignItems = 'center';
+                    card.style.padding = '15px 20px';
+
+                    let actionButtonHtml = '';
+                    if (fileUrl) {
+                        actionButtonHtml = `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" class="btn-arrow" style="font-size: 12px; text-decoration: none;">Просмотр</a>`;
+                    } else {
+                        actionButtonHtml = `<button onclick="alert('Документ сохранен в БД, но сам файл бланка еще не прикреплен в панели управления Strapi.')" class="btn-arrow btn-gray" style="font-size: 12px; cursor: pointer; border: none; padding: 8px 12px;">Нет файла</button>`;
+                    }
+
+                    card.innerHTML = `
+                            <div class="route-detail" style="font-size: 15px; margin: 0; font-weight: bold; padding-right: 10px;">
+                                📄 ${title}
+                            </div>
+                            ${actionButtonHtml}
+                        `;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.error("Ошибка загрузки документов:", error);
+                document.getElementById('forms-list').innerHTML = '<div class="no-paid-msg">Не удалось загрузить бланки. Проверьте запуск Strapi.</div>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadDocuments);
+    </script>
+    <script src="../../pages/monitoring/monitoring.js"></script>
+</body>
+</html>

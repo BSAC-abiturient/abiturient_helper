@@ -1,0 +1,181 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <!-- Предотвращение мерцания темы (FOUC) -->
+    <script>
+        try {
+            if (localStorage.getItem('theme') === 'dark') {
+                document.documentElement.classList.add('dark-mode');
+            }
+        } catch (e) {
+            console.warn("Конфиденциальный режим или настройки браузера блокируют доступ к localStorage:", e);
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../../Fon/avatar.jpeg" type="image/jpeg">
+    <title>Контакты и Карта — БГАС</title>
+    <link rel="stylesheet" href="../../css/main.css">
+
+    <!-- Подключение API Яндекс Карт -->
+    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
+</head>
+<body>
+
+    <div class="container">
+        <header style="text-align: left; border: none; padding: 0;">
+            <a href="../../index.html" class="btn-back">← Назад</a>
+        </header>
+
+        <main id="contacts-content" style="margin-top: 20px;">
+            <h1 class="spec-title" style="font-size: 32px; margin-bottom: 5px;">Контакты</h1>
+            <p class="info-line" style="margin-bottom: 25px; opacity: 0.8;">Контактная информация приемной комиссии, подготовительных курсов и схема расположения учебных корпусов</p>
+
+            <!-- Сетка карточек контактов -->
+            <div class="contacts-grid">
+                <!-- Приемная комиссия -->
+                <div class="contact-card">
+                    <div class="contact-card-title">Приемная комиссия</div>
+                    <div class="contact-card-body">
+                        <div class="contact-item">
+                            <!-- SVG иконка геопозиции -->
+                            <svg class="contact-svg-icon" viewBox="0 0 24 24">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-10a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            <span>г. Минск, ул. П. Бровки, 14</span>
+                        </div>
+                        <div class="contact-item">
+                            <span>📞</span>
+                            <span>тел. <a href="tel:+375173794114">+375 17 379 41 14</a></span>
+                        </div>
+                        <div class="contact-item">
+                            <span>📞</span>
+                            <span>тел. <a href="tel:+375173794114">+375 17 373 44 14</a> (горячая линия)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Заселение в общежитие -->
+                <div class="contact-card">
+                    <div class="contact-card-title">Заселение в общежитие</div>
+                    <div class="contact-card-body">
+                        <div class="contact-item">
+                            <span>ℹ️</span>
+                            <span>Информация по вселению в общежитие</span>
+                        </div>
+                        <div class="contact-item">
+                            <span>📞</span>
+                            <span>по телефону <a href="tel:+375173783524">+375 17 378-35-24</a></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Подготовительные курсы -->
+                <div class="contact-card">
+                    <div class="contact-card-title">Подготовительные курсы</div>
+                    <div class="contact-card-body">
+                        <div class="contact-item">
+                            <span>📖</span>
+                            <span>для поступающих на ВО после ССО</span>
+                        </div>
+                        <div class="contact-item">
+                            <!-- SVG иконка геопозиции -->
+                            <svg class="contact-svg-icon" viewBox="0 0 24 24">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-10a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            <span>г. Минск, ул. Семенова, д. 14,<br>4 этаж, каб. 11</span>
+                        </div>
+                        <div class="contact-item" style="margin-top: 5px;">
+                            <span>📞</span>
+                            <span>тел. <a href="tel:+375173180162">+375 17 318 01 62</a></span>
+                        </div>
+                        <div class="contact-item">
+                            <span>📞</span>
+                            <span>тел. <a href="tel:+375173180467">+375 17 318 04 67</a></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Текстовый список адресов корпусов -->
+            <h2 class="section-title">Адреса учебных корпусов</h2>
+            <div class="route-container" style="margin-bottom: 25px;">
+                <div class="route-card" style="padding: 16px 20px;">
+                    <div class="route-detail" style="font-size: 15px; margin-bottom: 10px;">
+                        <strong>учебный корпус № 1:</strong> ул. Франциска Скорины, 8к2
+                    </div>
+                    <div class="route-detail" style="font-size: 15px; margin-bottom: 10px;">
+                        <strong>учебный корпус № 2:</strong> ул. П. Бровки, 14
+                    </div>
+                    <div class="route-detail" style="font-size: 15px; margin-bottom: 0;">
+                        <strong>учебный корпус № 3:</strong> ул. Семенова, 14
+                    </div>
+                </div>
+            </div>
+
+            <!-- Интерактивная карта -->
+            <h2 class="section-title">Схема расположения учебных корпусов</h2>
+            <div class="yandex-map-container" style="margin-bottom: 20px;">
+                <div id="yandex-map"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Инициализация интерактивной карты -->
+    <script type="text/javascript">
+        ymaps.ready(init);
+        function init() {
+            var myMap = new ymaps.Map("yandex-map", {
+                center: [53.8970, 27.6100],
+                zoom: 11,
+                controls: ['zoomControl', 'typeSelector', 'fullscreenControl']
+            });
+
+            // Метка Учебного корпуса №1 - Синий кружок с цифрой 1
+            var campus1 = new ymaps.Placemark([53.924183, 27.666667], {
+                iconContent: '1',
+                balloonContentHeader: 'Учебный корпус №1 БГАС',
+                balloonContentBody: '<strong>Адрес:</strong> ул. Франциска Скорины, 8к2',
+                hintContent: 'Учебный корпус №1'
+            }, {
+                preset: 'islands#blueCircleIcon'
+            });
+
+            // Метка Учебного корпуса №2 - Синий кружок с цифрой 2
+            var campus2 = new ymaps.Placemark([53.914849, 27.598455], {
+                iconContent: '2',
+                balloonContentHeader: 'Учебный корпус №2 БГАС',
+                balloonContentBody: '<strong>Адрес:</strong> ул. П. Бровки, 14<br>Здесь располагается приемная комиссия.',
+                hintContent: 'Учебный корпус №2'
+            }, {
+                preset: 'islands#blueCircleIcon'
+            });
+
+            // Метка Учебного корпуса №3 - Синий кружок с цифрой 3
+            var campus3 = new ymaps.Placemark([53.870076, 27.567176], {
+                iconContent: '3',
+                balloonContentHeader: 'Учебный корпус №3 БГАС',
+                balloonContentBody: '<strong>Адрес:</strong> ул. Семенова, 14<br>Здесь проходят подготовительные курсы (4 этаж, каб. 11).',
+                hintContent: 'Учебный корпус №3'
+            }, {
+                preset: 'islands#blueCircleIcon'
+            });
+
+            myMap.geoObjects.add(campus1);
+            myMap.geoObjects.add(campus2);
+            myMap.geoObjects.add(campus3);
+
+            // Масштабирование по границам меток с отступом
+            myMap.setBounds(myMap.geoObjects.getBounds(), {
+                checkZoomRange: true,
+                zoomMargin: 45
+            });
+        }
+    </script>
+
+    <!-- Подключаем логику ассистента и навигационных кнопок -->
+    <script src="../../pages/monitoring/monitoring.js"></script>
+</body>
+</html>

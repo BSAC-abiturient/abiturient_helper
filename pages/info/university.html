@@ -1,0 +1,120 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <!-- Предотвращение мерцания темы (FOUC) -->
+    <script>
+        try {
+            if (localStorage.getItem('theme') === 'dark') {
+                document.documentElement.classList.add('dark-mode');
+            }
+        } catch (e) {
+            console.warn("Конфиденциальный режим или настройки браузера блокируют доступ к localStorage:", e);
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../../Fon/avatar.jpeg" type="image/jpeg">
+    <title>Об Академии (ВО) — БГАС</title>
+    <link rel="stylesheet" href="../../css/main.css">
+</head>
+<body>
+
+    <div class="container">
+        <header style="text-align: left; border: none; padding: 0;">
+            <a href="../../index.html" class="btn-back">← Назад</a>
+        </header>
+
+        <main id="academy-content" style="margin-top: 20px;">
+            <h1 class="spec-title" style="font-size: 32px; margin-bottom: 5px;">Академия связи</h1>
+            <p class="info-line" style="margin-bottom: 25px; opacity: 0.8;">Учреждение образования «Белорусская государственная академия связи»</p>
+
+            <!-- Основное описание -->
+            <div class="dorms-desc-block" style="margin-top: 10px;">
+                <p><strong>Учреждение образования «Белорусская государственная академия связи»</strong> является ведущим государственным учреждением высшего образования Республики Беларусь в отрасли связи и телекоммуникаций.</p>
+                <p>Учредителем Белорусской государственной академии связи является Министерство связи и информатизации Республики Беларусь.</p>
+            </div>
+
+            <!-- Встроенный интерактивный видео-плеер БГАС -->
+            <h2 class="video-section-title">Видеознакомство с академией</h2>
+            <div class="video-container">
+                <iframe src="https://www.youtube.com/embed/xYEWfn2Mic0"
+                        title="Видео о БГАС"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowfullscreen>
+                </iframe>
+            </div>
+
+            <!-- Цели деятельности -->
+            <h2 class="section-title">Цели и миссия</h2>
+            <div class="dorms-desc-block">
+                <p>Основной целью деятельности Белорусской государственной академии связи является выполнение образовательной, интеллектуальной, культурной, научной и социальной функции, направленной на удовлетворение запросов и интересов личности, общества и государства.</p>
+            </div>
+
+            <!-- Факультеты -->
+            <h2 class="section-title">Факультеты академии</h2>
+            <p class="info-line" style="margin-bottom: 15px;">Образовательный процесс на уровне высшего образования обеспечивают 5 профильных факультетов:</p>
+
+            <div class="route-container" style="margin-bottom: 25px;">
+                <div class="route-card" style="padding: 18px 22px;">
+                    <div class="route-detail" style="font-size: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                        <span>⚡</span> <strong>Факультет электросвязи</strong>
+                    </div>
+                    <div class="route-detail" style="font-size: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                        <span>🔧</span> <strong>Факультет инжиниринга и технологий связи</strong>
+                    </div>
+                    <div class="route-detail" style="font-size: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                        <span>🎓</span> <strong>Факультет заочного и дистанционного образования</strong>
+                    </div>
+                    <div class="route-detail" style="font-size: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                        <span>📈</span> <strong>Факультет повышения квалификации и переподготовки</strong>
+                    </div>
+                    <div class="route-detail" style="font-size: 15px; margin-bottom: 0; display: flex; align-items: center; gap: 8px;">
+                        <span>🏫</span> <strong>Факультет довузовской подготовки</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Структура и филиалы -->
+            <h2 class="section-title">Структура БГАС</h2>
+            <p class="info-line" style="margin-bottom: 15px;">В структуру академии входят следующие крупные филиалы и подразделения:</p>
+            <div class="route-container" style="margin-bottom: 25px;">
+                <div class="route-card" style="padding: 18px 22px;">
+                    <div class="route-detail" style="font-size: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                        <span>🏛️</span> <strong>Витебский филиал учреждения образования «БГАС»</strong>
+                    </div>
+                    <div class="route-detail" style="font-size: 15px; margin-bottom: 0; display: flex; align-items: center; gap: 8px;">
+                        <span>🏢</span> <strong>Обособленное подразделение «Колледж информационно-коммуникационных технологий»</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- История создания -->
+            <h2 class="section-title">История и знаменательные даты</h2>
+            <div class="stat-box" style="max-width: 100%; padding: 22px; margin-bottom: 25px;">
+                <ul class="document-checklist">
+                    <li class="document-checklist-item">
+                        <strong>11 мая 1993 года</strong> — дата основания учебного заведения. Оно было создано путем объединения Минского филиала Ленинградского электротехнического института связи им. проф. М. А. Бонч-Бруевича, Минского и Витебского электротехникумов связи, а также Республиканского центра подготовки, переподготовки и повышения квалификации работников отрасли связи.
+                    </li>
+                    <li class="document-checklist-item">
+                        <strong>7 октября 2015 года</strong> — согласно приказу Министерства связи Республики Беларусь, в ходе реорганизации и повышения статуса, учебное заведение получило свое современное название — Учреждение образования «Белорусская государственная академия связи».
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Руководство -->
+            <h2 class="section-title">Руководство БГАС</h2>
+            <div class="leadership-grid" style="margin-bottom: 20px;">
+                <!-- Ректор -->
+                <div class="leader-card" style="margin: 0 auto; max-width: 400px; width: 100%;">
+                    <div class="leader-role">Ректор БГАС</div>
+                    <div class="leader-name">Зеневич Андрей Олегович</div>
+                    <div class="leader-title">доктор технических наук, профессор</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Подключаем логику ассистента и навигационных кнопок -->
+    <script src="../../pages/monitoring/monitoring.js"></script>
+</body>
+</html>
