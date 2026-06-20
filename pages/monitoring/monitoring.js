@@ -568,7 +568,7 @@ async function loadAndRender() {
         if (!name) return;
 
         if (!cachedStrapiData) {
-            const response = await fetch(`http://localhost:1337/api/specialties?filters[name][$eq]=${encodeURIComponent(name)}&filters[education_level][$eq]=${level}&filters[form_of_study][$eq]=${form}&pagination[pageSize]=100`);
+            const response = await fetch(`https://narxselune-bsac-backend.hf.space/api/specialties?filters[name][$eq]=${encodeURIComponent(name)}&filters[education_level][$eq]=${level}&filters[form_of_study][$eq]=${form}&pagination[pageSize]=100`);
             const json = await response.json();
             cachedStrapiData = json.data || [];
         }
