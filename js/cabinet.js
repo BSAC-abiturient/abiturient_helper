@@ -167,7 +167,7 @@ function PersonalCabinet({ isOpen, onClose }) {
     const [quizScores, setQuizScores] = useState({});
     const [answersHistory, setAnswersHistory] = useState([]);
 
-    const STRAPI_URL = 'http://localhost:1337';
+    const API_URL = 'https://narxselune-bsac-backend.hf.space/api/specialties';
 
     // Функция-санитайзер для автоматического исправления старых ссылок из БД
     const getSanitizedUrl = (item) => {
