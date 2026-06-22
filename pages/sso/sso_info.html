@@ -192,7 +192,7 @@
                             onTouchStart={handleTouchStart}
                             onTouchMove={handleTouchMove}
                             onTouchEnd={handleTouchEnd}
-                            style={{ touchAction: 'none' }} // Блокирует прокрутку экрана при открытом лайтбоксе
+                            style={{ touchAction: 'pinch-zoom' }} // Блокирует прокрутку экрана при открытом лайтбоксе
                         >
                             <span className="lightbox-close" onClick={() => setLightboxImg(null)}>&times;</span>
                             <img className="lightbox-content" src={lightboxImg} alt="Просмотр" onClick={(e) => e.stopPropagation()} />

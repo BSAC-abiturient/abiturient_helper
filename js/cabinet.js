@@ -1173,7 +1173,7 @@ function PersonalCabinet({ isOpen, onClose }) {
                                         <tr style={{ transition: 'background-color 0.2s' }}>
                                             <td style={{ padding: '10px 12px', fontWeight: 'bold', border: '1px solid rgba(113,128,150,0.15)' }}>Конкурс (чел./место)</td>
                                             {comparisonData.map((spec, idx) => (
-                                                <td key={idx} style={{ padding: '10px 12px', border: '1px solid rgba(113,128,150,0.15)', fontWeight: 'bold', color: parseFloat(spec.competitionRatio) >= 1.0 ? '#2e7d32' : 'inherit' }}>
+                                                <td key={idx} style={{ padding: '10px 12px', border: '1px solid rgba(113,128,150,0.15)', fontWeight: 'bold', color: 'inherit' }}>
                                                     {spec.competitionRatio}
                                                 </td>
                                             ))}
@@ -1181,7 +1181,7 @@ function PersonalCabinet({ isOpen, onClose }) {
                                         <tr style={{ backgroundColor: 'rgba(46, 125, 50, 0.05)', transition: 'background-color 0.2s' }}>
                                             <td style={{ padding: '10px 12px', fontWeight: 'bold', border: '1px solid rgba(113,128,150,0.15)' }}>Проходной 2025</td>
                                             {comparisonData.map((spec, idx) => (
-                                                <td key={idx} style={{ padding: '10px 12px', border: '1px solid rgba(113,128,150,0.15)', fontWeight: 'bold', color: '#2e7d32' }}>
+                                                <td key={idx} style={{ padding: '10px 12px', border: '1px solid rgba(113,128,150,0.15)', fontWeight: 'bold', color: 'inherit' }}>
                                                     {spec.archScore}
                                                 </td>
                                             ))}
