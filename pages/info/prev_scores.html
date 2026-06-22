@@ -27,7 +27,7 @@
 
             <div id="scores-container" class="route-container">
                 <div class="academy-loader-container">
-                    <div class="loader-text">Подключение к базе данных...</div>
+                    <div class="loader-text">Загрузка данных...</div>
                 </div>
             </div>
         </main>
@@ -196,7 +196,7 @@
 
             } catch (error) {
                 console.error("Ошибка загрузки архива баллов:", error);
-                document.getElementById('scores-container').innerHTML = '<div class="no-paid-msg">Не удалось загрузить архив. Проверьте запуск и подключение к Strapi.</div>';
+                document.getElementById('scores-container').innerHTML = '<div class="no-paid-msg">Не удалось загрузить архив.</div>';
             }
         }
 

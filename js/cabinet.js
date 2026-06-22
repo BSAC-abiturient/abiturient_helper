@@ -196,7 +196,7 @@ function PersonalCabinet({ isOpen, onClose }) {
                 })
             });
         } catch (e) {
-            console.warn("Сетевой сбой при синхронизации со Strapi:", e);
+            console.warn("Сетевой сбой при синхронизации с базой данных:", e);
         }
     };
 
