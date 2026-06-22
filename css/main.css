@@ -275,7 +275,7 @@ nav ul {
 
 .dark-mode .btn-back {
     color: #FFFFFF;
-    border: 1px solid #555555;
+    border: 1px solid #777777;
 }
 
 .btn-back:hover {
@@ -285,7 +285,7 @@ nav ul {
 
 .dark-mode .btn-back:hover {
     background-color: #2D2D2D;
-    border-color: #777777;
+    border-color: #FFFFFF;
 }
 
 /* Стили базовых меню-плиток */
