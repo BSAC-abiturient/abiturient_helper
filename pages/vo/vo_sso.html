@@ -47,7 +47,7 @@
 
     <script type="text/babel">
         const { useState, useEffect } = React;
-        const API_URL = 'http://localhost:1337/api/specialties';
+        const API_URL = 'https://narxselune-bsac-backend.hf.space/api/specialties';
 
         function VoSsoCalculator() {
             const [score, setScore] = useState('');
@@ -225,8 +225,8 @@
                             ) : specialties.length === 0 ? (
                                 <div style={{ padding: '15px', textAlign: 'center', color: '#ef5350', fontWeight: 'bold' }}>
                                     ⚠️ База данных пуста или недоступна. Запустите парсер:<br/>
-                                    <a href="http://localhost:1337/api/specialties/parse" target="_blank" style={{color: '#007bff', textDecoration: 'underline'}}>
-                                        http://localhost:1337/api/specialties/parse
+                                    <a href="https://narxselune-bsac-backend.hf.space/api/specialties/parse" target="_blank" style={{color: '#007bff', textDecoration: 'underline'}}>
+                                        https://narxselune-bsac-backend.hf.space/api/specialties/parse
                                     </a>
                                 </div>
                             ) : (
