@@ -326,11 +326,19 @@ function injectTimerElement() {
         timerEl.style.setProperty('right', 'auto', 'important');
         timerEl.style.setProperty('top', 'auto', 'important');
         timerEl.style.setProperty('transform', 'none', 'important');
-        timerEl.style.setProperty('margin', '0', 'important');
+
+        // Если ширина экрана меньше или равна 768px (телефон), центрируем его
+        if (window.innerWidth <= 768) {
+            timerEl.style.setProperty('margin', '15px auto 0 auto', 'important');
+        } else {
+            // Иначе (компьютер/ноутбук) прижимаем вправо
+            timerEl.style.setProperty('margin', '0', 'important');
+            timerEl.style.setProperty('margin-left', 'auto', 'important');
+        }
 
         // Жестко фиксируем высоту на 38px (как у кнопки «Назад»)
-        timerEl.style.setProperty('height', '38px', 'important');
-        timerEl.style.setProperty('padding', '0 16px', 'important');
+        timerEl.style.setProperty('height', '45px', 'important');
+        timerEl.style.setProperty('padding', '8px 16px', 'important');
         timerEl.style.setProperty('display', 'inline-flex', 'important');
         timerEl.style.setProperty('align-items', 'center', 'important');
         timerEl.style.setProperty('box-sizing', 'border-box', 'important');

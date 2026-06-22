@@ -2040,7 +2040,7 @@ body:not(.body-main) {
 
     .btn-back {
         position: absolute !important;
-        left: -13px !important;
+        left: -1px !important;
         top: -102px !important;
         padding: 8px 15px;
         font-size: 14px;
