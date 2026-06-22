@@ -613,10 +613,10 @@ async function loadAndRender() {
         saveToHistory();
 
     } catch (error) {
-        console.error("Ошибка загрузки данных из Strapi API:", error);
+        console.error("Ошибка загрузки данных:", error);
         document.getElementById('loading-overlay').innerHTML = `
             <div style="color: #ef5350; padding: 20px; font-weight: bold; text-align: center;">
-                ⚠️ Ошибка связи с сервером. Пожалуйста, убедитесь, что Strapi запущен.
+                ⚠️ Ошибка связи с сервером.
             </div>`;
     }
 }

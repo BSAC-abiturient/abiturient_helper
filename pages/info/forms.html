@@ -27,7 +27,7 @@
 
             <div id="forms-list" class="route-container">
                 <div class="academy-loader-container">
-                    <div class="loader-text">Подключение к базе данных...</div>
+                    <div class="loader-text">Загрузка данных...</div>
                 </div>
             </div>
         </main>
@@ -116,7 +116,7 @@
                     if (fileUrl) {
                         actionButtonHtml = `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" class="btn-arrow" style="font-size: 12px; text-decoration: none;">Просмотр</a>`;
                     } else {
-                        actionButtonHtml = `<button onclick="alert('Документ сохранен в БД, но сам файл бланка еще не прикреплен в панели управления Strapi.')" class="btn-arrow btn-gray" style="font-size: 12px; cursor: pointer; border: none; padding: 8px 12px;">Нет файла</button>`;
+                        actionButtonHtml = `<button onclick="alert('Файл бланка еще не прикреплен.')" class="btn-arrow btn-gray" style="font-size: 12px; cursor: pointer; border: none; padding: 8px 12px;">Нет файла</button>`;
                     }
 
                     card.innerHTML = `
@@ -129,7 +129,7 @@
                 });
             } catch (error) {
                 console.error("Ошибка загрузки документов:", error);
-                document.getElementById('forms-list').innerHTML = '<div class="no-paid-msg">Не удалось загрузить бланки. Проверьте запуск Strapi.</div>';
+                document.getElementById('forms-list').innerHTML = '<div class="no-paid-msg">Не удалось загрузить бланки.</div>';
             }
         }
 

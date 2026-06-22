@@ -274,7 +274,7 @@ nav ul {
 }
 
 .dark-mode .btn-back {
-    color: #FFFFFF;
+    color: #e6e6e6;
     border: 1px solid #777777;
 }
 
@@ -2040,7 +2040,7 @@ body:not(.body-main) {
 
     .btn-back {
         position: absolute !important;
-        left: -1px !important;
+        left: -10px !important;
         top: -102px !important;
         padding: 8px 15px;
         font-size: 14px;
