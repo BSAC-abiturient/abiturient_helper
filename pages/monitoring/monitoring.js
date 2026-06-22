@@ -330,15 +330,24 @@ function injectTimerElement() {
         // Если ширина экрана меньше или равна 768px (телефон), центрируем его
         if (window.innerWidth <= 768) {
             timerEl.style.setProperty('margin', '15px auto 0 auto', 'important');
-        } else {
-            // Иначе (компьютер/ноутбук) прижимаем вправо
-            timerEl.style.setProperty('margin', '0', 'important');
-            timerEl.style.setProperty('margin-left', 'auto', 'important');
-        }
+          } else {
+        // Иначе (компьютер/ноутбук) прижимаем вправо
+        timerEl.style.setProperty('margin', '0', 'important');
+        timerEl.style.setProperty('margin-top', '4px', 'important'); // <-- Добавьте это (6px опустит таймер пониже, можно настроить на 8px или 10px)
+        timerEl.style.setProperty('margin-left', 'auto', 'important');
+    }
 
         // Жестко фиксируем высоту на 38px (как у кнопки «Назад»)
-        timerEl.style.setProperty('height', '45px', 'important');
-        timerEl.style.setProperty('padding', '8px 16px', 'important');
+        if (window.innerWidth <= 768) {
+            // Для телефонов: рамка сама растягивается по высоте под 2 строки текста
+            timerEl.style.setProperty('height', 'auto', 'important');
+            // Добавляем по 10px отступа сверху/снизу и по 16px по бокам
+            timerEl.style.setProperty('padding', '5px 16px', 'important');
+        } else {
+            // Для компьютеров: сохраняем вашу фиксированную красивую высоту 45px
+            timerEl.style.setProperty('height', '45px', 'important');
+            timerEl.style.setProperty('padding', '0 16px', 'important');
+        }
         timerEl.style.setProperty('display', 'inline-flex', 'important');
         timerEl.style.setProperty('align-items', 'center', 'important');
         timerEl.style.setProperty('box-sizing', 'border-box', 'important');
