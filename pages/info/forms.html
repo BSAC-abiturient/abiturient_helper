@@ -27,6 +27,14 @@
 
             <div id="forms-list" class="route-container">
                 <div class="academy-loader-container">
+                    <div class="cap-wrapper">
+                        <svg class="mortarboard-svg" viewBox="0 0 64 64">
+                            <path d="M16 32 V38 C16 43 23 46 32 46 C41 46 48 43 48 38 V32" fill="none" stroke="#007bff" stroke-width="3" stroke-linecap="round" />
+                            <polygon points="32,10 58,22 32,34 6,22" fill="#007bff" stroke="#007bff" stroke-width="1" />
+                            <path class="cap-tassel" d="M32,22 L46,27 V37" fill="none" stroke="#ff9800" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="32" cy="22" r="2" fill="#ffffff" />
+                        </svg>
+                    </div>
                     <div class="loader-text">Загрузка данных...</div>
                 </div>
             </div>
@@ -71,7 +79,6 @@
 
             if (!rawUrl) return null;
 
-            // Проверка формата файла
             const lowerUrl = rawUrl.toLowerCase();
             const isOfficeDocument = lowerUrl.endsWith('.doc') ||
                 lowerUrl.endsWith('.docx') ||
@@ -79,7 +86,7 @@
                 lowerUrl.endsWith('.xlsx');
 
             if (isOfficeDocument) {
-                // Если файл Word или Excel — открываем его через онлайн-просмотрщик Google в браузере
+                // Если файл Word/Excel — открываем его через онлайн-просмотрщик Google в браузере
                 return 'https://docs.google.com/viewer?url=' + encodeURIComponent(rawUrl);
             }
 
@@ -99,37 +106,88 @@
                     return;
                 }
 
+                // Объект для группировки документов по уровням
+                const groupedData = {
+                    sso: {
+                        title: "Среднее специальное образование (Колледж ССО)",
+                        docs: []
+                    },
+                    vo: {
+                        title: "Высшее образование (Академия ВО)",
+                        docs: []
+                    }
+                };
+
+                // Сканируем названия документов и распределяем по группам
                 documents.forEach(doc => {
                     const item = doc.attributes || doc;
-                    const title = item.title;
+                    const titleLower = item.title.toLowerCase();
                     const fileUrl = getStrapiFileUrl(item, STRAPI_URL);
 
+                    const docPayload = {
+                        title: item.title,
+                        url: fileUrl
+                    };
+
+                    // Если в названии есть упоминание "высш", " во" или "академ" — это ВО, иначе — ССО
+                    if (titleLower.includes('высш') || titleLower.includes(' во') || titleLower.includes('академ')) {
+                        groupedData.vo.docs.push(docPayload);
+                    } else {
+                        groupedData.sso.docs.push(docPayload);
+                    }
+                });
+
+                const groupKeys = ['sso', 'vo'];
+
+                groupKeys.forEach(key => {
+                    const group = groupedData[key];
+                    if (group.docs.length === 0) return;
+
+                    // Создаем стильный заголовок группы документов с синей полосой слева
+                    const groupTitleEl = document.createElement('h2');
+                    groupTitleEl.className = 'section-title';
+                    groupTitleEl.style.fontSize = '20px';
+                    groupTitleEl.style.fontWeight = '800';
+                    groupTitleEl.style.color = '#007bff';
+                    groupTitleEl.style.marginTop = '35px';
+                    groupTitleEl.style.marginBottom = '15px';
+                    groupTitleEl.style.borderLeft = '4px solid #007bff';
+                    groupTitleEl.style.paddingLeft = '12px';
+                    groupTitleEl.innerText = group.title;
+                    container.appendChild(groupTitleEl);
+
+                    // Создаем контейнер-карточку для списка кнопок этой группы
                     const card = document.createElement('div');
                     card.className = 'route-card';
-                    card.style.marginBottom = '15px';
-                    card.style.display = 'flex';
-                    card.style.justifyContent = 'space-between';
-                    card.style.alignItems = 'center';
-                    card.style.padding = '15px 20px';
+                    card.style.padding = '18px 20px';
 
-                    let actionButtonHtml = '';
-                    if (fileUrl) {
-                        actionButtonHtml = `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" class="btn-arrow" style="font-size: 12px; text-decoration: none;">Просмотр</a>`;
-                    } else {
-                        actionButtonHtml = `<button onclick="alert('Файл бланка еще не прикреплен.')" class="btn-arrow btn-gray" style="font-size: 12px; cursor: pointer; border: none; padding: 8px 12px;">Нет файла</button>`;
-                    }
+                    let innerHtml = '';
+                    group.docs.forEach((doc, idx) => {
+                        const isLastItem = idx === group.docs.length - 1;
 
-                    card.innerHTML = `
-                            <div class="route-detail" style="font-size: 15px; margin: 0; font-weight: bold; padding-right: 10px;">
-                                📄 ${title}
-                            </div>
-                            ${actionButtonHtml}
-                        `;
+                        // Кнопка переведена в режим скачивания с красивым русским названием (без хэша)
+                        let actionButtonHtml = '';
+                        if (doc.url) {
+                            actionButtonHtml = `<a href="${doc.url}" download="${doc.title}" target="_blank" rel="noopener noreferrer" class="btn-arrow" style="font-size: 12px; text-decoration: none; white-space: nowrap;">Скачать</a>`;
+                        } else {
+                            actionButtonHtml = `<button onclick="alert('Файл бланка еще не прикреплен в панели управления Strapi.')" class="btn-arrow btn-gray" style="font-size: 12px; cursor: pointer; border: none; padding: 8px 12px; white-space: nowrap;">Нет файла</button>`;
+                        }
+
+                        innerHtml += `
+                                <div class="route-detail" style="font-size: 14.5px; margin-bottom: ${isLastItem ? '0' : '15px'}; border-bottom: ${isLastItem ? 'none' : '1px dashed rgba(113, 128, 150, 0.15)'}; padding-bottom: ${isLastItem ? '0' : '10px'}; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                    <span style="font-weight: bold; flex: 1; padding-right: 15px; text-align: left;">📄 ${doc.title}</span>
+                                    ${actionButtonHtml}
+                                </div>
+                            `;
+                    });
+
+                    card.innerHTML = innerHtml;
                     container.appendChild(card);
                 });
+
             } catch (error) {
                 console.error("Ошибка загрузки документов:", error);
-                document.getElementById('forms-list').innerHTML = '<div class="no-paid-msg">Не удалось загрузить бланки.</div>';
+                document.getElementById('forms-list').innerHTML = '<div class="no-paid-msg">Не удалось загрузить бланки. Проверьте запуск Strapi.</div>';
             }
         }
 
