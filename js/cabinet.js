@@ -1,4 +1,6 @@
 ﻿const { useState, useEffect } = React;
+const STRAPI_URL = 'https://narxselune-bsac-backend.hf.space'; // <-- ДОБАВЬТЕ ЭТУ СТРОКУ
+
 
 // Списки специальностей для динамического выбора в зависимости от уровня и базы
 const specialtiesDatabase = {
