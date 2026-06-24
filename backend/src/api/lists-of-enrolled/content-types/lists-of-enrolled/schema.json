@@ -48,6 +48,9 @@
         "dnev",
         "zaoch"
       ]
+    },
+    "direct_url": {
+      "type": "string"
     }
   }
 }

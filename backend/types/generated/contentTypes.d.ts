@@ -419,6 +419,7 @@ export interface ApiDocumentDocument extends Schema.CollectionType {
       'admin::user'
     > &
       Attribute.Private;
+    direct_url: Attribute.String;
     file: Attribute.Media<'images' | 'videos' | 'audios' | 'files', true>;
     publishedAt: Attribute.DateTime;
     subtitle: Attribute.String;
@@ -454,6 +455,7 @@ export interface ApiListsOfEnrolledListsOfEnrolled
       'admin::user'
     > &
       Attribute.Private;
+    direct_url: Attribute.String;
     education_level: Attribute.Enumeration<['sso9', 'sso11', 'vo11', 'vosso']>;
     file: Attribute.Media<'images' | 'files' | 'videos' | 'audios', true>;
     form_of_study: Attribute.Enumeration<['dnev', 'zaoch']>;

@@ -28,6 +28,9 @@
     },
     "subtitle": {
       "type": "string"
+    },
+    "direct_url": {
+      "type": "string"
     }
   }
 }
