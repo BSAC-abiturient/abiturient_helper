@@ -44,7 +44,6 @@
     <script>
         const STRAPI_URL = 'https://narxselune-bsac-backend.hf.space';
 
-        // Извлекаем прямую ссылку на медиа-файл из Strapi без сторонней обработки
         function getStrapiFileUrl(item, strapiUrl) {
             const fileFields = ['file', 'document', 'attachment', 'upload', 'doc'];
 
@@ -101,18 +100,18 @@
 
                     let actionButtonHtml = '';
                     if (fileUrl) {
-                        // Встроили красивое переименование при скачивании
-                        actionButtonHtml = `<a href="${fileUrl}" download="${title}" target="_blank" rel="noopener noreferrer" class="btn-arrow" style="font-size: 12px; text-decoration: none;">Скачать</a>`;
+                        // ИСПРАВЛЕНИЕ: Оставили просто download (без имени), чтобы скачивалось оригинальное хэш-имя во избежание ошибок
+                        actionButtonHtml = `<a href="${fileUrl}" download target="_blank" rel="noopener noreferrer" class="btn-arrow" style="font-size: 12px; text-decoration: none;">Скачать</a>`;
                     } else {
-                        actionButtonHtml = `<button onclick="alert('Запись о зачислении создана, но сам файл со списком еще не прикреплен в панели управления Strapi.')" class="btn-arrow btn-gray" style="font-size: 12px; cursor: pointer; border: none; padding: 8px 12px;">Нет файла</button>`;
+                        actionButtonHtml = `<button onclick="alert('Запись о зачислении создана, но сам файл со списком еще не прикреплен к этой записи в панели управления Strapi.')" class="btn-arrow btn-gray" style="font-size: 12px; cursor: pointer; border: none; padding: 8px 12px;">Нет файла</button>`;
                     }
 
                     card.innerHTML = `
-        <div class="route-detail" style="font-size: 15px; margin: 0; font-weight: bold; padding-right: 10px; text-align: left;">
-            📋 ${title}
-        </div>
-        ${actionButtonHtml}
-    `;
+                            <div class="route-detail" style="font-size: 15px; margin: 0; font-weight: bold; padding-right: 10px; text-align: left;">
+                                📋 ${title}
+                            </div>
+                            ${actionButtonHtml}
+                        `;
                     container.appendChild(card);
                 });
             } catch (error) {
