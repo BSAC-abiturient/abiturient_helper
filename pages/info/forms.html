@@ -108,6 +108,10 @@
 
                 // Объект для группировки документов по уровням
                 const groupedData = {
+                    common: {
+                        title: "Общие документы",
+                        docs: []
+                    },
                     sso: {
                         title: "Среднее специальное образование",
                         docs: []
@@ -117,6 +121,8 @@
                         docs: []
                     }
                 };
+
+                const groupKeys = ['common', 'sso', 'vo'];
 
                 // Сканируем названия документов и распределяем по группам
                 documents.forEach(doc => {
@@ -131,9 +137,16 @@
                         direct_url: item.direct_url // Сохраняем прямое поле ссылки
                     };
 
-                    if (titleLower.includes('высш') || titleLower.includes(' во') || titleLower.includes('академ')) {
+                    // 1. Проверяем общие документы по ключевым словам
+                    if (titleLower.includes('правила приема') || titleLower.includes('специальност') || titleLower.includes('общ')) {
+                        groupedData.common.docs.push(docPayload);
+                    }
+                    // 2. Проверяем высшее образование
+                    else if (titleLower.includes('высш') || titleLower.includes(' во') || titleLower.includes('академ')) {
                         groupedData.vo.docs.push(docPayload);
-                    } else {
+                    }
+                    // 3. Все остальное относится к среднему специальному
+                    else {
                         groupedData.sso.docs.push(docPayload);
                     }
                 });
