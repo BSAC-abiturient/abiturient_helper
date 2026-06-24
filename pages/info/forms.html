@@ -151,8 +151,6 @@
                     }
                 });
 
-                const groupKeys = ['sso', 'vo'];
-
                 groupKeys.forEach(key => {
                     const group = groupedData[key];
                     if (group.docs.length === 0) return;
@@ -197,13 +195,13 @@
                         }
 
                         innerHtml += `
-                            <div class="route-detail" style="font-size: 14.5px; margin-bottom: ${isLastItem ? '0' : '15px'}; border-bottom: ${isLastItem ? 'none' : '1px dashed rgba(113, 128, 150, 0.15)'}; padding-bottom: ${isLastItem ? '0' : '10px'}; display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                                <span style="font-weight: bold; flex: 1; padding-right: 15px; text-align: left;">
-                                    📄 ${doc.title} ${subtitleHtml}
-                                </span>
-                                ${actionButtonHtml}
-                            </div>
-                        `;
+                                <div class="route-detail" style="font-size: 14.5px; margin-bottom: ${isLastItem ? '0' : '15px'}; border-bottom: ${isLastItem ? 'none' : '1px dashed rgba(113, 128, 150, 0.15)'}; padding-bottom: ${isLastItem ? '0' : '10px'}; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                    <span style="font-weight: bold; flex: 1; padding-right: 15px; text-align: left;">
+                                        📄 ${doc.title} ${subtitleHtml}
+                                    </span>
+                                    ${actionButtonHtml}
+                                </div>
+                            `;
                     });
 
                     card.innerHTML = innerHtml;
