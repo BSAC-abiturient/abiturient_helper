@@ -99,9 +99,10 @@
                     card.style.padding = '15px 20px';
 
                     let actionButtonHtml = '';
-                    if (fileUrl) {
-                        // ИСПРАВЛЕНИЕ: Оставили просто download (без имени), чтобы скачивалось оригинальное хэш-имя во избежание ошибок
-                        actionButtonHtml = `<a href="${fileUrl}" download target="_blank" rel="noopener noreferrer" class="btn-arrow" style="font-size: 12px; text-decoration: none;">Скачать</a>`;
+                    const finalUrl = item.direct_url ? `../../..${item.direct_url}` : fileUrl;
+
+                    if (finalUrl) {
+                        actionButtonHtml = `<a href="${finalUrl}" download target="_blank" rel="noopener noreferrer" class="btn-arrow" style="font-size: 12px; text-decoration: none;">Скачать</a>`;
                     } else {
                         actionButtonHtml = `<button onclick="alert('Запись о зачислении создана, но сам файл со списком еще не прикреплен к этой записи в панели управления Strapi.')" class="btn-arrow btn-gray" style="font-size: 12px; cursor: pointer; border: none; padding: 8px 12px;">Нет файла</button>`;
                     }
