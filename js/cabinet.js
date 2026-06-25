@@ -1,6 +1,5 @@
 ﻿const { useState, useEffect } = React;
-const STRAPI_URL = 'https://narxselune-bsac-backend.hf.space'; // <-- ДОБАВЬТЕ ЭТУ СТРОКУ
-
+const STRAPI_URL = 'https://narxselune-bsac-backend.hf.space';
 
 // Списки специальностей для динамического выбора в зависимости от уровня и базы
 const specialtiesDatabase = {
@@ -127,36 +126,45 @@ function PersonalCabinet({ isOpen, onClose }) {
         return saved ? JSON.parse(saved) : {};
     });
 
-    // Состояние авторизованного пользователя
-    const [user, setUser] = useState(() => {
-        const savedUser = localStorage.getItem('cab_user');
-        return savedUser ? JSON.parse(savedUser) : null;
+    // Данные абитуриента для отслеживания (заменяет старый объект user)
+    const [applicantData, setApplicantData] = useState(() => {
+        const saved = localStorage.getItem('cab_applicant');
+        return saved ? JSON.parse(saved) : null;
     });
 
-    // СОСТОЯНИЯ УМНЫХ РЕКОМЕНДАЦИЙ (ТЕПЕРЬ НАХОДЯТСЯ СТРОГО ВНУТРИ ФУНКЦИИ)
+    // Состояния вычисления позиции в реальном времени
+    const [livePosition, setLivePosition] = useState(null);
+    const [livePlan, setLivePlan] = useState(null);
+    const [positionLoading, setPositionLoading] = useState(false);
+
+    // Умные альтернативные рекомендации при высоком риске
     const [recommendations, setRecommendations] = useState([]);
     const [showRecBanner, setShowRecBanner] = useState(false);
     const [recLoading, setRecLoading] = useState(false);
 
-    // Отдельное окно регистрации
-    const [isRegWindowOpen, setIsRegWindowOpen] = useState(false);
-    const [regStep, setRegStep] = useState(1);
-    const [regLoading, setRegLoading] = useState(false);
-    const [resendTimer, setResendTimer] = useState(60);
+    // Окно ввода данных абитуриента
+    const [isFormWindowOpen, setIsFormWindowOpen] = useState(false);
+    const [formLoading, setFormLoading] = useState(false);
 
-    // Поля формы регистрации
-    const [regEmail, setRegEmail] = useState('');
+    // Поля упрощенной анкеты
     const [regLevel, setRegLevel] = useState('sso');
     const [regBase, setRegBase] = useState('9cl');
     const [regScore, setRegScore] = useState('');
     const [regSpecialty, setRegSpecialty] = useState('');
-    const [regOtp, setRegOtp] = useState('');
+    const [regCategory, setRegCategory] = useState('budget'); // budget или paid
+
+    // Состояния модального окна для рекомендаций (риск непрохождения)
+    const [isRiskModalOpen, setIsRiskModalOpen] = useState(false);
+    const [showRecWarning, setShowRecWarning] = useState(false);
+    const [isWarningHovered, setIsWarningHovered] = useState(false);
+
+    // Состояния Избранного и Сравнения
 
     // Состояния Избранного и Сравнения
     const [favorites, setFavorites] = useState([]);
     const [isCompareMode, setIsCompareMode] = useState(false);
-    const [checkedCompare, setCheckedCompare] = useState([]); // Сравниваемые специальности
-    const [comparisonData, setComparisonData] = useState([]); // Результаты запросов из бэкенда
+    const [checkedCompare, setCheckedCompare] = useState([]);
+    const [comparisonData, setComparisonData] = useState([]);
     const [isCompareWindowOpen, setIsCompareWindowOpen] = useState(false);
     const [compareLoading, setCompareLoading] = useState(false);
 
@@ -171,34 +179,62 @@ function PersonalCabinet({ isOpen, onClose }) {
 
     const API_URL = 'https://narxselune-bsac-backend.hf.space/api/specialties';
 
-    // Функция-санитайзер для автоматического исправления старых ссылок из БД
+    // Конвертация интерфейсного уровня и базы в теги базы данных Strapi
+    const getDbEducationLevel = (lvl, bse) => {
+        if (lvl === 'sso') {
+            if (bse === '9cl') return 'sso9';
+            if (bse === '11cl') return 'sso11';
+            if (bse === 'pto') return 'ssopto';
+        } else if (lvl === 'vo') {
+            if (bse === '11cl') return 'vo11';
+            if (bse === 'sso_short') return 'vosso';
+        }
+        return 'sso9';
+    };
+
+    // Функция-санитайзер для ссылок
     const getSanitizedUrl = (item) => {
         const isRoot = window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/') || window.location.pathname === '';
         const pathPrefix = isRoot ? 'pages/' : '../';
         return `${pathPrefix}monitoring/specialty.html?level=${item.level}&form=${item.form}&name=${encodeURIComponent(item.name)}`;
     };
 
+    // Генерация уникального анонимного ID для синхронизации с базой
+    const getOrCreateAnonymousId = () => {
+        let anonId = localStorage.getItem('cab_anon_id');
+        if (!anonId) {
+            anonId = 'anon_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
+            localStorage.setItem('cab_anon_id', anonId);
+        }
+        return anonId;
+    };
+
     // ==========================================================================
-    // ФУНКЦИЯ СИНХРОНИЗАЦИИ С БЭКЕНДОМ
+    // СИНХРОНИЗАЦИЯ АНОНИМНЫХ ДАННЫХ С БАЗОЙ ДАННЫХ STRAPI / NEON
     // ==========================================================================
     const syncDataWithStrapi = async (updatedChecklist, updatedFavorites) => {
-        const jwt = localStorage.getItem('cab_jwt');
-        if (!jwt || !user) return;
+        const anonId = getOrCreateAnonymousId();
+        if (!applicantData) return;
 
         try {
-            await fetch(`${STRAPI_URL}/api/users/${user.id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${jwt}`
-                },
+            await fetch(`${STRAPI_URL}/api/anonymous-applicants`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    checklist_data: updatedChecklist,
-                    favorites_data: updatedFavorites
+                    data: {
+                        anonymous_id: anonId,
+                        education_level: applicantData.level,
+                        education_base: applicantData.base,
+                        score: parseFloat(applicantData.score),
+                        submitted_specialty: applicantData.specialty,
+                        category: applicantData.category || 'budget',
+                        checklist_data: updatedChecklist,
+                        favorites_data: updatedFavorites
+                    }
                 })
             });
         } catch (e) {
-            console.warn("Сетевой сбой при синхронизации с базой данных:", e);
+            console.warn("Сетевой сбой при фоновом сохранении в базу данных:", e);
         }
     };
 
@@ -227,56 +263,119 @@ function PersonalCabinet({ isOpen, onClose }) {
         };
     }, [isOpen, onClose]);
 
-    // Эффект синхронизации Избранного с localStorage
+    // Вычисление live-позиции при загрузке данных абитуриента
+    useEffect(() => {
+        if (!applicantData) {
+            setLivePosition(null);
+            setLivePlan(null);
+            return;
+        }
+
+        let isMounted = true;
+        const fetchLivePosition = async () => {
+            setPositionLoading(true);
+            try {
+                const dbLvl = getDbEducationLevel(applicantData.level, applicantData.base);
+                const specName = applicantData.specialty;
+                const userScore = parseFloat(applicantData.score);
+                const category = applicantData.category || 'budget';
+
+                const response = await fetch(`${STRAPI_URL}/api/specialties?filters[name][$eq]=${encodeURIComponent(specName)}&filters[education_level][$eq]=${dbLvl}&filters[category][$eq]=${category}`);
+                const json = await response.json();
+
+                if (json && json.data && json.data[0]) {
+                    const specData = json.data[0].attributes || json.data[0];
+                    const plan = specData.plan || 0;
+
+                    let rawDist = specData.applications_distribution || {};
+                    if (typeof rawDist === 'string') {
+                        try { rawDist = JSON.parse(rawDist); } catch (e) { rawDist = {}; }
+                    }
+                    const distribution = rawDist.common || rawDist || [];
+
+                    let position = 1;
+                    if (dbLvl.startsWith('vo')) {
+                        let countAhead = 0;
+                        distribution.forEach(app => {
+                            const minScore = app.score - 4;
+                            if (userScore < minScore) {
+                                countAhead += app.count;
+                            } else if (userScore >= minScore && userScore <= app.score) {
+                                countAhead += app.count;
+                            }
+                        });
+                        position = countAhead + 1;
+                    } else {
+                        const countAhead = distribution
+                            .filter(app => app.score >= userScore)
+                            .reduce((sum, app) => sum + app.count, 0);
+                        position = countAhead + 1;
+                    }
+
+                    if (isMounted) {
+                        setLivePosition(position);
+                        setLivePlan(plan);
+
+                        // Установка предупреждения при риске
+                        if (plan > 0 && position > plan) {
+                            setShowRecWarning(true);
+                            fetchAlternativeRecommendations(userScore, dbLvl, specName, category);
+                        } else {
+                            setShowRecWarning(false);
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn("Сбой при вычислении позиции:", e);
+            } finally {
+                if (isMounted) setPositionLoading(false);
+            }
+        };
+
+        fetchLivePosition();
+        return () => { isMounted = false; };
+    }, [applicantData]);
+
+    // Получение рекомендаций при риске непроизводства
+    const fetchAlternativeRecommendations = async (score, dbLvl, currentSpec, category) => {
+        setRecLoading(true);
+        try {
+            const response = await fetch(`${STRAPI_URL}/api/auth/recommendations`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    score: score,
+                    education_level: dbLvl,
+                    submitted_specialty: currentSpec,
+                    category: category
+                })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                setRecommendations(data.recommendations || []);
+            }
+        } catch (e) {
+            console.warn("Ошибка подбора рекомендаций:", e);
+        } finally {
+            setRecLoading(false);
+        }
+    };
+
+    // Эффект синхронизации Избранного
     useEffect(() => {
         const handleUpdate = () => {
             const favs = JSON.parse(localStorage.getItem('favorites_specs')) || [];
             setFavorites(favs);
-            if (user) {
+            if (applicantData) {
                 syncDataWithStrapi(checkedItems, favs);
             }
         };
         window.addEventListener('favoritesUpdated', handleUpdate);
         handleUpdate();
         return () => window.removeEventListener('favoritesUpdated', handleUpdate);
-    }, [user]);
+    }, [applicantData]);
 
-    // Эффект для автоматической проверки рекомендаций при авторизации пользователя
-    useEffect(() => {
-        if (!user) {
-            setShowRecBanner(false);
-            setRecommendations([]);
-            return;
-        }
-
-        const fetchRecommendations = async () => {
-            setRecLoading(true);
-            try {
-                const response = await fetch(`${STRAPI_URL}/api/auth/recommendations`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        score: user.score,
-                        education_level: user.education_level,
-                        submitted_specialty: user.submitted_specialty
-                    })
-                });
-                const data = await response.json();
-                if (response.ok) {
-                    setShowRecBanner(data.showBanner);
-                    setRecommendations(data.recommendations || []);
-                }
-            } catch (e) {
-                console.warn("Ошибка при получении умных подсказок:", e);
-            } finally {
-                setRecLoading(false);
-            }
-        };
-
-        fetchRecommendations();
-    }, [user]);
-
-    // Эффект смены баз при изменении уровня образования на форме регистрации
+    // Эффект смены баз при изменении уровня образования
     useEffect(() => {
         if (regLevel === 'sso') {
             setRegBase('9cl');
@@ -285,22 +384,11 @@ function PersonalCabinet({ isOpen, onClose }) {
         }
     }, [regLevel]);
 
-    // Эффект смены специальности при изменении уровня или базы на форме регистрации
+    // Эффект смены специальности при изменении уровня или базы
     useEffect(() => {
         const specs = specialtiesDatabase[regLevel]?.[regBase] || [];
         setRegSpecialty(specs[0] || '');
     }, [regLevel, regBase]);
-
-    // Таймер обратного отсчета для повторной отправки OTP
-    useEffect(() => {
-        let interval = null;
-        if (isRegWindowOpen && regStep === 2 && resendTimer > 0) {
-            interval = setInterval(() => {
-                setResendTimer(prev => prev - 1);
-            }, 1000);
-        }
-        return () => clearInterval(interval);
-    }, [isRegWindowOpen, regStep, resendTimer]);
 
     useEffect(() => {
         localStorage.setItem('chk_level', level);
@@ -318,7 +406,7 @@ function PersonalCabinet({ isOpen, onClose }) {
         setCheckedItems(prev => {
             const updated = { ...prev, [id]: !prev[id] };
             localStorage.setItem('chk_checked_items', JSON.stringify(updated));
-            if (user) {
+            if (applicantData) {
                 syncDataWithStrapi(updated, favorites);
             }
             return updated;
@@ -348,95 +436,65 @@ function PersonalCabinet({ isOpen, onClose }) {
         setRegScore(val);
     };
 
-    const handleRegisterSubmit = async (e) => {
+    // ==========================================================================
+    // СОХРАНЕНИЕ ДАННЫХ АНОНИМНОГО АБИТУРИЕНТА БЕЗ EMAIL И OTP
+    // ==========================================================================
+    const handleSaveApplicantData = async (e) => {
         if (e) e.preventDefault();
-        if (!regEmail.trim() || !regScore.trim() || !regSpecialty) {
-            alert('Пожалуйста, заполните все поля формы');
+        if (!regScore.trim() || !regSpecialty) {
+            alert('Пожалуйста, укажите специальность и средний балл');
             return;
         }
 
-        setRegLoading(true);
+        setFormLoading(true);
+        const anonId = getOrCreateAnonymousId();
+
+        const payload = {
+            level: regLevel,
+            base: regBase,
+            score: regScore,
+            specialty: regSpecialty,
+            category: regCategory,
+            anonymousId: anonId
+        };
+
+        // Локальное сохранение данных
+        localStorage.setItem('cab_applicant', JSON.stringify(payload));
+        setApplicantData(payload);
+
+        // Отправка в Neon / Strapi базу данных
         try {
-            const response = await fetch(`${STRAPI_URL}/api/auth/otp-request`, {
+            await fetch(`${STRAPI_URL}/api/anonymous-applicants`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    email: regEmail,
-                    education_level: regLevel,
-                    education_base: regBase,
-                    score: regScore,
-                    submitted_specialty: regSpecialty
+                    data: {
+                        anonymous_id: anonId,
+                        education_level: regLevel,
+                        education_base: regBase,
+                        score: parseFloat(regScore),
+                        submitted_specialty: regSpecialty,
+                        category: regCategory,
+                        checklist_data: checkedItems,
+                        favorites_data: favorites
+                    }
                 })
             });
-
-            const data = await response.json();
-            if (response.ok) {
-                setResendTimer(60);
-                setRegStep(2);
-            } else {
-                alert(data.error?.message || 'Не удалось отправить запрос на регистрацию');
-            }
         } catch (err) {
-            alert('Ошибка соединения с сервером авторизации');
+            console.warn("Сетевая ошибка при передаче данных на сервер:", err);
         } finally {
-            setRegLoading(false);
+            setFormLoading(false);
+            setIsFormWindowOpen(false);
         }
     };
 
-    const handleResendCode = async () => {
-        if (resendTimer > 0) return;
-        await handleRegisterSubmit(null);
-        alert('Новый код подтверждения отправлен на вашу почту');
-    };
-
-    const handleVerifyOtp = async (e) => {
-        e.preventDefault();
-        if (!regOtp.trim()) return;
-
-        setRegLoading(true);
-        try {
-            const response = await fetch(`${STRAPI_URL}/api/auth/otp-verify`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: regEmail, code: regOtp })
-            });
-
-            const data = await response.json();
-            if (response.ok) {
-                localStorage.setItem('cab_jwt', data.jwt);
-                localStorage.setItem('cab_user', JSON.stringify(data.user));
-                setUser(data.user);
-
-                if (data.user.checklist_data) {
-                    setCheckedItems(data.user.checklist_data);
-                    localStorage.setItem('chk_checked_items', JSON.stringify(data.user.checklist_data));
-                }
-                if (data.user.favorites_data) {
-                    setFavorites(data.user.favorites_data);
-                    localStorage.setItem('favorites_specs', JSON.stringify(data.user.favorites_data));
-                    window.dispatchEvent(new Event('favoritesUpdated'));
-                }
-
-                setIsRegWindowOpen(false);
-                setRegStep(1);
-                setRegEmail('');
-                setRegScore('');
-                setRegOtp('');
-                alert('Регистрация и верификация успешно завершены!');
-            } else {
-                alert(data.error?.message || 'Неверный код подтверждения');
-            }
-        } catch (err) {
-            alert('Ошибка верификации кода');
-        } finally {
-            setRegLoading(false);
-        }
-    };
-
-    const handleLogout = () => {
-        localStorage.removeItem('cab_jwt');
-        localStorage.removeItem('cab_user');
-        setUser(null);
+    const handleResetApplicantData = () => {
+        localStorage.removeItem('cab_applicant');
+        setApplicantData(null);
+        setLivePosition(null);
+        setLivePlan(null);
+        setShowRecWarning(false);
+        setRecommendations([]);
     };
 
     const removeFavoriteItem = (item) => {
@@ -469,7 +527,6 @@ function PersonalCabinet({ isOpen, onClose }) {
                 const specRes = await fetch(`${STRAPI_URL}/api/specialties?filters[name][$eq]=${encodeURIComponent(item.name)}&filters[education_level][$eq]=${item.level}&filters[form_of_study][$eq]=${item.form}&filters[category][$eq]=${item.category}`);
                 const specJson = await specRes.json();
 
-                // Безопасное извлечение свойств без опциональной цепочки
                 const specAttributes = specJson && specJson.data && specJson.data[0] ? (specJson.data[0].attributes || specJson.data[0]) : null;
 
                 const archRes = await fetch(`${STRAPI_URL}/api/archives?filters[specialty_name][$eq]=${encodeURIComponent(item.name)}&filters[category][$eq]=${item.category}`);
@@ -506,7 +563,6 @@ function PersonalCabinet({ isOpen, onClose }) {
                     const totalApps = specAttributes.total_applications || 0;
                     competitionRatio = (totalApps / plan).toFixed(2);
 
-                    // БЕЗОПАСНЫЙ РАЗБОР РАСПРЕДЕЛЕНИЯ ИЗ БАЗЫ STRAPI
                     let rawDist = specAttributes.applications_distribution || {};
                     if (typeof rawDist === 'string') {
                         try {
@@ -516,7 +572,6 @@ function PersonalCabinet({ isOpen, onClose }) {
                         }
                     }
 
-                    // Берем массив общего конкурса (или резервный пустой массив)
                     const commonList = rawDist.common || rawDist || [];
 
                     let allScores = [];
@@ -1088,15 +1143,16 @@ function PersonalCabinet({ isOpen, onClose }) {
         setAnswersHistory([]);
     };
 
-    // Проверка расширенного режима для сравнения на ноутбуках/десктопах
     const isExpandedCompare = isCompareWindowOpen && !compareLoading && comparisonData.length > 0;
 
-    // Динамические стили вынесены в переменную для предотвращения ошибок синтаксического анализа Babel
     const cabinetStyle = {};
     if (isExpandedCompare) {
         cabinetStyle.width = 'min(780px, 95vw)';
-        cabinetStyle.height = 'auto'; // Высота динамически подстраивается под высоту таблицы
-        cabinetStyle.maxHeight = '92vh'; // Предотвращает упирание в низ экрана ноутбука
+        cabinetStyle.height = 'auto';
+        cabinetStyle.maxHeight = '92vh';
+    }
+    else {
+        cabinetStyle.width = '410px'; // Увеличено с 380px для устранения тесноты кнопок
     }
     cabinetStyle.transition = 'width 0.35s cubic-bezier(0.16, 1, 0.3, 1), height 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
 
@@ -1104,7 +1160,7 @@ function PersonalCabinet({ isOpen, onClose }) {
         <div className="cabinet-window" style={cabinetStyle}>
             {isCompareWindowOpen ? (
                 // ==========================================================================
-                // СРАВНЕНИЕ СПЕЦИАЛЬНОСТЕЙ (ТЕПЕРЬ В ЕСТЕСТВЕННОМ ПОТОКЕ - БЕЗ СРЕЗОВ ТАБЛИЦЫ!)
+                // СРАВНЕНИЕ СПЕЦИАЛЬНОСТЕЙ (ИНТЕРФЕЙС ТАБЛИЦЫ)
                 // ==========================================================================
                 <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'inherit', padding: '15px 15px 20px 15px', flex: 1 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', borderBottom: '1px solid rgba(113, 128, 150, 0.15)', paddingBottom: '10px' }}>
@@ -1118,7 +1174,6 @@ function PersonalCabinet({ isOpen, onClose }) {
                         </div>
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            {/* Таблица с горизонтальной прокруткой и заблокированной вертикальной */}
                             <div style={{ overflowX: 'auto', overflowY: 'hidden', marginBottom: '15px', width: '100%' }}>
                                 <table className="bar-table" style={{ fontSize: '13.5px', borderCollapse: 'collapse', width: '100%', textAlign: 'left', minWidth: '450px' }}>
                                     <thead>
@@ -1201,7 +1256,7 @@ function PersonalCabinet({ isOpen, onClose }) {
                             </div>
 
                             <div style={{ fontSize: '11.5px', opacity: 0.7, textAlign: 'left', lineHeight: '1.5', marginBottom: '12px' }}>
-                                * Примечание: Teкущий балл 2026 года формируется динамически на основе поданных в данный момент документов и изменится по ходу приемной кампании. Свободные места означают, что конкурс еще не полностью заполнен.
+                                * Примечание: Текущий балл 2026 года формируется динамически на основе поданных в данный момент документов и изменится по ходу приемной кампании. Свободные места означают, что конкурс еще не полностью заполнен.
                             </div>
 
                             <button
@@ -1216,36 +1271,107 @@ function PersonalCabinet({ isOpen, onClose }) {
                 </div>
             ) : (
                 // ==========================================================================
-                // СТАНДАРТНЫЙ РЕЖИМ РАБОТЫ КАБИНЕТА (Остальные вкладки)
+                // СТАНДАРТНЫЙ РЕЖИМ РАБОТЫ КАБИНЕТА
                 // ==========================================================================
                 <React.Fragment>
-                    {/* Верхний информационный блок профиля / регистрации */}
-                    <div className="cab-profile-panel" style={{ padding: '12px 15px', backgroundColor: 'rgba(113, 128, 150, 0.08)', borderBottom: '1px solid rgba(113, 128, 150, 0.15)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        {user ? (
-                            <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
-                                <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#2e7d32' }}>✓ Авторизован: {user.email}</span>
-                                <span style={{ fontSize: '11px', opacity: 0.85, color: 'inherit' }}>Спец.: {user.submitted_specialty} | Балл: {user.score}</span>
-                            </div>
-                        ) : (
-                            <div style={{ textAlign: 'left' }}>
-                                <span style={{ fontSize: '11.5px', opacity: 0.8, fontWeight: '600' }}>Хотите получать сообщения?</span>
-                            </div>
-                        )}
-
-                        {user ? (
-                            <button onClick={handleLogout} className="btn-arrow btn-gray" style={{ fontSize: '10px', padding: '5px 10px', height: 'auto', border: 'none', cursor: 'pointer' }}>
-                                Выйти
-                            </button>
-                        ) : (
-                            <button
-                                onClick={() => { setIsRegWindowOpen(true); setRegStep(1); }}
-                                className="btn-arrow"
-                                style={{ fontSize: '11px', padding: '5px 12px', height: 'auto', border: 'none', cursor: 'pointer' }}
-                            >
-                                Регистрация
-                            </button>
-                        )}
-                    </div>
+                        {/* ВЕРХНИЙ ПАНЕЛЬНЫЙ БЛОК: Фото 1 с динамическим расцветкой и кнопкой рисков справа */}
+                        <div className="cab-profile-panel" style={{ padding: '12px 15px', backgroundColor: 'rgba(113, 128, 150, 0.08)', borderBottom: '1px solid rgba(113, 128, 150, 0.15)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            {applicantData ? (
+                                <div style={{ display: 'flex', flex: 1, justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
+                                        <span style={{ fontSize: '11.5px', fontWeight: 'bold', color: '#718096' }}>Ваша позиция на данный момент:</span>
+                                        {positionLoading ? (
+                                            <span style={{ fontSize: '14px', fontStyle: 'italic', color: '#007bff' }}>Вычисляем позицию...</span>
+                                        ) : (
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <span style={{
+                                                    fontSize: '16px',
+                                                    fontWeight: '900',
+                                                    color: (() => {
+                                                        const isDark = document.documentElement.classList.contains('dark-mode');
+                                                        if (!livePosition || !livePlan) return '#718096';
+                                                        if (livePosition <= livePlan) {
+                                                            if (livePosition >= livePlan * 0.9) return '#f39c12'; // Желтый (на грани)
+                                                            return isDark ? '#4ade80' : '#2e7d32'; // Зеленый
+                                                        }
+                                                        return isDark ? '#f87171' : '#ef5350'; // Красный
+                                                    })()
+                                                }}>
+                                                    {livePosition !== null && livePlan !== null ? `${livePosition} из ${livePlan}` : 'Данные загружаются...'}
+                                                </span>
+                                            </div>
+                                        )}
+                                        <span style={{ fontSize: '10.5px', opacity: 0.8, color: 'inherit', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '200px' }} title={applicantData.specialty}>
+                                            {applicantData.specialty} ({applicantData.category === 'paid' ? 'Платно' : 'Бюджет'})
+                                        </span>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                        {showRecWarning && (
+                                            <button
+                                                onClick={() => setIsRiskModalOpen(true)}
+                                                onMouseEnter={() => setIsWarningHovered(true)}
+                                                onMouseLeave={() => setIsWarningHovered(false)}
+                                                style={{
+                                                    fontSize: '13px',
+                                                    padding: '5px 12px',
+                                                    height: '28px', // Фиксированная высота для выравнивания с другими кнопками
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    border: 'none',
+                                                    borderRadius: '24px',
+                                                    cursor: 'pointer',
+                                                    backgroundColor: isWarningHovered ? '#b71c1c' : '#ef5350', // Темно-красный при наведении
+                                                    color: '#ffffff',
+                                                    boxShadow: '0 2px 8px rgba(239, 83, 80, 0.3)',
+                                                    fontWeight: '800',
+                                                    transition: 'background-color 0.2s ease',
+                                                    margin: 0
+                                                }}
+                                                title="Просмотреть риски непрохождения по конкурсу"
+                                            >
+                                                ⚠️
+                                            </button>
+                                        )}
+                                        <button
+                                            onClick={() => {
+                                                setRegLevel(applicantData.level);
+                                                setRegBase(applicantData.base);
+                                                setRegScore(applicantData.score);
+                                                setRegSpecialty(applicantData.specialty);
+                                                setRegCategory(applicantData.category || 'budget');
+                                                setIsFormWindowOpen(true);
+                                            }}
+                                            className="btn-arrow"
+                                            style={{ fontSize: '11px', padding: '5px 10px', height: 'auto', border: 'none', cursor: 'pointer' }}
+                                        >
+                                            Изменить
+                                        </button>
+                                        <button
+                                            onClick={handleResetApplicantData}
+                                            className="btn-arrow btn-gray"
+                                            style={{ fontSize: '10px', padding: '5px 8px', height: 'auto', border: 'none', cursor: 'pointer' }}
+                                            title="Сбросить все сохраненные настройки анкеты"
+                                        >
+                                            Сброс
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div style={{ display: 'flex', flex: 1, justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                                    <div style={{ textAlign: 'left' }}>
+                                        <span style={{ fontSize: '12px', opacity: 0.85, fontWeight: '700' }}>Хотите следить за своей позицией?</span>
+                                    </div>
+                                    <button
+                                        onClick={() => { setIsFormWindowOpen(true); }}
+                                        className="btn-arrow"
+                                        style={{ fontSize: '11.5px', padding: '6px 14px', height: 'auto', border: 'none', cursor: 'pointer' }}
+                                    >
+                                        Регистрация
+                                    </button>
+                                </div>
+                            )}
+                        </div>
 
                     {/* Вкладки навигации по Кабинету */}
                     <div className="cabinet-tabs">
@@ -1269,51 +1395,8 @@ function PersonalCabinet({ isOpen, onClose }) {
                         </button>
                     </div>
 
-                    <div className="cabinet-body">
-                        {showRecBanner && recommendations.length > 0 && (
-                            <div style={{
-                                backgroundColor: 'rgba(239, 83, 80, 0.08)',
-                                borderLeft: '4px solid #ef5350',
-                                borderRadius: '12px',
-                                padding: '12px 15px',
-                                marginBottom: '15px',
-                                textAlign: 'left'
-                            }}>
-                                <strong style={{ color: '#ef5350', fontSize: '13.5px', display: 'block', marginBottom: '6px' }}>
-                                    ⚠️ Высокий риск непроизводства на бюджет!
-                                </strong>
-                                <span style={{ fontSize: '12px', lineHeight: '1.4', display: 'block', marginBottom: '8px', opacity: 0.9 }}>
-                                    Текущие баллы по специальности <strong style={{ color: 'inherit' }}>{user.submitted_specialty}</strong> выросли. Посмотрите подходящие по баллу альтернативы со свободными местами:
-                                </span>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                    {recommendations.map((rec, idx) => (
-                                        <div key={idx} style={{
-                                            backgroundColor: 'rgba(255, 255, 255, 0.7)',
-                                            padding: '8px 10px',
-                                            borderRadius: '8px',
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center',
-                                            fontSize: '11.5px'
-                                        }}>
-                                            <span style={{ fontWeight: 'bold', flex: 1, paddingRight: '10px' }}>
-                                                {rec.name}
-                                            </span>
-                                            <a href={rec.url} className="btn-arrow" style={{
-                                                padding: '3px 8px',
-                                                fontSize: '10px',
-                                                height: 'auto',
-                                                textDecoration: 'none',
-                                                whiteSpace: 'nowrap'
-                                            }}>
-                                                {rec.hasFreeSeats ? 'Есть места' : 'Проходите'} →
-                                            </a>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                        {activeTab === 'checklist' && (
+                        <div className="cabinet-body">
+                            {activeTab === 'checklist' && (
                             <div>
                                 <div className="cab-checklist-filters">
                                     <div className="cab-filter-row">
@@ -1364,7 +1447,6 @@ function PersonalCabinet({ isOpen, onClose }) {
                             </div>
                         )}
 
-                        {/* ВКЛАДКА: ИЗБРАННОЕ И СРАВНЕНИЕ СПЕЦИАЛЬНОСТЕЙ */}
                         {activeTab === 'favorites' && (
                             <div style={{ textAlign: 'left' }}>
                                 {favorites.length === 0 ? (
@@ -1378,7 +1460,6 @@ function PersonalCabinet({ isOpen, onClose }) {
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                                             <span style={{ fontSize: '13px', fontWeight: 'bold', opacity: 0.8 }}>Выбрано: {favorites.length}</span>
 
-                                            {/* Две раздельные кнопки в режиме сравнения: Отмена и Сравнить */}
                                             <div style={{ display: 'flex', gap: '8px' }}>
                                                 {isCompareMode ? (
                                                     <React.Fragment>
@@ -1551,225 +1632,284 @@ function PersonalCabinet({ isOpen, onClose }) {
                         )}
                     </div>
 
-                    {/* ВСПЛЫВАЮЩЕЕ ОКНО РЕГИСТРАЦИИ (РЕНДЕРИТСЯ КАК ДОЧЕРНИЙ ЭЛЕМЕНТ В ЕСТЕСТВЕННОМ ПОТОКЕ) */}
-                    {isRegWindowOpen && (
+                    {/* ==========================================================================
+                        УДАЛЕННОЕ МОДАЛЬНОЕ ОКНО ПРЕДУПРЕЖДЕНИЙ И РЕКОМЕНДАЦИЙ (ФОТО 2 / ФОТО 3)
+                        ========================================================================== */}
+                    {isRiskModalOpen && (
+                        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', margin: 0, zIndex: 100070, display: 'flex', flexDirection: 'column', backgroundColor: 'inherit', borderRadius: 'inherit' }}>
+                            <div className="cabinet-header">
+                                <div className="cabinet-header-title">
+                                    ⚠️ Риски зачисления
+                                </div>
+                                <button className="ai-close-btn" onClick={() => setIsRiskModalOpen(false)}>{"×"}</button>
+                            </div>
+                            <div className="cabinet-body" style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: 'inherit' }}>
+                                <div style={{
+                                    backgroundColor: document.documentElement.classList.contains('dark-mode') ? 'rgba(239, 83, 80, 0.15)' : 'rgba(239, 83, 80, 0.08)',
+                                    borderLeft: `4px solid ${document.documentElement.classList.contains('dark-mode') ? '#f87171' : '#ef5350'}`,
+                                    borderRadius: '12px',
+                                    padding: '15px',
+                                    textAlign: 'left',
+                                    marginBottom: '10px'
+                                }}>
+                                    <strong style={{ color: document.documentElement.classList.contains('dark-mode') ? '#f87171' : '#c62828', fontSize: '14px', display: 'block', marginBottom: '8px' }}>
+                                        Высокий риск непрохождения по конкурсу!
+                                    </strong>
+                                    <span style={{ fontSize: '12px', lineHeight: '1.4', display: 'block', color: document.documentElement.classList.contains('dark-mode') ? '#fca5a5' : '#c62828' }}>
+                                        Ваш балл ({applicantData?.score}) в данный момент ниже проходного на специальность <strong>{applicantData?.specialty}</strong>. Пожалуйста, рассмотрите другие варианты.
+                                    </span>
+                                </div>
+
+                                {recLoading ? (
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '30px 0', flex: 1 }}>
+                                        <div className="loader-text" style={{ fontStyle: 'normal' }}>Анализ базы специальностей...</div>
+                                    </div>
+                                ) : recommendations.length > 0 ? (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto', flex: 1, paddingBottom: '10px' }}>
+                                        <span style={{ fontSize: '11.5px', fontWeight: 'bold', opacity: 0.8, marginBottom: '4px', display: 'block', textAlign: 'left' }}>
+                                            Альтернативные направления, где вы проходите:
+                                        </span>
+                                        {recommendations.map((rec, idx) => (
+                                            <div key={idx} style={{
+                                                backgroundColor: document.documentElement.classList.contains('dark-mode') ? 'rgba(255, 255, 255, 0.05)' : '#ffffff',
+                                                padding: '10px 12px',
+                                                borderRadius: '10px',
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                fontSize: '11.5px',
+                                                border: '1px solid rgba(113, 128, 150, 0.15)'
+                                            }}>
+                                                <span style={{ fontWeight: 'bold', flex: 1, paddingRight: '10px', textAlign: 'left' }}>
+                                                    {rec.name}
+                                                </span>
+                                                <a href={rec.url} className="btn-arrow" style={{
+                                                    padding: '4px 10px',
+                                                    fontSize: '10.5px',
+                                                    height: 'auto',
+                                                    textDecoration: 'none',
+                                                    whiteSpace: 'nowrap'
+                                                }}>
+                                                    Проходите →
+                                                </a>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    // ОБРАБОТКА НИЗКОГО БАЛЛА (АБИТУРИЕНТ НЕ ПРОХОДИТ ДАЖЕ НА ПЛАТНОЕ)
+                                            <div style = {{
+                                                backgroundColor: 'rgba(239, 83, 80, 0.04)',
+                                                border: '1px dashed rgba(239, 83, 80, 0.3)',
+                                                borderRadius: '12px',
+                                                padding: '20px 15px',
+                                                textAlign: 'center',
+                                                flex: 1,
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                justifyContent: 'center',
+                                                alignItems: 'center'
+                                            }}>
+                                    <span style={{ fontSize: '32px', marginBottom: '10px' }}>📊</span>
+                                    {applicantData?.category === 'budget' ? (
+                                        <React.Fragment>
+                                            <strong style={{ display: 'block', fontSize: '13.5px', color: document.documentElement.classList.contains('dark-mode') ? '#f87171' : '#ef5350', marginBottom: '6px' }}>
+                                                Ограниченный выбор на бюджете
+                                            </strong>
+                                            <span style={{ fontSize: '12px', lineHeight: '1.5', opacity: 0.9 }}>
+                                                К сожалению, ваш балл ({applicantData?.score}) ниже текущих проходных по всем бюджетным направлениям.
+                                                Рекомендуем рассмотреть <strong>обучение на платной основе</strong> — проходные баллы там значительно ниже, а шансы на зачисление выше!
+                                            </span>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setIsRiskModalOpen(false);
+                                                    setRegLevel(applicantData.level);
+                                                    setRegBase(applicantData.base);
+                                                    setRegScore(applicantData.score);
+                                                    setRegSpecialty(applicantData.specialty);
+                                                    setRegCategory('paid');
+                                                    setIsFormWindowOpen(true);
+                                                }}
+                                                className="btn-arrow"
+                                                style={{ marginTop: '15px', fontSize: '11px', padding: '8px 16px' }}
+                                            >
+                                                Переключить на платно
+                                            </button>
+                                        </React.Fragment>
+                                    ) : (
+                                        <React.Fragment>
+                                            <strong style={{ display: 'block', fontSize: '13.5px', color: document.documentElement.classList.contains('dark-mode') ? '#f87171' : '#ef5350', marginBottom: '6px' }}>
+                                                Ограниченный выбор на платной основе
+                                            </strong>
+                                            <span style={{ fontSize: '12px', lineHeight: '1.5', opacity: 0.9 }}>
+                                                К сожалению, ваш балл ({applicantData?.score}) на данный момент ниже проходного по всем платным специальностям.
+                                                Рекомендуем обратиться за консультацией в приемную комиссию по телефону или рассмотреть другие смежные базы образования.
+                                            </span>
+                                        </React.Fragment>
+                                    )}
+                                </div>
+                                )}
+
+                                <button
+                                    type="button"
+                                    onClick={() => setIsRiskModalOpen(false)}
+                                    className="btn-arrow btn-gray"
+                                    style={{ width: '100%', height: '40px', marginTop: 'auto', border: 'none', cursor: 'pointer' }}
+                                >
+                                    Закрыть
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ==========================================================================
+                        ОБНОВЛЕННАЯ УПРОЩЕННАЯ АНКЕТА АБИТУРИЕНТА С ВЫБОРОМ БЮДЖЕТ / ПЛАТНО
+                        ========================================================================== */}
+                    {isFormWindowOpen && (
                         <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', margin: 0, zIndex: 100060, display: 'flex', flexDirection: 'column', backgroundColor: 'inherit', borderRadius: 'inherit' }}>
 
                             <div className="cabinet-header">
                                 <div className="cabinet-header-title">
-                                    Регистрация абитуриента
+                                    Параметры абитуриента
                                 </div>
-                                <button className="ai-close-btn" onClick={() => setIsRegWindowOpen(false)}>{"×"}</button>
+                                <button className="ai-close-btn" onClick={() => setIsFormWindowOpen(false)}>{"×"}</button>
                             </div>
 
                             <div className="cabinet-body" style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: 'inherit' }}>
-                                {regStep === 1 ? (
-                                    <form onSubmit={handleRegisterSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '11px', textAlign: 'left', flex: 1 }}>
+                                <form onSubmit={handleSaveApplicantData} style={{ display: 'flex', flexDirection: 'column', gap: '12px', textAlign: 'left', flex: 1 }}>
 
-                                        {/* Дисклеймер условий регистрации */}
-                                        <div style={{ backgroundColor: 'rgba(113, 128, 150, 0.08)', borderLeft: '3px solid #007bff', padding: '9px 12px', borderRadius: '8px', fontSize: '11.5px', lineHeight: '1.4', color: 'inherit' }}>
-                                            <strong>Важно!</strong> Регистрация необходима исключительно для получения официальных сообщений и уведомлений от академии. Пожалуйста, регистрируйтесь <strong>только после фактической подачи документов</strong> в приемную комиссию БГАС.
-                                        </div>
-
-                                        {/* Поле: Email */}
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                            <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#718096' }}>Ваш адрес электронной почты (Email):</label>
-                                            <input
-                                                type="email"
-                                                required
-                                                placeholder="example@mail.ru"
-                                                className="score-search-input"
-                                                style={{ fontSize: '13px', padding: '8px 12px', borderRadius: '8px', border: '1px solid #CBD5E1', height: '38px', backgroundColor: 'transparent', color: 'inherit' }}
-                                                value={regEmail}
-                                                onChange={(e) => setRegEmail(e.target.value)}
-                                            />
-                                        </div>
-
-                                        {/* Поле-Слайдер: Уровень образования */}
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                            <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#718096' }}>Уровень образования:</label>
-                                            <div style={{ display: 'flex', backgroundColor: 'rgba(113, 128, 150, 0.08)', padding: '4px', borderRadius: '10px', gap: '4px' }}>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setRegLevel('sso')}
-                                                    style={{ flex: 1, padding: '6px', border: 'none', borderRadius: '6px', fontSize: '12.5px', fontWeight: 'bold', cursor: 'pointer', backgroundColor: regLevel === 'sso' ? '#007bff' : 'transparent', color: regLevel === 'sso' ? '#ffffff' : '#718096', transition: 'all 0.2s' }}
-                                                >
-                                                    Колледж (ССО)
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setRegLevel('vo')}
-                                                    style={{ flex: 1, padding: '6px', border: 'none', borderRadius: '6px', fontSize: '12.5px', fontWeight: 'bold', cursor: 'pointer', backgroundColor: regLevel === 'vo' ? '#007bff' : 'transparent', color: regLevel === 'vo' ? '#ffffff' : '#718096', transition: 'all 0.2s' }}
-                                                >
-                                                    Академия (ВО)
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        {/* Поле-Слайдер: База образования */}
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                            <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#718096' }}>База образования:</label>
-                                            <div style={{ display: 'flex', backgroundColor: 'rgba(113, 128, 150, 0.08)', padding: '4px', borderRadius: '10px', gap: '4px', flexWrap: 'wrap' }}>
-                                                {regLevel === 'sso' ? (
-                                                    <React.Fragment>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setRegBase('9cl')}
-                                                            style={{ flex: 1, minWidth: '70px', padding: '6px', border: 'none', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', backgroundColor: regBase === '9cl' ? '#007bff' : 'transparent', color: regBase === '9cl' ? '#ffffff' : '#718096', transition: 'all 0.2s' }}
-                                                        >
-                                                            9 кл.
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setRegBase('11cl')}
-                                                            style={{ flex: 1, minWidth: '70px', padding: '6px', border: 'none', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', backgroundColor: regBase === '11cl' ? '#007bff' : 'transparent', color: regBase === '11cl' ? '#ffffff' : '#718096', transition: 'all 0.2s' }}
-                                                        >
-                                                            11 кл.
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setRegBase('pto')}
-                                                            style={{ flex: 1, minWidth: '70px', padding: '6px', border: 'none', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', backgroundColor: regBase === 'pto' ? '#007bff' : 'transparent', color: regBase === 'pto' ? '#ffffff' : '#718096', transition: 'all 0.2s' }}
-                                                        >
-                                                            ПТО
-                                                        </button>
-                                                    </React.Fragment>
-                                                ) : (
-                                                    <React.Fragment>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setRegBase('11cl')}
-                                                            style={{ flex: 1, padding: '6px', border: 'none', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', backgroundColor: regBase === '11cl' ? '#007bff' : 'transparent', color: regBase === '11cl' ? '#ffffff' : '#718096', transition: 'all 0.2s' }}
-                                                        >
-                                                            11 кл. (Полный)
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setRegBase('sso_short')}
-                                                            style={{ flex: 1, padding: '6px', border: 'none', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', backgroundColor: regBase === 'sso_short' ? '#007bff' : 'transparent', color: regBase === 'sso_short' ? '#ffffff' : '#718096', transition: 'all 0.2s' }}
-                                                        >
-                                                            ССО (Сокращ.)
-                                                        </button>
-                                                    </React.Fragment>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        {/* Поле: Средний балл */}
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                            <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#718096' }}>
-                                                {regLevel === 'sso' ? 'Ваш средний балл (1.0 - 10.0):' : (regBase === 'sso_short' ? 'Суммарный балл (0 - 300):' : 'Суммарный балл (0 - 400):')}
-                                            </label>
-                                            <input
-                                                type="text"
-                                                required
-                                                placeholder={regLevel === 'sso' ? "8.5" : (regBase === 'sso_short' ? "210" : "285")}
-                                                className="score-search-input"
-                                                style={{ fontSize: '13px', padding: '8px 12px', borderRadius: '8px', border: '1px solid #CBD5E1', height: '38px', backgroundColor: 'transparent', color: 'inherit' }}
-                                                value={regScore}
-                                                onChange={handleScoreChange}
-                                            />
-                                        </div>
-
-                                        {/* Поле: Выбор специальности */}
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                            <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#718096' }}>Специальность, на которую поданы документы:</label>
-                                            <select
-                                                className="cab-select"
-                                                style={{ width: '100%', height: '38px', fontSize: '13px', borderRadius: '8px', padding: '8px 10px' }}
-                                                value={regSpecialty}
-                                                onChange={(e) => setRegSpecialty(e.target.value)}
-                                            >
-                                                {(specialtiesDatabase[regLevel]?.[regBase] || []).map((spec, index) => (
-                                                    <option key={index} value={spec}>{spec}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-
-                                        {/* Кнопка отправки формы */}
-                                        <button
-                                            type="submit"
-                                            className="btn-arrow"
-                                            style={{ width: '100%', height: '42px', marginTop: 'auto', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                            disabled={regLoading}
-                                        >
-                                            {regLoading ? 'Отправка...' : 'Зарегистрироваться'}
-                                        </button>
-                                    </form>
-                                ) : (
-                                    // Ввод 4-значного кода подтверждения
-                                    <form onSubmit={handleVerifyOtp} style={{ display: 'flex', flexDirection: 'column', gap: '15px', textAlign: 'center', paddingTop: '20px', flex: 1, backgroundColor: 'inherit' }}>
-                                        <div>
-                                            <h3 style={{ fontSize: '18px', color: '#007bff', marginBottom: '10px' }}>Подтверждение регистрации</h3>
-                                            <p style={{ fontSize: '13px', opacity: 0.85, lineHeight: '1.5' }}>
-                                                Мы отправили письмо с временным кодом на почту <strong style={{ color: '#007bff' }}>{regEmail}</strong>.<br />
-                                                Пожалуйста, проверьте папку «Входящие» и введите код.
-                                            </p>
-                                        </div>
-
-                                        {/* Сбалансированный и центрированный блок ввода кода */}
-                                        <div style={{ display: 'flex', justifyContent: 'center', margin: '10px 0' }}>
-                                            <input
-                                                type="text"
-                                                required
-                                                maxLength="4"
-                                                placeholder="0000"
-                                                className="score-search-input"
-                                                style={{
-                                                    fontSize: '28px',
-                                                    letterSpacing: '12px',
-                                                    paddingLeft: '12px',
-                                                    textAlign: 'center',
-                                                    width: '180px',
-                                                    height: '52px',
-                                                    borderRadius: '12px',
-                                                    border: '2px solid #007bff',
-                                                    outline: 'none',
-                                                    backgroundColor: 'transparent',
-                                                    color: 'inherit'
-                                                }}
-                                                value={regOtp}
-                                                onChange={(e) => setRegOtp(e.target.value.replace(/[^0-9]/g, ''))}
-                                            />
-                                        </div>
-
-                                        {/* Блок динамического таймера повторной отправки */}
-                                        <div style={{ fontSize: '12px', opacity: 0.8 }}>
-                                            {resendTimer > 0 ? (
-                                                <span>Повторный запрос кода доступен через <strong style={{ color: '#007bff' }}>{resendTimer} сек.</strong></span>
-                                            ) : (
-                                                <button
-                                                    type="button"
-                                                    onClick={handleResendCode}
-                                                    style={{ background: 'none', border: 'none', color: '#007bff', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'underline', fontSize: '12.5px', fontFamily: 'inherit' }}
-                                                    disabled={regLoading}
-                                                >
-                                                    Запросить код повторно
-                                                </button>
-                                            )}
-                                        </div>
-
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: 'auto' }}>
+                                    {/* Поле-Слайдер: Уровень образования */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#718096' }}>Уровень образования:</label>
+                                        <div style={{ display: 'flex', backgroundColor: 'rgba(113, 128, 150, 0.08)', padding: '4px', borderRadius: '10px', gap: '4px' }}>
                                             <button
-                                                type="submit"
-                                                className="btn-arrow"
-                                                style={{ width: '100%', height: '42px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                                disabled={regLoading}
+                                                type="button"
+                                                onClick={() => setRegLevel('sso')}
+                                                style={{ flex: 1, padding: '6px', border: 'none', borderRadius: '6px', fontSize: '12.5px', fontWeight: 'bold', cursor: 'pointer', backgroundColor: regLevel === 'sso' ? '#007bff' : 'transparent', color: regLevel === 'sso' ? '#ffffff' : '#718096', transition: 'all 0.2s' }}
                                             >
-                                                {regLoading ? 'Секунду...' : 'Подтвердить код'}
+                                                Колледж (ССО)
                                             </button>
                                             <button
                                                 type="button"
-                                                onClick={() => setRegStep(1)}
-                                                className="btn-arrow btn-gray"
-                                                style={{ width: '100%', height: '42px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                                disabled={regLoading}
+                                                onClick={() => setRegLevel('vo')}
+                                                style={{ flex: 1, padding: '6px', border: 'none', borderRadius: '6px', fontSize: '12.5px', fontWeight: 'bold', cursor: 'pointer', backgroundColor: regLevel === 'vo' ? '#007bff' : 'transparent', color: regLevel === 'vo' ? '#ffffff' : '#718096', transition: 'all 0.2s' }}
                                             >
-                                                Вернуться к заполнению анкеты
+                                                Академия (ВО)
                                             </button>
                                         </div>
-                                    </form>
-                                )}
+                                    </div>
+
+                                    {/* Поле-Слайдер: База образования */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#718096' }}>База образования:</label>
+                                        <div style={{ display: 'flex', backgroundColor: 'rgba(113, 128, 150, 0.08)', padding: '4px', borderRadius: '10px', gap: '4px', flexWrap: 'wrap' }}>
+                                            {regLevel === 'sso' ? (
+                                                <React.Fragment>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setRegBase('9cl')}
+                                                        style={{ flex: 1, minWidth: '70px', padding: '6px', border: 'none', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', backgroundColor: regBase === '9cl' ? '#007bff' : 'transparent', color: regBase === '9cl' ? '#ffffff' : '#718096', transition: 'all 0.2s' }}
+                                                    >
+                                                        9 кл.
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setRegBase('11cl')}
+                                                        style={{ flex: 1, minWidth: '70px', padding: '6px', border: 'none', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', backgroundColor: regBase === '11cl' ? '#007bff' : 'transparent', color: regBase === '11cl' ? '#ffffff' : '#718096', transition: 'all 0.2s' }}
+                                                    >
+                                                        11 кл.
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setRegBase('pto')}
+                                                        style={{ flex: 1, minWidth: '70px', padding: '6px', border: 'none', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', backgroundColor: regBase === 'pto' ? '#007bff' : 'transparent', color: regBase === 'pto' ? '#ffffff' : '#718096', transition: 'all 0.2s' }}
+                                                    >
+                                                        ПТО
+                                                    </button>
+                                                </React.Fragment>
+                                            ) : (
+                                                <React.Fragment>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setRegBase('11cl')}
+                                                        style={{ flex: 1, padding: '6px', border: 'none', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', backgroundColor: regBase === '11cl' ? '#007bff' : 'transparent', color: regBase === '11cl' ? '#ffffff' : '#718096', transition: 'all 0.2s' }}
+                                                    >
+                                                        11 кл. (Полный)
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setRegBase('sso_short')}
+                                                        style={{ flex: 1, padding: '6px', border: 'none', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', backgroundColor: regBase === 'sso_short' ? '#007bff' : 'transparent', color: regBase === 'sso_short' ? '#ffffff' : '#718096', transition: 'all 0.2s' }}
+                                                    >
+                                                        ССО (Сокращ.)
+                                                    </button>
+                                                </React.Fragment>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Поле-Слайдер: Основа обучения (Бюджет или Платно) */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#718096' }}>Основа обучения:</label>
+                                        <div style={{ display: 'flex', backgroundColor: 'rgba(113, 128, 150, 0.08)', padding: '4px', borderRadius: '10px', gap: '4px' }}>
+                                            <button
+                                                type="button"
+                                                onClick={() => setRegCategory('budget')}
+                                                style={{ flex: 1, padding: '6px', border: 'none', borderRadius: '6px', fontSize: '12.5px', fontWeight: 'bold', cursor: 'pointer', backgroundColor: regCategory === 'budget' ? '#007bff' : 'transparent', color: regCategory === 'budget' ? '#ffffff' : '#718096', transition: 'all 0.2s' }}
+                                            >
+                                                Бюджет
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setRegCategory('paid')}
+                                                style={{ flex: 1, padding: '6px', border: 'none', borderRadius: '6px', fontSize: '12.5px', fontWeight: 'bold', cursor: 'pointer', backgroundColor: regCategory === 'paid' ? '#007bff' : 'transparent', color: regCategory === 'paid' ? '#ffffff' : '#718096', transition: 'all 0.2s' }}
+                                            >
+                                                Платно
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Поле: Средний балл */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#718096' }}>
+                                            {regLevel === 'sso' ? 'Ваш средний балл (1.0 - 10.0):' : (regBase === 'sso_short' ? 'Суммарный балл (0 - 300):' : 'Суммарный балл (0 - 400):')}
+                                        </label>
+                                        <input
+                                            type="text"
+                                            required
+                                            placeholder={regLevel === 'sso' ? "8.5" : (regBase === 'sso_short' ? "210" : "285")}
+                                            className="score-search-input"
+                                            style={{ fontSize: '13px', padding: '8px 12px', borderRadius: '8px', border: '1px solid #CBD5E1', height: '38px', backgroundColor: 'transparent', color: 'inherit' }}
+                                            value={regScore}
+                                            onChange={handleScoreChange}
+                                        />
+                                    </div>
+
+                                    {/* Поле: Выбор специальности */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#718096' }}>Специальность, на которую поданы документы:</label>
+                                        <select
+                                            className="cab-select"
+                                            style={{ width: '100%', height: '38px', fontSize: '13px', borderRadius: '8px', padding: '8px 10px' }}
+                                            value={regSpecialty}
+                                            onChange={(e) => setRegSpecialty(e.target.value)}
+                                        >
+                                            {(specialtiesDatabase[regLevel]?.[regBase] || []).map((spec, index) => (
+                                                <option key={index} value={spec}>{spec}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    {/* Кнопка отправки формы */}
+                                    <button
+                                        type="submit"
+                                        className="btn-arrow"
+                                        style={{ width: '100%', height: '42px', marginTop: 'auto', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                        disabled={formLoading}
+                                    >
+                                        {formLoading ? 'Сохранение...' : 'Зарегистрироваться'}
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     )}
