@@ -362,6 +362,44 @@ export interface AdminUser extends Schema.CollectionType {
   };
 }
 
+export interface ApiAnonymousApplicantAnonymousApplicant
+  extends Schema.CollectionType {
+  collectionName: 'anonymous_applicants';
+  info: {
+    displayName: 'Anonymous Applicant';
+    pluralName: 'anonymous-applicants';
+    singularName: 'anonymous-applicant';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    anonymous_id: Attribute.String;
+    category: Attribute.String;
+    checklist_data: Attribute.JSON;
+    createdAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::anonymous-applicant.anonymous-applicant',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    education_base: Attribute.String;
+    education_level: Attribute.String;
+    favorites_data: Attribute.JSON;
+    publishedAt: Attribute.DateTime;
+    score: Attribute.Decimal;
+    submitted_specialty: Attribute.String;
+    updatedAt: Attribute.DateTime;
+    updatedBy: Attribute.Relation<
+      'api::anonymous-applicant.anonymous-applicant',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiArchiveArchive extends Schema.CollectionType {
   collectionName: 'archives';
   info: {
@@ -953,6 +991,7 @@ declare module '@strapi/types' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
+      'api::anonymous-applicant.anonymous-applicant': ApiAnonymousApplicantAnonymousApplicant;
       'api::archive.archive': ApiArchiveArchive;
       'api::document.document': ApiDocumentDocument;
       'api::lists-of-enrolled.lists-of-enrolled': ApiListsOfEnrolledListsOfEnrolled;
