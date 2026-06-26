@@ -1,0 +1,24 @@
+name: Sync to Hugging Face Hub
+
+on:
+  push:
+    branches: [master] 
+
+  # Разрешить ручной запуск сценария из вкладки Actions на GitHub
+  workflow_dispatch:
+
+jobs:
+  sync-to-hub:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Push to Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        # Замените 'username/space-name' на ваши реальные имя пользователя и название Space
+        run: git push --force https://username:$HF_TOKEN@huggingface.co/spaces/narxselune/bsac-backend main

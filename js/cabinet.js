@@ -115,6 +115,39 @@ const specialtyMetadataLocal = {
 };
 
 function PersonalCabinet({ isOpen, onClose }) {
+    // Адаптивные стили для мобильной версии верхней панели
+    const responsiveStyles = (
+        <style>{`
+            @media (max-width: 576px) {
+                .cab-profile-panel-content {
+                    flex-direction: column !important;
+                    align-items: stretch !important;
+                    gap: 10px !important;
+                }
+                .cab-profile-info {
+                    width: 100% !important;
+                    text-align: left !important;
+                }
+                .cab-profile-divider {
+                    display: block !important;
+                    height: 1px;
+                    background-color: rgba(113, 128, 150, 0.15);
+                    margin: 2px 0;
+                    width: 100%;
+                }
+                .cab-profile-buttons {
+                    width: 100% !important;
+                    justify-content: flex-end !important;
+                    gap: 8px !important;
+                }
+            }
+            @media (min-width: 577px) {
+                .cab-profile-divider {
+                    display: none !important;
+                }
+            }
+        `}</style>
+    );
     const [activeTab, setActiveTab] = useState('checklist');
 
     // Настройки Чек-листа
@@ -1170,7 +1203,7 @@ function PersonalCabinet({ isOpen, onClose }) {
 
                     {compareLoading ? (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 0' }}>
-                            <div className="loader-text" style={{ fontStyle: 'normal' }}>Считывание live-данных из базы...</div>
+                            <div className="loader-text" style={{ fontStyle: 'normal' }}>Загрузка данных</div>
                         </div>
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -1274,11 +1307,16 @@ function PersonalCabinet({ isOpen, onClose }) {
                 // СТАНДАРТНЫЙ РЕЖИМ РАБОТЫ КАБИНЕТА
                 // ==========================================================================
                 <React.Fragment>
-                        {/* ВЕРХНИЙ ПАНЕЛЬНЫЙ БЛОК: Фото 1 с динамическим расцветкой и кнопкой рисков справа */}
+                        {/* Подключаем адаптивные стили */}
+                        {responsiveStyles}
+
+                        {/* ВЕРХНИЙ ПАНЕЛЬНЫЙ БЛОК: Фото 1 с динамической расцветкой и кнопкой рисков справа */}
                         <div className="cab-profile-panel" style={{ padding: '12px 15px', backgroundColor: 'rgba(113, 128, 150, 0.08)', borderBottom: '1px solid rgba(113, 128, 150, 0.15)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             {applicantData ? (
-                                <div style={{ display: 'flex', flex: 1, justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
+                                <div className="cab-profile-panel-content" style={{ display: 'flex', flex: 1, justifyContent: 'space-between', alignItems: 'center', width: '100%', flexWrap: 'wrap' }}>
+
+                                    {/* 1. Блок с информацией (Позиция, Специальность) */}
+                                    <div className="cab-profile-info" style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
                                         <span style={{ fontSize: '11.5px', fontWeight: 'bold', color: '#718096' }}>Ваша позиция на данный момент:</span>
                                         {positionLoading ? (
                                             <span style={{ fontSize: '14px', fontStyle: 'italic', color: '#007bff' }}>Вычисляем позицию...</span>
@@ -1305,7 +1343,12 @@ function PersonalCabinet({ isOpen, onClose }) {
                                             {applicantData.specialty} ({applicantData.category === 'paid' ? 'Платно' : 'Бюджет'})
                                         </span>
                                     </div>
-                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+
+                                    {/* 2. Разделительная линия (отображается только на смартфонах) */}
+                                    <div className="cab-profile-divider"></div>
+
+                                    {/* 3. Блок кнопок управления */}
+                                    <div className="cab-profile-buttons" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                                         {showRecWarning && (
                                             <button
                                                 onClick={() => setIsRiskModalOpen(true)}
