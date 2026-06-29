@@ -232,6 +232,42 @@ function PersonalCabinet({ isOpen, onClose }) {
         return `${pathPrefix}monitoring/specialty.html?level=${item.level}&form=${item.form}&name=${encodeURIComponent(item.name)}`;
     };
 
+    // Исправление старых ссылок из рекомендаций бэкенда на лету
+    const getCorrectedUrl = (rec) => {
+        if (!rec.url) return '#';
+
+        // Если ссылка уже новая (содержит "specialty.html"), возвращаем её как есть
+        if (rec.url.includes('specialty.html')) {
+            return rec.url;
+        }
+
+        // Извлекаем имя файла из старой ссылки (например, "mon_sso_9_spec6.html")
+        const filename = rec.url.split('/').pop().toLowerCase();
+
+        let level = 'sso9';
+        let form = 'dnev';
+        let name = rec.name; // По умолчанию берем имя из рекомендации
+
+        if (filename.includes('sso_9')) {
+            level = 'sso9';
+        } else if (filename.includes('sso_11')) {
+            level = 'sso11';
+            if (filename.includes('zaoch')) form = 'zaoch';
+        } else if (filename.includes('pto')) {
+            level = 'ssopto';
+        } else if (filename.includes('vo_11')) {
+            level = 'vo11';
+        } else if (filename.includes('vo_sso')) {
+            level = 'vosso';
+            if (filename.includes('zaoch')) form = 'zaoch';
+        }
+
+        const isRoot = window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/') || window.location.pathname === '';
+        const pathPrefix = isRoot ? 'pages/' : '../';
+
+        return `${pathPrefix}monitoring/specialty.html?level=${level}&form=${form}&name=${encodeURIComponent(name)}`;
+    };
+
     // Генерация уникального анонимного ID для синхронизации с базой
     const getOrCreateAnonymousId = () => {
         let anonId = localStorage.getItem('cab_anon_id');
@@ -1765,14 +1801,14 @@ function PersonalCabinet({ isOpen, onClose }) {
                                                 <span style={{ fontWeight: 'bold', flex: 1, paddingRight: '10px', textAlign: 'left' }}>
                                                     {rec.name}
                                                 </span>
-                                                <a href={rec.url} className="btn-arrow" style={{
+                                                <a href={getCorrectedUrl(rec)} className="btn-arrow" style={{
                                                     padding: '4px 10px',
                                                     fontSize: '10.5px',
                                                     height: 'auto',
                                                     textDecoration: 'none',
                                                     whiteSpace: 'nowrap'
                                                 }}>
-                                                    Проходите →
+                                                    Перейти →
                                                 </a>
                                             </div>
                                         ))}
