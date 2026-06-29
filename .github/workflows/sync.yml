@@ -13,19 +13,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
-          lfs: true
+          fetch-depth: 1 # Загружаем только самое последнее состояние файлов
 
-      # Шаг очистки: удаляет тяжелые картинки фронтенда перед пушем на Hugging Face
-      - name: Clean frontend binaries for Hugging Face
-        run: |
-          git config --global user.email "actions@github.com"
-          git config --global user.name "github-actions"
-          # Исключаем папки с изображениями и веб-страницами из отправки на бэкенд
-          git rm -r --ignore-unmatch Fon Fon_2 SSO VO_11 VO_SSO pages || true
-          git commit -m "Remove frontend binaries for HF deployment" || echo "No changes to commit"
-
-      - name: Push to Hugging Face
+      - name: Deploy clean backend to Hugging Face
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: git push --force https://narxselune:$HF_TOKEN@huggingface.co/spaces/narxselune/bsac-backend master:main
+        run: |
+          # 1. Физически удаляем папки фронтенда с картинками
+          rm -rf Fon Fon_2 SSO VO_11 VO_SSO pages
+
+          # 2. Стираем локальную историю Git в контейнере сборщика
+          rm -rf .git
+
+          # 3. Инициализируем чистый Git репозиторий с нуля
+          git init
+          git config --global user.email "actions@github.com"
+          git config --global user.name "github-actions"
+          
+          # 4. Индексируем только оставшиеся файлы бэкенда Strapi
+          git add .
+          git commit -m "Clean deploy Strapi backend"
+          
+          # 5. Отправляем этот единственный чистый коммит в ветку main на Hugging Face
+          git push --force https://narxselune:$HF_TOKEN@huggingface.co/spaces/narxselune/bsac-backend HEAD:main
