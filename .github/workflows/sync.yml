@@ -2,9 +2,8 @@ name: Sync to Hugging Face Hub
 
 on:
   push:
-    branches: [master] 
+    branches: [master] # Скрипт будет запускаться при пуше в master
 
-  # Разрешить ручной запуск сценария из вкладки Actions на GitHub
   workflow_dispatch:
 
 jobs:
@@ -20,5 +19,5 @@ jobs:
       - name: Push to Hugging Face
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        # Замените 'username/space-name' на ваши реальные имя пользователя и название Space
-        run: git push --force https://narxselune:$HF_TOKEN@huggingface.co/spaces/narxselune/bsac-backend master
+        # Конструкция 'master:main' принудительно запишет вашу ветку master в ветку main на Hugging Face
+        run: git push --force https://narxselune:$HF_TOKEN@huggingface.co/spaces/narxselune/bsac-backend master:main
