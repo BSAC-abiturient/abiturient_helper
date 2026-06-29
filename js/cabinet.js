@@ -249,23 +249,42 @@ function PersonalCabinet({ isOpen, onClose }) {
         const anonId = getOrCreateAnonymousId();
         if (!applicantData) return;
 
+        const payloadServer = {
+            data: {
+                anonymous_id: anonId,
+                education_level: applicantData.level,
+                education_base: applicantData.base,
+                score: parseFloat(applicantData.score),
+                submitted_specialty: applicantData.specialty,
+                category: applicantData.category || 'budget',
+                checklist_data: updatedChecklist,
+                favorites_data: updatedFavorites,
+                publishedAt: new Date() // Гарантирует автопубликацию
+            }
+        };
+
         try {
-            await fetch(`${STRAPI_URL}/api/anonymous-applicants`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    data: {
-                        anonymous_id: anonId,
-                        education_level: applicantData.level,
-                        education_base: applicantData.base,
-                        score: parseFloat(applicantData.score),
-                        submitted_specialty: applicantData.specialty,
-                        category: applicantData.category || 'budget',
-                        checklist_data: updatedChecklist,
-                        favorites_data: updatedFavorites
-                    }
-                })
-            });
+            // 1. Ищем существующую запись
+            const checkRes = await fetch(`${STRAPI_URL}/api/anonymous-applicants?filters[anonymous_id][$eq]=${anonId}`);
+            const checkJson = await checkResponseJson(checkResponse, checkRes); // Безопасное чтение
+            const checkResult = await checkRes.json();
+            const existingRecord = checkResult.data && checkResult.data.length > 0 ? checkResult.data[0] : null;
+
+            if (existingRecord) {
+                // 2. Если запись есть — обновляем её (PUT)
+                await fetch(`${STRAPI_URL}/api/anonymous-applicants/${existingRecord.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payloadServer)
+                });
+            } else {
+                // 3. Если записи нет — создаем её (POST)
+                await fetch(`${STRAPI_URL}/api/anonymous-applicants`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payloadServer)
+                });
+            }
         } catch (e) {
             console.warn("Сетевой сбой при фоновом сохранении в базу данных:", e);
         }
@@ -482,7 +501,7 @@ function PersonalCabinet({ isOpen, onClose }) {
         setFormLoading(true);
         const anonId = getOrCreateAnonymousId();
 
-        const payload = {
+        const payloadLocal = {
             level: regLevel,
             base: regBase,
             score: regScore,
@@ -492,27 +511,47 @@ function PersonalCabinet({ isOpen, onClose }) {
         };
 
         // Локальное сохранение данных
-        localStorage.setItem('cab_applicant', JSON.stringify(payload));
-        setApplicantData(payload);
+        localStorage.setItem('cab_applicant', JSON.stringify(payloadLocal));
+        setApplicantData(payloadLocal);
 
-        // Отправка в Neon / Strapi базу данных
+        const payloadServer = {
+            data: {
+                anonymous_id: anonId,
+                education_level: regLevel,
+                education_base: regBase,
+                score: parseFloat(regScore),
+                submitted_specialty: regSpecialty,
+                category: regCategory,
+                checklist_data: checkedItems,
+                favorites_data: favorites,
+                publishedAt: new Date() // Автоматическая публикация записи
+            }
+        };
+
+        // Отправка в Neon / Strapi базу данных (с проверкой на дубликаты)
         try {
-            await fetch(`${STRAPI_URL}/api/anonymous-applicants`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    data: {
-                        anonymous_id: anonId,
-                        education_level: regLevel,
-                        education_base: regBase,
-                        score: parseFloat(regScore),
-                        submitted_specialty: regSpecialty,
-                        category: regCategory,
-                        checklist_data: checkedItems,
-                        favorites_data: favorites
-                    }
-                })
-            });
+            // 1. Ищем существующую запись по анонимному ID
+            const checkRes = await fetch(`${STRAPI_URL}/api/anonymous-applicants?filters[anonymous_id][$eq]=${anonId}`);
+            const checkResult = await checkRes.json();
+            const existingRecord = checkResult.data && checkResult.data.length > 0 ? checkResult.data[0] : null;
+
+            if (existingRecord) {
+                // 2. Если запись существует — перезаписываем её (PUT)
+                await fetch(`${STRAPI_URL}/api/anonymous-applicants/${existingRecord.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payloadServer)
+                });
+                console.log("Данные абитуриента успешно обновлены на сервере.");
+            } else {
+                // 3. Если записи нет — создаем новую (POST)
+                await fetch(`${STRAPI_URL}/api/anonymous-applicants`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payloadServer)
+                });
+                console.log("Новый абитуриент успешно зарегистрирован в базе данных.");
+            }
         } catch (err) {
             console.warn("Сетевая ошибка при передаче данных на сервер:", err);
         } finally {
