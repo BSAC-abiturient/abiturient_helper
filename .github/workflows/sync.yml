@@ -21,4 +21,4 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         # Замените 'username/space-name' на ваши реальные имя пользователя и название Space
-        run: git push --force https://username:$HF_TOKEN@huggingface.co/spaces/narxselune/bsac-backend main
+        run: git push --force https://narxselune:$HF_TOKEN@huggingface.co/spaces/narxselune/bsac-backend master
