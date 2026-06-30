@@ -3,7 +3,7 @@
 const { createCoreController } = require('@strapi/strapi').factories;
 const XLSX = require('xlsx');
 
-const SHEET_ID = '1ndPMtg6MKXkmzlAKSZyXfK-TkD5HgnukDT8f4iZQi4w';
+const SHEET_ID = '1uFwZs-jzJiUkZk6U266bo4QbmwjAjoUcc0pKAabWhos';
 const XLSX_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=xlsx`;
 
 const parsingConfig = [
