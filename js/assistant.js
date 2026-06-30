@@ -144,7 +144,7 @@ const voSsoSpecs = [
     { name: "Почтовая связь (Заочное сокращенное)", offset: 96, offsetPaid: 111, isVo: true, isVoSso: true }
 ];
 
-const ASSISTANT_SHEET_ID = '1ndPMtg6MKXkmzlAKSZyXfK-TkD5HgnukDT8f4iZQi4w';
+const ASSISTANT_SHEET_ID = '1uFwZs-jzJiUkZk6U266bo4QbmwjAjoUcc0pKAabWhos';
 const ASSISTANT_XLSX_URL = `https://docs.google.com/spreadsheets/d/${ASSISTANT_SHEET_ID}/export?format=xlsx`;
 let assistantWorkbook = null;
 
