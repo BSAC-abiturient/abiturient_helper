@@ -3,7 +3,7 @@
 const { createCoreController } = require('@strapi/strapi').factories;
 const XLSX = require('xlsx');
 
-const SHEET_ID = '1uFwZs-jzJiUkZk6U266bo4QbmwjAjoUcc0pKAabWhos';
+const SHEET_ID = '1ndPMtg6MKXkmzlAKSZyXfK-TkD5HgnukDT8f4iZQi4w';
 const XLSX_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=xlsx`;
 
 const parsingConfig = [
@@ -107,103 +107,100 @@ function getGroupedPlans(sheet, currentOffset) {
 }
 
 // Алгоритм последовательного подсчета порядкового номера вхождения специальности на листе с 25 строки
+// 1. Определение точных ключевых слов на основе ваших скриншотов
+function getSectionKeywords(level, form, category) {
+  const isPaid = category === 'paid';
+  const fKeyword = form === 'zaoch' ? 'заоч' : 'днев';
+
+  let includes = [];
+  let excludes = [];
+
+  if (level === 'sso9') {
+    // Шаблон ССО после 9 классов (Фото 4): "базового", "дневная", "бюджет"/"платной"
+    includes = ['базов', fKeyword, isPaid ? 'плат' : 'бюджет'];
+    excludes = ['сокращ', 'полн', 'средн', 'профессион', 'высш'];
+  }
+  else if (level === 'sso11') {
+    // Шаблон ССО после 11 классов: "среднего", "дневная"/"заочная", "бюджет"/"платной"
+    includes = ['средн', fKeyword, isPaid ? 'плат' : 'бюджет'];
+    excludes = ['сокращ', 'полн', 'базов', 'профессион', 'высш'];
+  }
+  else if (level === 'ssopto') {
+    // Шаблон ССО после ПТО: "профессионально-технического", "бюджет"
+    includes = ['профессион', fKeyword, isPaid ? 'плат' : 'бюджет'];
+    excludes = ['сокращ', 'полн', 'базов', 'средн', 'высш'];
+  }
+  else if (level === 'vo11') {
+    // Шаблон ВО после 11 классов (Фото 1 и 2): "полный срок", "дневная", "бюджет"/"платной"
+    includes = ['полн', fKeyword, isPaid ? 'плат' : 'бюджет'];
+    excludes = ['сокращ', 'базов', 'колледж', 'ссо'];
+  }
+  else if (level === 'vosso') {
+    // Шаблон ВО после ССО (Фото 3): "сокращенный срок", "дневная"/"заочная", "бюджет"/"платной"
+    includes = ['сокращ', fKeyword, isPaid ? 'плат' : 'бюджет'];
+    excludes = ['полн', 'базов', 'колледж', 'ссо'];
+  }
+
+  return { includes, excludes };
+}
+
+// 2. Функция динамического поиска заголовка методом «скользящего окна»
+function findSectionStartRow(sheet, level, form, category) {
+  const range = XLSX.utils.decode_range(sheet['!ref']);
+  const { includes, excludes } = getSectionKeywords(level, form, category);
+
+  for (let r = 0; r <= range.e.r; r++) {
+    // Объединяем контент текущей строки и предыдущих 3 строк,
+    // чтобы полностью охватить весь блок шапки (Форма + Срок + Основа)
+    let contextText = '';
+    const startScanRow = Math.max(0, r - 3);
+
+    for (let scanR = startScanRow; scanR <= r; scanR++) {
+      for (let col = 0; col <= 15; col++) {
+        contextText += ' ' + getVal(sheet, scanR, col).toString().toLowerCase();
+      }
+    }
+
+    // Проверяем, содержит ли этот блок шапки все нужные слова и не содержит ли лишних
+    const hasAllIncludes = includes.every(word => contextText.includes(word));
+    const hasNoExcludes = excludes.every(word => !contextText.includes(word));
+
+    if (hasAllIncludes && hasNoExcludes) {
+      return r; // Нашли строку завершения блока заголовков!
+    }
+  }
+  return -1;
+}
+
+// 3. Основной алгоритм поиска строки специальности
 function findAnchorRow(sheet, level, form, category, specName) {
   const range = XLSX.utils.decode_range(sheet['!ref']);
+
+  // Шаг 1. Находим строку-ориентир заголовка
+  const sectionStartRow = findSectionStartRow(sheet, level, form, category);
+  if (sectionStartRow === -1) return -1;
+
+  // Шаг 2. Ищем название специальности ниже по таблице
   const targetSpec = specName.toLowerCase().trim();
 
-  // Вычисляем скорректированный порядковый номер вхождения (начиная с 0), который нам нужен
-  let targetOccurrence = 0;
+  for (let r = sectionStartRow; r <= range.e.r; r++) {
+    // Если мы спустились слишком низко и встретили заголовок другого блока — останавливаем поиск
+    if (r > sectionStartRow + 2) {
+      let checkText = '';
+      for (let col = 0; col <= 15; col++) {
+        checkText += ' ' + getVal(sheet, r, col).toString().toLowerCase();
+      }
 
-  if (specName === "Разработка и сопровождение веб-ресурсов") {
-    targetOccurrence = (category === 'paid') ? 1 : 0;
-  }
-  else if (specName === "Тестирование программного обеспечения") {
-    if (level === 'sso9') {
-      targetOccurrence = (category === 'paid') ? 1 : 0;
-    } else { // sso11
-      targetOccurrence = (category === 'paid') ? 3 : 2;
-    }
-  }
-  else if (specName === "Техническая эксплуатация систем и сетей телекоммуникаций") {
-    if (level === 'sso9') {
-      targetOccurrence = (category === 'paid') ? 1 : 0;
-    } else { // sso11
-      if (form === 'zaoch') {
-        targetOccurrence = (category === 'paid') ? 5 : 4;
-      } else { // dnev
-        targetOccurrence = (category === 'paid') ? 3 : 2;
+      // Признаки начала новой таблицы
+      if (
+        checkText.includes('форма получения образования') ||
+        checkText.includes('прием осуществляется') ||
+        checkText.includes('срок обучения')
+      ) {
+        break;
       }
     }
-  }
-  else if (specName === "Информационные кабельные сети") {
-    targetOccurrence = (category === 'paid') ? 1 : 0;
-  }
-  else if (specName === "Техническая эксплуатация систем радиосвязи, радиовещания и телевидения") {
-    if (level === 'sso9') {
-      targetOccurrence = (category === 'paid') ? 1 : 0;
-    } else { // sso11
-      if (form === 'zaoch') {
-        targetOccurrence = (category === 'paid') ? 5 : 4;
-      } else { // dnev
-        targetOccurrence = (category === 'paid') ? 3 : 2;
-      }
-    }
-  }
-  else if (specName === "Техническая эксплуатация мультимедийных систем") {
-    targetOccurrence = 0;
-  }
-  else if (specName === "Почтовая деятельность") {
-    if (level === 'sso9') {
-      targetOccurrence = (category === 'paid') ? 1 : 0;
-    } else if (level === 'sso11') {
-      if (form === 'zaoch') {
-        targetOccurrence = (category === 'paid') ? 5 : 4;
-      } else { // dnev
-        targetOccurrence = (category === 'paid') ? 3 : 2;
-      }
-    } else if (level === 'ssopto') {
-      targetOccurrence = 6;
-    }
-  }
-  else if (specName === "Автоматизация технологических процессов и производств") {
-    targetOccurrence = 0;
-  }
-  else if (specName === "Системы и сети инфокоммуникаций") {
-    if (level === 'vo11') {
-      targetOccurrence = (category === 'paid') ? 1 : 0;
-    } else if (level === 'vosso') {
-      if (form === 'zaoch') {
-        targetOccurrence = (category === 'paid') ? 10 : 7; // Иерархические индексы с учетом строк специализаций
-      } else { // dnev
-        targetOccurrence = (category === 'paid') ? 5 : 3;
-      }
-    }
-  }
-  else if (specName === "Прикладная информатика") {
-    if (level === 'vo11') {
-      targetOccurrence = (category === 'paid') ? 1 : 0;
-    } else if (level === 'vosso') {
-      targetOccurrence = (category === 'paid') ? 3 : 2;
-    }
-  }
-  else if (specName === "Цифровые клиентские сервисы и почтово-логистические системы") {
-    targetOccurrence = 0;
-  }
-  else if (specName === "Маркетинг") {
-    targetOccurrence = (category === 'paid') ? 1 : 0;
-  }
-  else if (specName === "Почтовая связь") {
-    if (form === 'zaoch') {
-      targetOccurrence = (category === 'paid') ? 2 : 1;
-    } else { // dnev
-      targetOccurrence = 0;
-    }
-  }
 
-  let currentOccurrence = 0;
-
-  // Сканируем строки сверху вниз, начиная строго с r = 25 (чтобы пропустить все шапки и содержание в самом верху листа)
-  for (let r = 25; r <= range.e.r; r++) {
     let isMatch = false;
     for (let col = 0; col <= 15; col++) {
       const val = getVal(sheet, r, col)?.toString().toLowerCase().trim() || '';
@@ -213,20 +210,10 @@ function findAnchorRow(sheet, level, form, category, specName) {
         isMatch = true;
         break;
       }
-
-      const normVal = val.replace(/[^a-zа-я0-9]/g, '');
-      const normTarget = targetSpec.replace(/[^a-zа-я0-9]/g, '');
-      if (normVal.length >= 10 && normVal.includes(normTarget)) {
-        isMatch = true;
-        break;
-      }
     }
 
     if (isMatch) {
-      if (currentOccurrence === targetOccurrence) {
-        return r; // Нашли ровно нужное по счету вхождение специальности!
-      }
-      currentOccurrence++;
+      return r; // Успешно нашли строку специальности внутри нужного блока!
     }
   }
 
