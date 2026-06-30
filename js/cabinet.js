@@ -116,7 +116,7 @@ const specialtyMetadataLocal = {
 
 function PersonalCabinet({ isOpen, onClose }) {
     // Адаптивные стили для мобильной версии верхней панели
-    const responsiveStyles = (
+        const responsiveStyles = (
         <style>{`
             @media (max-width: 576px) {
                 .cab-profile-panel-content {
@@ -139,6 +139,22 @@ function PersonalCabinet({ isOpen, onClose }) {
                     width: 100% !important;
                     justify-content: flex-end !important;
                     gap: 8px !important;
+                }
+                /* Убираем ограничение на длину названия специальности на телефоне */
+                .cab-profile-specialty {
+                    max-width: none !important;
+                    white-space: normal !important;
+                    display: inline-block !important;
+                }
+                /* Плавный горизонтальный скролл для таблицы сравнения на смартфонах */
+                .cab-compare-scroll-container {
+                    overflow-x: auto !important;
+                    -webkit-overflow-scrolling: touch !important;
+                    display: block !important;
+                    width: 100% !important;
+                }
+                .cab-compare-scroll-container table {
+                    min-width: 580px !important; /* Форсирует ширину таблицы для активации прокрутки */
                 }
             }
             @media (min-width: 577px) {
@@ -1270,7 +1286,7 @@ function PersonalCabinet({ isOpen, onClose }) {
                 // ==========================================================================
                 // СРАВНЕНИЕ СПЕЦИАЛЬНОСТЕЙ (ИНТЕРФЕЙС ТАБЛИЦЫ)
                 // ==========================================================================
-                <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'inherit', padding: '15px 15px 20px 15px', flex: 1 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'inherit', padding: '15px 15px 20px 15px', flex: 1, overflowY: 'auto' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', borderBottom: '1px solid rgba(113, 128, 150, 0.15)', paddingBottom: '10px' }}>
                         <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>Сравнение специальностей</h2>
                         <button className="ai-close-btn" style={{ color: 'inherit' }} onClick={() => { setIsCompareWindowOpen(false); setComparisonData([]); }}>{"×"}</button>
@@ -1282,8 +1298,9 @@ function PersonalCabinet({ isOpen, onClose }) {
                         </div>
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <div style={{ overflowX: 'auto', overflowY: 'hidden', marginBottom: '15px', width: '100%' }}>
-                                <table className="bar-table" style={{ fontSize: '13.5px', borderCollapse: 'collapse', width: '100%', textAlign: 'left', minWidth: '450px' }}>
+                                {/* Таблица с горизонтальной прокруткой и заблокированной вертикальной */}
+                                <div className="cab-compare-scroll-container" style={{ overflowX: 'auto', overflowY: 'hidden', marginBottom: '15px', width: '100%' }}>
+                                    <table className="bar-table" style={{ fontSize: '13.5px', borderCollapse: 'collapse', width: '100%', textAlign: 'left', minWidth: '450px' }}>
                                     <thead>
                                         <tr style={{ backgroundColor: 'rgba(113, 128, 150, 0.1)' }}>
                                             <th style={{ padding: '10px 12px', fontWeight: 'bold', border: '1px solid rgba(113,128,150,0.2)', fontSize: '14px' }}>Параметр</th>
@@ -1414,7 +1431,7 @@ function PersonalCabinet({ isOpen, onClose }) {
                                                 </span>
                                             </div>
                                         )}
-                                        <span style={{ fontSize: '10.5px', opacity: 0.8, color: 'inherit', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '200px' }} title={applicantData.specialty}>
+                                        <span className="cab-profile-specialty" style={{ fontSize: '10.5px', opacity: 0.8, color: 'inherit', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '200px' }} title={applicantData.specialty}>
                                             {applicantData.specialty} ({applicantData.category === 'paid' ? 'Платно' : 'Бюджет'})
                                         </span>
                                     </div>
@@ -1861,7 +1878,7 @@ function PersonalCabinet({ isOpen, onClose }) {
                                             </strong>
                                             <span style={{ fontSize: '12px', lineHeight: '1.5', opacity: 0.9 }}>
                                                 К сожалению, ваш балл ({applicantData?.score}) на данный момент ниже проходного по всем платным специальностям.
-                                                Рекомендуем обратиться за консультацией в приемную комиссию по телефону или рассмотреть другие смежные базы образования.
+                                                Рекомендуем рассмотреть другие смежные базы образования.
                                             </span>
                                         </React.Fragment>
                                     )}
