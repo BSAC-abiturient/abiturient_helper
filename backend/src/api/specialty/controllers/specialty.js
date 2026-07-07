@@ -106,114 +106,65 @@ function getGroupedPlans(sheet, currentOffset) {
   return { sumPlan: totalPlan, startRow, endRow };
 }
 
-// Алгоритм последовательного подсчета порядкового номера вхождения специальности на листе с 25 строки
-// 1. Определение точных ключевых слов на основе ваших скриншотов
-function getSectionKeywords(level, form, category) {
-  const isPaid = category === 'paid';
-  const fKeyword = form === 'zaoch' ? 'заоч' : 'днев';
-  const catKeyword = isPaid ? 'плат' : 'бюджет';
-
-  let includes = [];
-  let excludes = [];
-
-  if (level === 'sso9') {
-    includes = ['базов', fKeyword, catKeyword];
-    excludes = ['сокращ', 'полн', 'средн', 'профессион'];
-  }
-  else if (level === 'sso11') {
-    includes = ['средн', fKeyword, catKeyword];
-    excludes = ['сокращ', 'полн', 'базов', 'профессион'];
-  }
-  else if (level === 'ssopto') {
-    includes = ['профессион', fKeyword, catKeyword];
-    excludes = ['сокращ', 'полн', 'базов', 'средн'];
-  }
-  else if (level === 'vo11') {
-    includes = ['полн', fKeyword, catKeyword];
-    excludes = ['сокращ', 'базов'];
-  }
-  else if (level === 'vosso') {
-    includes = ['сокращ', fKeyword, catKeyword];
-    excludes = ['полн', 'базов'];
-  }
-
-  return { includes, excludes };
-}
-
-// 2. Функция динамического поиска заголовка методом «скользящего окна»
-function findSectionStartRow(sheet, level, form, category) {
-  const range = XLSX.utils.decode_range(sheet['!ref']);
-  const { includes, excludes } = getSectionKeywords(level, form, category);
-
-  for (let r = 0; r <= range.e.r; r++) {
-    // Увеличили окно сканирования до 10 строк (r - 10), 
-    // чтобы пустые строки между параметрами шапки больше не мешали поиску
-    let contextText = '';
-    const startScanRow = Math.max(0, r - 10);
-
-    for (let scanR = startScanRow; scanR <= r; scanR++) {
-      for (let col = 0; col <= 15; col++) {
-        contextText += ' ' + getVal(sheet, scanR, col).toString().toLowerCase();
-      }
-    }
-
-    // Проверяем соответствие ключевым словам
-    const hasAllIncludes = includes.every(word => contextText.includes(word));
-    const hasNoExcludes = excludes.every(word => !contextText.includes(word));
-
-    if (hasAllIncludes && hasNoExcludes) {
-      return r; // Нашли строку завершения блока заголовков!
-    }
-  }
-  return -1;
-}
-
-// 3. Основной алгоритм поиска строки специальности
+// Универсальный и несокрушимый алгоритм контекстного поиска
 function findAnchorRow(sheet, level, form, category, specName) {
   const range = XLSX.utils.decode_range(sheet['!ref']);
-
-  // Шаг 1. Находим строку-ориентир заголовка
-  const sectionStartRow = findSectionStartRow(sheet, level, form, category);
-  if (sectionStartRow === -1) return -1;
-
-  // Шаг 2. Ищем название специальности ниже по таблице
   const targetSpec = specName.toLowerCase().trim();
 
-  for (let r = sectionStartRow; r <= range.e.r; r++) {
-    // Если мы спустились слишком низко и встретили заголовок другого блока — останавливаем поиск
-    if (r > sectionStartRow + 2) {
-      let checkText = '';
-      for (let col = 0; col <= 15; col++) {
-        checkText += ' ' + getVal(sheet, r, col).toString().toLowerCase();
-      }
+  const isPaid = category === 'paid';
+  const catKeyword = isPaid ? 'плат' : 'бюджет';
+  const formKeyword = form === 'zaoch' ? 'заоч' : 'днев';
 
-      // Признаки начала новой таблицы
-      if (
-        checkText.includes('форма получения образования') ||
-        checkText.includes('прием осуществляется') ||
-        checkText.includes('срок обучения')
-      ) {
-        break;
-      }
-    }
+  let levelKeyword = '';
+  if (level === 'sso9') levelKeyword = 'базов';
+  else if (level === 'sso11') levelKeyword = 'средн';
+  else if (level === 'ssopto') levelKeyword = 'профессион';
+  else if (level === 'vo11') levelKeyword = 'полн';
+  else if (level === 'vosso') levelKeyword = 'сокращ';
 
-    let isMatch = false;
+  // Сканируем весь лист от начала до конца в поисках строк с названием специальности
+  for (let r = 0; r <= range.e.r; r++) {
+    let isSpecMatch = false;
+
+    // Проверяем, есть ли название нашей специальности в текущей строке
     for (let col = 0; col <= 15; col++) {
       const val = getVal(sheet, r, col)?.toString().toLowerCase().trim() || '';
-      if (!val) continue;
-
-      if (val === targetSpec || (val.length > 5 && val.includes(targetSpec))) {
-        isMatch = true;
+      if (val && (val === targetSpec || (val.length > 5 && val.includes(targetSpec)))) {
+        isSpecMatch = true;
         break;
       }
     }
 
-    if (isMatch) {
-      return r; // Успешно нашли строку специальности внутри нужного блока!
+    // Если нашли название специальности, проверяем шапку НАД ней (до 15 строк вверх)
+    if (isSpecMatch) {
+      let upperContext = '';
+      const startUp = Math.max(0, r - 15);
+
+      for (let upR = startUp; upR < r; upR++) {
+        for (let col = 0; col <= 15; col++) {
+          upperContext += ' ' + getVal(sheet, upR, col).toString().toLowerCase();
+        }
+      }
+
+      // Проверяем, содержат ли верхние строки нужный уровень, форму и категорию
+      const hasLevel = upperContext.includes(levelKeyword);
+      const hasForm = upperContext.includes(formKeyword);
+      const hasCat = upperContext.includes(catKeyword);
+
+      let isValidContext = hasLevel && hasForm && hasCat;
+
+      // Защита от пересечений полного и сокращенного ВО
+      if (level === 'vo11' && upperContext.includes('сокращен')) isValidContext = false;
+      if (level === 'vosso' && !upperContext.includes('сокращен')) isValidContext = false;
+
+      // Если шапка над этой специальностью полностью совпала с нашими требованиями — это она!
+      if (isValidContext) {
+        return r;
+      }
     }
   }
 
-  return -1;
+  return -1; // Если специальность не найдена
 }
 
 module.exports = createCoreController('api::specialty.specialty', ({ strapi }) => ({
