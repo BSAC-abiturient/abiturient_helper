@@ -150,10 +150,10 @@ function findSectionStartRow(sheet, level, form, category) {
   const { includes, excludes } = getSectionKeywords(level, form, category);
 
   for (let r = 0; r <= range.e.r; r++) {
-    // Объединяем контент текущей строки и предыдущих 3 строк,
-    // чтобы полностью охватить весь блок шапки (Форма + Срок + Основа)
+    // Увеличили окно сканирования до 10 строк (r - 10), 
+    // чтобы пустые строки между параметрами шапки больше не мешали поиску
     let contextText = '';
-    const startScanRow = Math.max(0, r - 3);
+    const startScanRow = Math.max(0, r - 10);
 
     for (let scanR = startScanRow; scanR <= r; scanR++) {
       for (let col = 0; col <= 15; col++) {
@@ -161,7 +161,7 @@ function findSectionStartRow(sheet, level, form, category) {
       }
     }
 
-    // Проверяем, содержит ли этот блок шапки все нужные слова и не содержит ли лишних
+    // Проверяем соответствие ключевым словам
     const hasAllIncludes = includes.every(word => contextText.includes(word));
     const hasNoExcludes = excludes.every(word => !contextText.includes(word));
 
