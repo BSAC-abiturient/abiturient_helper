@@ -19,6 +19,7 @@ const parsingConfig = [
   { name: "Техническая эксплуатация систем радиосвязи, радиовещания и телевидения", level: "sso9", form: "dnev", category: "budget" },
   { name: "Техническая эксплуатация систем радиосвязи, радиовещания и телевидения", level: "sso9", form: "dnev", category: "paid" },
   { name: "Техническая эксплуатация мультимедийных систем", level: "sso9", form: "dnev", category: "budget" },
+  { name: "Техническая эксплуатация мультимедийных систем", level: "sso9", form: "dnev", category: "paid" },
   { name: "Почтовая деятельность", level: "sso9", form: "dnev", category: "budget" },
   { name: "Почтовая деятельность", level: "sso9", form: "dnev", category: "paid" },
 
@@ -117,7 +118,7 @@ function findAnchorRow(sheet, level, form, category, specName) {
 
   let levelKeyword = '';
   if (level === 'sso9') levelKeyword = 'базов';
-  else if (level === 'sso11') levelKeyword = 'общего средн'; // Исправлено с 'средн', чтобы не путать с "среднее специальное"
+  else if (level === 'sso11') levelKeyword = 'общего средн';
   else if (level === 'ssopto') levelKeyword = 'профессион';
   else if (level === 'vo11') levelKeyword = 'полн';
   else if (level === 'vosso') levelKeyword = 'сокращ';
@@ -135,10 +136,10 @@ function findAnchorRow(sheet, level, form, category, specName) {
       }
     }
 
-    // Если нашли название специальности, проверяем шапку НАД ней (до 15 строк вверх)
+    // Если нашли название специальности, проверяем шапку НАД ней (до 20 строк вверх)
     if (isSpecMatch) {
       let upperContext = '';
-      const startUp = Math.max(0, r - 15);
+      const startUp = Math.max(0, r - 20); // Высота окна 20 строк, чтобы захватить любые раздвинутые шапки
 
       for (let upR = startUp; upR < r; upR++) {
         for (let col = 0; col <= 15; col++) {
@@ -153,9 +154,14 @@ function findAnchorRow(sheet, level, form, category, specName) {
 
       let isValidContext = hasLevel && hasForm && hasCat;
 
-      // Защита от пересечений полного и сокращенного ВО
+      // --- ИСКЛЮЧЕНИЯ ДЛЯ ИДЕАЛЬНОЙ ТОЧНОСТИ ---
+
+      // 1. Защита от пересечений полного и сокращенного ВО
       if (level === 'vo11' && upperContext.includes('сокращен')) isValidContext = false;
       if (level === 'vosso' && !upperContext.includes('сокращен')) isValidContext = false;
+
+      // 2. Защита ССО 11 классов от ложного срабатывания на ПТО (где написано "с общим средним")
+      if (level === 'sso11' && upperContext.includes('профессион')) isValidContext = false;
 
       // Если шапка над этой специальностью полностью совпала с нашими требованиями — это она!
       if (isValidContext) {
