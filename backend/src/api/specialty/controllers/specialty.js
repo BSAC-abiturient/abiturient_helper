@@ -186,104 +186,99 @@ module.exports = createCoreController('api::specialty.specialty', ({ strapi }) =
       let updatedCount = 0;
 
       for (const config of parsingConfig) {
-        // Реверсивный поиск строки по порядковому номеру вхождения
+        // Ищем строку специальности на листе
         let anchorRow = findAnchorRow(sheet, config.level, config.form, config.category, config.name);
-
-        // Если специальность не найдена динамически, выводим предупреждение и пропускаем её
-        if (anchorRow === -1) {
-          strapi.log.warn(
-            `[Парсер] Предупреждение: специальность "${config.name}" (${config.level}, ${config.category}) не найдена. Запись пропущена.`
-          );
-          continue;
-        }
 
         let plan = 0;
         let total = 0;
         let distribution = {}; // Теперь храним структурированный JSON
 
-        const dataRow = anchorRow;
-        let groupInfo = { startRow: dataRow, endRow: dataRow, sumPlan: 0 };
-
-        if (config.isVo) {
-          if (config.isVoSso) {
-            groupInfo = getGroupedPlans(sheet, dataRow);
-            plan = groupInfo.sumPlan;
-          } else {
-            plan = parseInt(getVal(sheet, dataRow, 4), 10) || 0;
-            groupInfo = { startRow: dataRow, endRow: dataRow };
-          }
-
-          // Считываем Всего заявлений строго с первой строки объединенной группы
-          total = parseInt(getVal(sheet, groupInfo.startRow, 6), 10) || 0;
-
-          let currentMax = config.isVoSso ? 300 : 400;
-          const headerRowIndex = findVoHeaderRow(sheet, dataRow, config.isVoSso);
-
-          const commonDist = [];
-          const maxCols = config.isVoSso ? 51 : 71;
-
-          for (let col = 11; col <= maxCols; col++) {
-            let count = 0;
-            for (let r = groupInfo.startRow; r <= groupInfo.endRow; r++) {
-              count += parseInt(getVal(sheet, r, col), 10) || 0;
-            }
-
-            if (count > 0) {
-              commonDist.push({ score: currentMax, count });
-            }
-            currentMax -= 5;
-          }
-
-          // Структура для ВО: общий конкурс и суммарные метаданные по целевикам и льготникам
-          distribution = {
-            common: commonDist,
-            lgota: [],
-            target: [],
-            targetTotal: parseInt(getVal(sheet, dataRow, 7), 10) || 0,
-            noExamsTotal: parseInt(getVal(sheet, dataRow, 8), 10) || 0,
-            outOfCompetitionTotal: parseInt(getVal(sheet, dataRow, 9), 10) || 0
-          };
+        // Если специальность НЕ НАЙДЕНА на листе, мы НЕ пропускаем ее, 
+        // а принудительно обнуляем в базе, чтобы на сайте загорелась плашка "Набор не осуществляется"
+        if (anchorRow === -1) {
+          strapi.log.warn(
+            `[Парсер] Специальность "${config.name}" (${config.level}, ${config.category}) не найдена. Устанавливаем план = 0.`
+          );
         } else {
-          plan = parseInt(getVal(sheet, dataRow, 2), 10) || 0;
-          const planTarget = parseInt(getVal(sheet, dataRow, 3), 10) || 0;
-          total = parseInt(getVal(sheet, dataRow, 75), 10) || 0;
+          const dataRow = anchorRow;
+          let groupInfo = { startRow: dataRow, endRow: dataRow, sumPlan: 0 };
 
-          const commonDist = [];
-          const lgotaDist = [];
-          const targetDist = [];
+          if (config.isVo) {
+            if (config.isVoSso) {
+              groupInfo = getGroupedPlans(sheet, dataRow);
+              plan = groupInfo.sumPlan;
+            } else {
+              plan = parseInt(getVal(sheet, dataRow, 4), 10) || 0;
+              groupInfo = { startRow: dataRow, endRow: dataRow };
+            }
 
-          // 1. Считываем общий конкурс (строка специальности)
-          for (let col = 4, score = 10.0; col <= 74; col++, score = +(score - 0.1).toFixed(1)) {
-            let count = parseInt(getVal(sheet, dataRow, col), 10) || 0;
-            if (count > 0) commonDist.push({ score: +score.toFixed(1), count });
+            // Считываем Всего заявлений строго с первой строки объединенной группы
+            total = parseInt(getVal(sheet, groupInfo.startRow, 6), 10) || 0;
+
+            let currentMax = config.isVoSso ? 300 : 400;
+            const headerRowIndex = findVoHeaderRow(sheet, dataRow, config.isVoSso);
+
+            const commonDist = [];
+            const maxCols = config.isVoSso ? 51 : 71;
+
+            for (let col = 11; col <= maxCols; col++) {
+              let count = 0;
+              for (let r = groupInfo.startRow; r <= groupInfo.endRow; r++) {
+                count += parseInt(getVal(sheet, r, col), 10) || 0;
+              }
+
+              if (count > 0) {
+                commonDist.push({ score: currentMax, count });
+              }
+              currentMax -= 5;
+            }
+
+            // Структура для ВО: общий конкурс и суммарные метаданные по целевикам и льготникам
+            distribution = {
+              common: commonDist,
+              lgota: [],
+              target: [],
+              targetTotal: parseInt(getVal(sheet, dataRow, 7), 10) || 0,
+              noExamsTotal: parseInt(getVal(sheet, dataRow, 8), 10) || 0,
+              outOfCompetitionTotal: parseInt(getVal(sheet, dataRow, 9), 10) || 0
+            };
+          } else {
+            plan = parseInt(getVal(sheet, dataRow, 2), 10) || 0;
+            const planTarget = parseInt(getVal(sheet, dataRow, 3), 10) || 0;
+            total = parseInt(getVal(sheet, dataRow, 75), 10) || 0;
+
+            const commonDist = [];
+            const lgotaDist = [];
+            const targetDist = [];
+
+            // 1. Считываем общий конкурс (строка специальности)
+            for (let col = 4, score = 10.0; col <= 74; col++, score = +(score - 0.1).toFixed(1)) {
+              let count = parseInt(getVal(sheet, dataRow, col), 10) || 0;
+              if (count > 0) commonDist.push({ score: +score.toFixed(1), count });
+            }
+
+            // 2. Считываем льготников вне конкурса (строка специальности + 2)
+            for (let col = 4, score = 10.0; col <= 74; col++, score = +(score - 0.1).toFixed(1)) {
+              let count = parseInt(getVal(sheet, dataRow + 2, col), 10) || 0;
+              if (count > 0) lgotaDist.push({ score: +score.toFixed(1), count });
+            }
+
+            // 3. Считываем целевое обучение (строка специальности + 3)
+            for (let col = 4, score = 10.0; col <= 74; col++, score = +(score - 0.1).toFixed(1)) {
+              let count = parseInt(getVal(sheet, dataRow + 3, col), 10) || 0;
+              if (count > 0) targetDist.push({ score: +score.toFixed(1), count });
+            }
+
+            // Структурированный JSON для ССО
+            distribution = {
+              common: commonDist,
+              lgota: lgotaDist,
+              target: targetDist,
+              planTarget: planTarget,
+              targetTotal: parseInt(getVal(sheet, dataRow + 3, 75), 10) || 0
+            };
           }
-
-          // 2. Считываем льготников вне конкурса (строка специальности + 2)
-          for (let col = 4, score = 10.0; col <= 74; col++, score = +(score - 0.1).toFixed(1)) {
-            let count = parseInt(getVal(sheet, dataRow + 2, col), 10) || 0;
-            if (count > 0) lgotaDist.push({ score: +score.toFixed(1), count });
-          }
-
-          // 3. Считываем целевое обучение (строка специальности + 3)
-          for (let col = 4, score = 10.0; col <= 74; col++, score = +(score - 0.1).toFixed(1)) {
-            let count = parseInt(getVal(sheet, dataRow + 3, col), 10) || 0;
-            if (count > 0) targetDist.push({ score: +score.toFixed(1), count });
-          }
-
-          // Структурированный JSON для ССО
-          distribution = {
-            common: commonDist,
-            lgota: lgotaDist,
-            target: targetDist,
-            planTarget: planTarget,
-            targetTotal: parseInt(getVal(sheet, dataRow + 3, 75), 10) || 0
-          };
         }
-
-        strapi.log.info(
-          `[Парсер] Считано: "${config.name}" (${config.level}, ${config.category}). ` +
-          `Строка: ${dataRow + 1} [Вхождение]. План: ${plan}, Заявлений: ${total}.`
-        );
 
         const existing = await strapi.db.query('api::specialty.specialty').findOne({
           where: {
