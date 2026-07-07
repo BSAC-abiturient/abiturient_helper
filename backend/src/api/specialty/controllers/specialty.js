@@ -111,34 +111,30 @@ function getGroupedPlans(sheet, currentOffset) {
 function getSectionKeywords(level, form, category) {
   const isPaid = category === 'paid';
   const fKeyword = form === 'zaoch' ? 'заоч' : 'днев';
+  const catKeyword = isPaid ? 'плат' : 'бюджет';
 
   let includes = [];
   let excludes = [];
 
   if (level === 'sso9') {
-    // Шаблон ССО после 9 классов (Фото 4): "базового", "дневная", "бюджет"/"платной"
-    includes = ['базов', fKeyword, isPaid ? 'плат' : 'бюджет'];
-    excludes = ['сокращ', 'полн', 'средн', 'профессион', 'высш'];
+    includes = ['базов', fKeyword, catKeyword];
+    excludes = ['сокращ', 'полн', 'средн', 'профессион'];
   }
   else if (level === 'sso11') {
-    // Шаблон ССО после 11 классов: "среднего", "дневная"/"заочная", "бюджет"/"платной"
-    includes = ['средн', fKeyword, isPaid ? 'плат' : 'бюджет'];
-    excludes = ['сокращ', 'полн', 'базов', 'профессион', 'высш'];
+    includes = ['средн', fKeyword, catKeyword];
+    excludes = ['сокращ', 'полн', 'базов', 'профессион'];
   }
   else if (level === 'ssopto') {
-    // Шаблон ССО после ПТО: "профессионально-технического", "бюджет"
-    includes = ['профессион', fKeyword, isPaid ? 'плат' : 'бюджет'];
-    excludes = ['сокращ', 'полн', 'базов', 'средн', 'высш'];
+    includes = ['профессион', fKeyword, catKeyword];
+    excludes = ['сокращ', 'полн', 'базов', 'средн'];
   }
   else if (level === 'vo11') {
-    // Шаблон ВО после 11 классов (Фото 1 и 2): "полный срок", "дневная", "бюджет"/"платной"
-    includes = ['полн', fKeyword, isPaid ? 'плат' : 'бюджет'];
-    excludes = ['сокращ', 'базов', 'колледж', 'ссо'];
+    includes = ['полн', fKeyword, catKeyword];
+    excludes = ['сокращ', 'базов'];
   }
   else if (level === 'vosso') {
-    // Шаблон ВО после ССО (Фото 3): "сокращенный срок", "дневная"/"заочная", "бюджет"/"платной"
-    includes = ['сокращ', fKeyword, isPaid ? 'плат' : 'бюджет'];
-    excludes = ['полн', 'базов', 'колледж', 'ссо'];
+    includes = ['сокращ', fKeyword, catKeyword];
+    excludes = ['полн', 'базов'];
   }
 
   return { includes, excludes };
