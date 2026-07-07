@@ -117,7 +117,7 @@ function findAnchorRow(sheet, level, form, category, specName) {
 
   let levelKeyword = '';
   if (level === 'sso9') levelKeyword = 'базов';
-  else if (level === 'sso11') levelKeyword = 'средн';
+  else if (level === 'sso11') levelKeyword = 'общего средн'; // Исправлено с 'средн', чтобы не путать с "среднее специальное"
   else if (level === 'ssopto') levelKeyword = 'профессион';
   else if (level === 'vo11') levelKeyword = 'полн';
   else if (level === 'vosso') levelKeyword = 'сокращ';
