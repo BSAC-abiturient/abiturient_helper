@@ -21,8 +21,8 @@
     <div class="container">
         <!-- Шапка содержит только кнопку Назад и таймер на одной линии -->
         <header style="display: flex; justify-content: space-between; align-items: center; width: 100%; position: relative; padding-bottom: 25px !important; box-sizing: border-box;">
-            <!-- Принудительно делаем кнопку «Назад» относительной и задаем ей высоту ровно 38px -->
-            <a href="#" class="btn-back" onclick="history.back(); return false;">← Назад</a>
+            <!-- Приподнимаем кнопку назад над линией с помощью translateY -->
+            <a href="#" class="btn-back" style="transform: translateY(-12px) !important;" onclick="history.back(); return false;">← Назад</a>
         </header>
 
         <main>
