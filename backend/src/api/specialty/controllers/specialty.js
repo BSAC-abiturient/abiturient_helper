@@ -118,7 +118,7 @@ function findAnchorRow(sheet, level, form, category, specName) {
   let levelKeyword = '';
   if (level === 'sso9') levelKeyword = 'базов';
   else if (level === 'sso11') levelKeyword = 'общего средн';
-  else if (level === 'ssopto') levelKeyword = 'профессион';
+  else if (level === 'ssopto') levelKeyword = 'профес';
   else if (level === 'vo11') levelKeyword = 'полн';
   else if (level === 'vosso') levelKeyword = 'сокращ';
 
@@ -149,8 +149,14 @@ function findAnchorRow(sheet, level, form, category, specName) {
         }
       }
 
-      // Проверяем, содержат ли верхние строки нужный уровень, форму и категорию
-      const hasLevel = upperContext.includes(levelKeyword);
+      // Проверяем уровень образования (для ПТО делаем гибкую проверку на синонимы и аббревиатуры)
+      let hasLevel = false;
+      if (level === 'ssopto') {
+        hasLevel = upperContext.includes('профес') || upperContext.includes('пто') || upperContext.includes('профтех');
+      } else {
+        hasLevel = upperContext.includes(levelKeyword);
+      }
+
       const hasForm = upperContext.includes(formKeyword);
       const hasCat = upperContext.includes(catKeyword);
 
@@ -161,7 +167,7 @@ function findAnchorRow(sheet, level, form, category, specName) {
       if (level === 'vosso' && !upperContext.includes('сокращен')) isValidContext = false;
 
       // Защита ССО 11 классов от ложного срабатывания на ПТО
-      if (level === 'sso11' && upperContext.includes('профессион')) isValidContext = false;
+      if (level === 'sso11' && (upperContext.includes('профес') || upperContext.includes('пто'))) isValidContext = false;
 
       if (isValidContext) {
         return r;
