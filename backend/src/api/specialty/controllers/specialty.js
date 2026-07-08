@@ -63,7 +63,9 @@ const parsingConfig = [
   { name: "Системы и сети инфокоммуникаций", level: "vosso", form: "zaoch", category: "budget", isVo: true, isVoSso: true },
   { name: "Системы и сети инфокоммуникаций", level: "vosso", form: "zaoch", category: "paid", isVo: true, isVoSso: true },
   { name: "Почтовая связь", level: "vosso", form: "zaoch", category: "budget", isVo: true, isVoSso: true },
-  { name: "Почтовая связь", level: "vosso", form: "zaoch", category: "paid", isVo: true, isVoSso: true }
+  { name: "Почтовая связь", level: "vosso", form: "zaoch", category: "paid", isVo: true, isVoSso: true },
+  { name: "Прикладная информатика", level: "vosso", form: "zaoch", category: "budget", isVo: true, isVoSso: true },
+  { name: "Прикладная информатика", level: "vosso", form: "zaoch", category: "paid", isVo: true, isVoSso: true }
 ];
 
 function getVal(sheet, r, c) {
