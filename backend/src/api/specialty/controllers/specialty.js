@@ -85,32 +85,29 @@ function findVoHeaderRow(sheet, dataRow, isVoSso) {
 }
 
 // Вычисление планов объединенных ячеек для сокращенного ВО
-function getGroupedPlans(sheet, currentOffset) {
+function getGroupedPlans(sheet, startRow, specName) {
   let totalPlan = 0;
-  let startRow = currentOffset;
-
-  // Поднимаемся вверх, пока колонка 6 (Всего заявлений) пустая (значит это объединенная ячейка)
-  while (startRow > 0 && getVal(sheet, startRow, 6) === "") {
-    startRow--;
-  }
-
   let endRow = startRow;
+  const target = specName.toLowerCase().replace(/[^a-zа-я0-9]/g, '');
+
   while (endRow < 1000) {
-    totalPlan += parseInt(getVal(sheet, endRow, 4), 10) || 0;
-    const nextTotalVal = getVal(sheet, endRow + 1, 6);
-    const nextName = getVal(sheet, endRow + 1, 3);
-    if (nextTotalVal !== "" || nextName === "") {
+    const currentName = getVal(sheet, endRow, 3).toString().toLowerCase().replace(/[^a-zа-я0-9]/g, ''); // Столбец D (3)
+    if (currentName.includes(target)) {
+      totalPlan += parseInt(getVal(sheet, endRow, 4), 10) || 0; // Столбец E (4)
+      endRow++;
+    } else {
       break;
     }
-    endRow++;
   }
-  return { sumPlan: totalPlan, startRow, endRow };
+  return { sumPlan: totalPlan, startRow, endRow: endRow - 1 };
 }
 
-// Универсальный и несокрушимый алгоритм контекстного поиска
+// Универсальный алгоритм контекстного поиска (Защищенная версия с нормализацией строк)
 function findAnchorRow(sheet, level, form, category, specName) {
   const range = XLSX.utils.decode_range(sheet['!ref']);
-  const targetSpec = specName.toLowerCase().trim();
+
+  // Очищаем искомое имя от пробелов, дефисов и переносов строк для 100% совпадения
+  const targetSpecClean = specName.toLowerCase().replace(/[^a-zа-я0-9]/g, '');
 
   const isPaid = category === 'paid';
   const catKeyword = isPaid ? 'плат' : 'бюджет';
@@ -127,19 +124,22 @@ function findAnchorRow(sheet, level, form, category, specName) {
   for (let r = 0; r <= range.e.r; r++) {
     let isSpecMatch = false;
 
-    // Проверяем, есть ли название нашей специальности в текущей строке
+    // Проверяем наличие специальности, предварительно очистив текст ячейки
     for (let col = 0; col <= 15; col++) {
-      const val = getVal(sheet, r, col)?.toString().toLowerCase().trim() || '';
-      if (val && (val === targetSpec || (val.length > 5 && val.includes(targetSpec)))) {
-        isSpecMatch = true;
-        break;
+      const val = getVal(sheet, r, col)?.toString().toLowerCase() || '';
+      if (val) {
+        const cleanVal = val.replace(/[^a-zа-я0-9]/g, '');
+        if (cleanVal.includes(targetSpecClean)) {
+          isSpecMatch = true;
+          break;
+        }
       }
     }
 
     // Если нашли название специальности, проверяем шапку НАД ней (до 20 строк вверх)
     if (isSpecMatch) {
       let upperContext = '';
-      const startUp = Math.max(0, r - 20); // Высота окна 20 строк, чтобы захватить любые раздвинутые шапки
+      const startUp = Math.max(0, r - 20);
 
       for (let upR = startUp; upR < r; upR++) {
         for (let col = 0; col <= 15; col++) {
@@ -154,16 +154,13 @@ function findAnchorRow(sheet, level, form, category, specName) {
 
       let isValidContext = hasLevel && hasForm && hasCat;
 
-      // --- ИСКЛЮЧЕНИЯ ДЛЯ ИДЕАЛЬНОЙ ТОЧНОСТИ ---
-
-      // 1. Защита от пересечений полного и сокращенного ВО
+      // Защита от пересечений полного и сокращенного ВО
       if (level === 'vo11' && upperContext.includes('сокращен')) isValidContext = false;
       if (level === 'vosso' && !upperContext.includes('сокращен')) isValidContext = false;
 
-      // 2. Защита ССО 11 классов от ложного срабатывания на ПТО (где написано "с общим средним")
+      // Защита ССО 11 классов от ложного срабатывания на ПТО
       if (level === 'sso11' && upperContext.includes('профессион')) isValidContext = false;
 
-      // Если шапка над этой специальностью полностью совпала с нашими требованиями — это она!
       if (isValidContext) {
         return r;
       }
@@ -205,7 +202,7 @@ module.exports = createCoreController('api::specialty.specialty', ({ strapi }) =
 
           if (config.isVo) {
             if (config.isVoSso) {
-              groupInfo = getGroupedPlans(sheet, dataRow);
+              groupInfo = getGroupedPlans(sheet, dataRow, config.name);
               plan = groupInfo.sumPlan;
             } else {
               plan = parseInt(getVal(sheet, dataRow, 4), 10) || 0;
