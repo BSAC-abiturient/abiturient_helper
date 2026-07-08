@@ -138,10 +138,10 @@ function findAnchorRow(sheet, level, form, category, specName) {
       }
     }
 
-    // Если нашли название специальности, проверяем шапку НАД ней (до 20 строк вверх)
+    // Если нашли название специальности, проверяем шапку НАД ней (до 30 строк вверх)
     if (isSpecMatch) {
       let upperContext = '';
-      const startUp = Math.max(0, r - 20);
+      const startUp = Math.max(0, r - 30); // Окно расширено до 30 строк для максимальной надежности ПТО
 
       for (let upR = startUp; upR < r; upR++) {
         for (let col = 0; col <= 15; col++) {
@@ -157,8 +157,9 @@ function findAnchorRow(sheet, level, form, category, specName) {
         hasLevel = upperContext.includes(levelKeyword);
       }
 
-      const hasForm = upperContext.includes(formKeyword);
-      const hasCat = upperContext.includes(catKeyword);
+      // Для ПТО отключаем строгую проверку формы и основы приема во избежание ошибок ручного ввода администратора
+      const hasForm = level === 'ssopto' ? true : upperContext.includes(formKeyword);
+      const hasCat = level === 'ssopto' ? true : upperContext.includes(catKeyword);
 
       let isValidContext = hasLevel && hasForm && hasCat;
 
