@@ -104,7 +104,7 @@ function getGroupedPlans(sheet, startRow, specName) {
   return { sumPlan: totalPlan, startRow, endRow: endRow - 1 };
 }
 
-// Универсальный алгоритм контекстного поиска (Защищенная версия с нормализацией строк)
+// Универсальный алгоритм контекстного поиска (Безопасная версия без наложения таблиц)
 function findAnchorRow(sheet, level, form, category, specName) {
   const range = XLSX.utils.decode_range(sheet['!ref']);
 
@@ -138,10 +138,10 @@ function findAnchorRow(sheet, level, form, category, specName) {
       }
     }
 
-    // Если нашли название специальности, проверяем шапку НАД ней (до 20 строк вверх)
+    // Если нашли название специальности, проверяем шапку НАД ней (строго до 15 строк вверх)
     if (isSpecMatch) {
       let upperContext = '';
-      const startUp = Math.max(0, r - 20);
+      const startUp = Math.max(0, r - 15); // Стабильное и безопасное окно в 15 строк
 
       for (let upR = startUp; upR < r; upR++) {
         for (let col = 0; col <= 15; col++) {
@@ -149,10 +149,10 @@ function findAnchorRow(sheet, level, form, category, specName) {
         }
       }
 
-      // Проверяем уровень образования (для ПТО делаем гибкую проверку на синонимы и аббревиатуры)
+      // Проверяем уровень образования (для ПТО делаем мягкую проверку на синонимы)
       let hasLevel = false;
       if (level === 'ssopto') {
-        hasLevel = upperContext.includes('профес') || upperContext.includes('пто') || upperContext.includes('профтех');
+        hasLevel = upperContext.includes('профес') || upperContext.includes('пто');
       } else {
         hasLevel = upperContext.includes(levelKeyword);
       }
@@ -162,12 +162,14 @@ function findAnchorRow(sheet, level, form, category, specName) {
 
       let isValidContext = hasLevel && hasForm && hasCat;
 
-      // Защита от пересечений полного и сокращенного ВО
+      // --- ХИРУРГИЧЕСКИЕ ИСКЛЮЧЕНИЯ (БЕЗ РИСКА НАЛОЖЕНИЯ) ---
+
+      // 1. Защита от пересечений полного и сокращенного ВО
       if (level === 'vo11' && upperContext.includes('сокращен')) isValidContext = false;
       if (level === 'vosso' && !upperContext.includes('сокращен')) isValidContext = false;
 
-      // Защита ССО 11 классов от ложного срабатывания на ПТО
-      if (level === 'sso11' && (upperContext.includes('профес') || upperContext.includes('пто'))) isValidContext = false;
+      // 2. Исключаем попадание ПТО в блок ССО 11 классов
+      if (level === 'sso11' && upperContext.includes('профес')) isValidContext = false;
 
       if (isValidContext) {
         return r;
