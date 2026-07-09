@@ -42,7 +42,7 @@ const parsingConfig = [
   { name: "Почтовая деятельность", level: "sso11", form: "zaoch", category: "paid" },
 
   // --- ССО на базе ПТО (ssopto) ---
-  { name: "Почтовая деятельность", level: "ssopto", form: "dnev", category: "budget" },
+  { name: "Почтовая деятельность", level: "ssopto", form: "zaoch", category: "budget" },
 
   // --- ВО на базе 11 классов (vo11) ---
   { name: "Автоматизация технологических процессов и производств", level: "vo11", form: "dnev", category: "budget", isVo: true },
