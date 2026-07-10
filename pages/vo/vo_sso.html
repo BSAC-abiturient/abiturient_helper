@@ -224,10 +224,7 @@
                                 </div>
                             ) : specialties.length === 0 ? (
                                 <div style={{ padding: '15px', textAlign: 'center', color: '#ef5350', fontWeight: 'bold' }}>
-                                    ⚠️ База данных пуста или недоступна. Запустите парсер:<br/>
-                                    <a href="https://narxselune-bsac-backend.hf.space/api/specialties/parse" target="_blank" style={{color: '#007bff', textDecoration: 'underline'}}>
-                                        https://narxselune-bsac-backend.hf.space/api/specialties/parse
-                                    </a>
+                                    ⚠️ База данных пуста или недоступна.
                                 </div>
                             ) : (
                                 results.map((spec, idx) => {

@@ -647,46 +647,7 @@ function generateBotResponse(userText) {
     const textLower = userText.toLowerCase();
     const normalizedText = textLower.replace(',', '.');
 
-    let isScoreQuery = false;
-    let userScore = null;
-    let isVoScore = false;
-
-    /* ДОБАВЛЕНИЕ ИНТЕРАКТИВНЫХ КОМПОНЕНТОВ (СЛАЙДЕРЫ, ФОРМЫ, ФИЛЬТРЫ) С ОБРАБОТКОЙ ДАННЫХ ПОЛЬЗОВАТЕЛЯ: Динамический и контекстный парсинг баллов ССО (gpa) и ВО (0-400) */
-    // 1. Проверяем наличие среднего балла с точкой (например, 8.5) — это гарантированно GPA ССО
-    const gpaMatchWithDot = normalizedText.match(/\b(10\.0|[1-9]\.\d)\b/);
-
-    if (gpaMatchWithDot) {
-        userScore = parseFloat(gpaMatchWithDot[1]);
-        isVoScore = false;
-        isScoreQuery = true;
-    } else {
-        // 2. Ищем любые целые числа во всем диапазоне от 0 до 400
-        const anyIntMatch = normalizedText.match(/\b(\d{1,3})\b/);
-        if (anyIntMatch) {
-            const parsedInt = parseInt(anyIntMatch[1], 10);
-            if (parsedInt >= 0 && parsedInt <= 400) {
-                // Если число от 0 до 10, по умолчанию считаем это GPA, 
-                // ЕСЛИ в тексте нет явного упоминания контекста высшего образования (во, вышка, цт, цэ, академия)
-                const hasVoContext = /во|выш|акад|цт|цэ|экзам|11\s*кл/i.test(normalizedText);
-                if (parsedInt <= 10 && !hasVoContext) {
-                    userScore = parseFloat(parsedInt);
-                    isVoScore = false;
-                    isScoreQuery = true;
-                } else {
-                    // Во всех остальных случаях (числа от 11 до 400, либо 0-10 с контекстом ВО) — это балл ВО
-                    userScore = parsedInt;
-                    isVoScore = true;
-                    isScoreQuery = true;
-                }
-            }
-        }
-    }
-
-    if (isScoreQuery && userScore !== null) {
-        handleScoreCalculation(userScore, isVoScore, userText);
-        return;
-    }
-
+    // Проверяем, спрашивает ли пользователь про текущие проходные баллы
     const isAskingForCutoff = /проходн|какой балл|какие балл|балл.*выходит|балл.*сейчас/i.test(normalizedText);
     if (isAskingForCutoff) {
         handlePassingScoreQuery(normalizedText, userText);
@@ -696,6 +657,7 @@ function generateBotResponse(userText) {
     let bestMatch = null;
     let maxScore = 0;
 
+    // Ищем наиболее подходящий ответ в базе знаний ассистента
     for (const item of assistantDatabase) {
         let currentScore = 0;
         for (const keyword of item.keywords) {
@@ -716,8 +678,9 @@ function generateBotResponse(userText) {
         return;
     }
 
-    const defaultReply = 'Я не до конца понял твой вопрос. Попробуй спросить подробнее, используя ключевые слова, например: <strong>документы</strong>, <strong>сроки подачи</strong>, <strong>общежитие</strong> или напиши свой средний балл (например, <b>8.5</b> или <b>260 во</b>), чтобы я оценил шансы.<br><br>' +
-        'Или можете обратиться за помощью в телеграм-каналы для абитуриентов:<br>' +
+    // Дефолтный ответ, из которого убрано упоминание ввода баллов
+    const defaultReply = 'Я не до конца понял твой вопрос. Попробуй спросить подробнее, используя ключевые слова, например: <strong>документы</strong>, <strong>сроки подачи</strong>, <strong>общежитие</strong>, <strong>стоимость обучения</strong> или <strong>время работы</strong> приемной комиссии.<br><br>' +
+        'Или вы можете обратиться за помощью в официальные телеграм-каналы для абитуриентов:<br>' +
         '• По вопросам ВО: <a href="https://t.me/+v4NV9J9rqqg5OTgy" target="_blank" style="color: #0088cc; font-weight: bold; text-decoration: underline;">https://t.me/+v4NV9J9rqqg5OTgy</a><br>' +
         '• По вопросам ССО: <a href="https://t.me/+v-EXEwGcWasxZTdi" target="_blank" style="color: #0088cc; font-weight: bold; text-decoration: underline;">https://t.me/+v-EXEwGcWasxZTdi</a>';
     setTimeout(() => {
