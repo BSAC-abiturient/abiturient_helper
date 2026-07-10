@@ -213,23 +213,25 @@
                                         if (spec.paid.plan > 0) {
                                             const pClass = getColorClass(spec.paid.position, spec.paid.plan);
                                             paidHtml = (
+                                                <div className="search-paid-line">
+                                                    ваша позиция на платное: <span className={pClass}>{spec.paid.position} из {spec.paid.plan}</span>
+                                                </div>
+                                            );
+                                        } else {
+                                            paidHtml = <div className="search-paid-line">ваша позиция на платное: нет мест</div>;
+                                        }
+                                    } else {
+                                        paidHtml = <div className="search-paid-line">ваша позиция на платное: прием не осуществляется</div>;
+                                    }
+
+                                    return (
+                                        <a key={idx} href={spec.url} className="search-result-item">
+                                            <div className="search-result-name">{spec.name}</div>
+                                            <div className="search-result-info">
                                                 <div className="search-budget-line">
-                                                ваша позиция на бюджет: {
-                                                    spec.budget.plan > 0 ? (
-                                                        <span className={bClass}>{spec.budget.position} из {spec.budget.plan}</span>
-                                                    ) : (
-                                                        <span style={{ color: '#a0aec0' }}>прием не осуществляется</span>
-                                                    )
-                                                }
-                                            </div>
-                                            <div className="search-paid-line">
-                                                ваша позиция на платное: {
-                                                    spec.paid.exists && spec.paid.plan > 0 ? (
-                                                        <span className={pClass}>{spec.paid.position} из {spec.paid.plan}</span>
-                                                    ) : (
-                                                        <span style={{ color: '#a0aec0' }}>прием не осуществляется</span>
-                                                    )
-                                                }
+                                                    ваша позиция на бюджет: <span className={bClass}>{spec.budget.position} из {spec.budget.plan}</span>
+                                                </div>
+                                                {paidHtml}
                                             </div>
                                         </a>
                                     );
