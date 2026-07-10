@@ -111,7 +111,7 @@
 
             const calculatePosition = (rawDistribution, userScore) => {
                 const distribution = parseDistribution(rawDistribution);
-                if (distribution.length === 0) return 1;
+                if (!Array.isArray(distribution) || distribution.length === 0) return 1;
 
                 const countAhead = distribution
                     .filter(app => app.score >= userScore)
@@ -130,20 +130,23 @@
                 results = budgetSpecs.map(bSpec => {
                     const pSpec = paidSpecs.find(p => p.name === bSpec.name && p.form_of_study === bSpec.form_of_study);
 
-                    const bPos = calculatePosition(bSpec.applications_distribution, userScore);
-                    const pPos = pSpec ? calculatePosition(pSpec.applications_distribution, userScore) : 0;
+                    const bPos = bSpec ? calculatePosition(bSpec.applications_distribution, userScore) : 1;
+                    const pPos = pSpec ? calculatePosition(pSpec.applications_distribution, userScore) : 1;
 
-                    const budgetRatio = bSpec.plan > 0 ? (bPos / bSpec.plan) : Infinity;
-                    const paidRatio = pSpec && pSpec.plan > 0 ? (pPos / pSpec.plan) : Infinity;
+                    const bPlan = bSpec ? bSpec.plan : 0;
+                    const pPlan = pSpec ? pSpec.plan : 0;
+
+                    const budgetRatio = bPlan > 0 ? (bPos / bPlan) : Infinity;
+                    const paidRatio = pPlan > 0 ? (pPos / pPlan) : Infinity;
                     const bestRatio = Math.min(budgetRatio, paidRatio);
 
                     return {
                         name: `${bSpec.name} (${bSpec.form_of_study === 'dnev' ? 'Дневное' : 'Заочное'})`,
                         url: `../monitoring/specialty.html?level=sso11&form=${bSpec.form_of_study}&name=${encodeURIComponent(bSpec.name)}`,
-                        budget: { position: bPos, plan: bSpec.plan },
+                        budget: { position: bPos, plan: bPlan },
                         paid: {
                             position: pPos,
-                            plan: pSpec ? pSpec.plan : 0,
+                            plan: pPlan,
                             exists: !!pSpec
                         },
                         bestRatio: bestRatio
@@ -200,38 +203,33 @@
                                 <div style={{ padding: '15px', textAlign: 'center', color: '#888' }}>
                                     Введите корректный балл от 1.0 до 10.0
                                 </div>
-                            ) : specialties.length === 0 ? (
-                                <div style={{ padding: '15px', textAlign: 'center', color: '#ef5350', fontWeight: 'bold' }}>
-                                    ⚠️ База данных пуста или недоступна.
-                                </div>
                             ) : (
                                 results.map((spec, idx) => {
                                     const bClass = getColorClass(spec.budget.position, spec.budget.plan);
-                                    let paidHtml = null;
-
-                                    if (spec.paid.exists) {
-                                        if (spec.paid.plan > 0) {
-                                            const pClass = getColorClass(spec.paid.position, spec.paid.plan);
-                                            paidHtml = (
-                                                <div className="search-paid-line">
-                                                    ваша позиция на платное: <span className={pClass}>{spec.paid.position} из {spec.paid.plan}</span>
-                                                </div>
-                                            );
-                                        } else {
-                                            paidHtml = <div className="search-paid-line">ваша позиция на платное: нет мест</div>;
-                                        }
-                                    } else {
-                                        paidHtml = <div className="search-paid-line">ваша позиция на платное: прием не осуществляется</div>;
-                                    }
+                                    const pClass = getColorClass(spec.paid.position, spec.paid.plan);
 
                                     return (
                                         <a key={idx} href={spec.url} className="search-result-item">
                                             <div className="search-result-name">{spec.name}</div>
                                             <div className="search-result-info">
                                                 <div className="search-budget-line">
-                                                    ваша позиция на бюджет: <span className={bClass}>{spec.budget.position} из {spec.budget.plan}</span>
+                                                    ваша позиция на бюджет: {
+                                                        spec.budget.plan > 0 ? (
+                                                            <span className={bClass}>{spec.budget.position} из {spec.budget.plan}</span>
+                                                        ) : (
+                                                            <span style={{ color: '#a0aec0' }}>прием не осуществляется</span>
+                                                        )
+                                                    }
                                                 </div>
-                                                {paidHtml}
+                                                <div className="search-paid-line">
+                                                    ваша позиция на платное: {
+                                                        spec.paid.exists && spec.paid.plan > 0 ? (
+                                                            <span className={pClass}>{spec.paid.position} из {spec.paid.plan}</span>
+                                                        ) : (
+                                                            <span style={{ color: '#a0aec0' }}>прием не осуществляется</span>
+                                                        )
+                                                    }
+                                                </div>
                                             </div>
                                         </a>
                                     );
@@ -255,8 +253,8 @@
                                 <h3>Заочная форма получения образования</h3>
                                 <div className="btn-grid">
                                     <a href="../monitoring/specialty.html?level=sso11&form=zaoch&name=Техническая эксплуатация систем и сетей телекоммуникаций" className="btn-item">Техническая эксплуатация систем и сетей телекоммуникаций<span className="spec-duration">(3 года 10 месяцев)</span></a>
-                                    <a href="../monitoring/specialty.html?level=sso11&form=zaoch&name=Техническая эксплуатация систем радиосвязи, радиовещания и телевидения" className="btn-item">Техническая эксплуатация систем радиосвязи, радиовещания и телевидения<span className="spec-duration">(3 года 10 месяцев)</span></a>
-                                    <a href="../monitoring/specialty.html?level=sso11&form=zaoch&name=Почтовая деятельность" className="btn-item">Почтовая деятельность<span className="spec-duration">(3 года)</span></a>
+                                    <a href="../monitoring/specialty.html?level=sso11&form=zaoch&name=Техническая эксплуатация систем радиосвязи, радиовещания и телевидения" className="btn-item">Техническая эксплуатация систем радиосвязи, радиовещания и телевидения<span className="spec-duration">(2 года 10 месяцев)</span></a>
+                                    <a href="../monitoring/specialty.html?level=sso11&form=zaoch&name=Почтовая деятельность" className="btn-item">Почтовая деятельность<span className="spec-duration">(2 года)</span></a>
                                 </div>
                             </div>
                         </div>
