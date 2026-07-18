@@ -52,7 +52,7 @@ const specialtyMetadata = {
         }
     },
     ssopto: {
-        educationForm: "дневная",
+        educationForm: "заочная",
         base: "профессионально-технического образования (ПТО)",
         duration: {
             "Почтовая деятельность": "2 года"
