@@ -81,7 +81,7 @@ const specialtyMetadataLocal = {
         }
     },
     ssopto: {
-        educationForm: "Дневная",
+        educationForm: "Заочная",
         base: "ПТО",
         duration: {
             "Почтовая деятельность": "2 года"
