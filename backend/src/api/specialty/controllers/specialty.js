@@ -260,9 +260,9 @@ module.exports = createCoreController('api::specialty.specialty', ({ strapi }) =
             const lgotaDist = [];
             const targetDist = [];
 
-            // 1. Считываем общий конкурс (строка специальности)
+            // 1. Считываем общий конкурс (строка специальности + 1)
             for (let col = 4, score = 10.0; col <= 74; col++, score = +(score - 0.1).toFixed(1)) {
-              let count = parseInt(getVal(sheet, dataRow, col), 10) || 0;
+              let count = parseInt(getVal(sheet, dataRow + 1, col), 10) || 0;
               if (count > 0) commonDist.push({ score: +score.toFixed(1), count });
             }
 
