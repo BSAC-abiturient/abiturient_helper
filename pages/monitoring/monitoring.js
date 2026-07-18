@@ -520,7 +520,7 @@ function renderMonitoringPage(record) {
             commonList.forEach(a => {
                 let cellClass = 'cell-red';
                 if (planForCommon > 0) {
-                    if (allScores.length < planForCommon) {
+                    if (allScores.length <= planForCommon) {
                         cellClass = 'cell-green';
                     } else {
                         const cutoff = allScores[planForCommon - 1];
@@ -560,7 +560,7 @@ function renderMonitoringPage(record) {
             targetList.forEach(a => {
                 let cellClass = 'cell-red';
                 if (planTarget > 0) {
-                    if (allTargetScores.length < planTarget) {
+                    if (allTargetScores.length <= planTarget) {
                         cellClass = 'cell-green';
                     } else {
                         const cutoff = allTargetScores[planTarget - 1];
