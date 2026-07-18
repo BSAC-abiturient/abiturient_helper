@@ -260,9 +260,9 @@ module.exports = createCoreController('api::specialty.specialty', ({ strapi }) =
             const lgotaDist = [];
             const targetDist = [];
 
-            // 1. Считываем общий конкурс (строка специальности + 1)
+            // 1. Считываем общий конкурс (суммируем данные из строки специальности и строки "Подано заявлений", защищая систему от человеческого фактора)
             for (let col = 4, score = 10.0; col <= 74; col++, score = +(score - 0.1).toFixed(1)) {
-              let count = parseInt(getVal(sheet, dataRow + 1, col), 10) || 0;
+              let count = (parseInt(getVal(sheet, dataRow, col), 10) || 0) + (parseInt(getVal(sheet, dataRow + 1, col), 10) || 0);
               if (count > 0) commonDist.push({ score: +score.toFixed(1), count });
             }
 
@@ -278,13 +278,13 @@ module.exports = createCoreController('api::specialty.specialty', ({ strapi }) =
               if (count > 0) targetDist.push({ score: +score.toFixed(1), count });
             }
 
-            // Структурированный JSON для ССО
+            // Структурированный JSON для ССО (вычисляем целевых суммированием для защиты от пустых колонок)
             distribution = {
               common: commonDist,
               lgota: lgotaDist,
               target: targetDist,
               planTarget: planTarget,
-              targetTotal: parseInt(getVal(sheet, dataRow + 3, 75), 10) || 0
+              targetTotal: targetDist.reduce((sum, item) => sum + item.count, 0)
             };
           }
         }
