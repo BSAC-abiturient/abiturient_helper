@@ -185,7 +185,7 @@
                             // Убрали атрибут download, чтобы браузер открывал документ на просмотр в новой вкладке
                             actionButtonHtml = `<a href="${finalUrl}" target="_blank" rel="noopener noreferrer" class="btn-arrow" style="font-size: 12px; text-decoration: none;">Просмотр</a>`;
                         } else {
-                            actionButtonHtml = `<button onclick="alert('Файл бланка еще не прикреплен в панели управления Strapi.')" class="btn-arrow btn-gray" style="font-size: 12px; cursor: pointer; border: none; padding: 8px 12px; white-space: nowrap;">Нет файла</button>`;
+                            actionButtonHtml = `<button onclick="alert('Файл бланка еще не прикреплен.')" class="btn-arrow btn-gray" style="font-size: 12px; cursor: pointer; border: none; padding: 8px 12px; white-space: nowrap;">Нет файла</button>`;
                         }
 
                         // Формируем HTML-код подзаголовка, если он заполнен в админке Strapi
