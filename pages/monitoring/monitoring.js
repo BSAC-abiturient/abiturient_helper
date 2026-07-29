@@ -490,18 +490,19 @@ function renderMonitoringPage(record) {
         const lgotaList = rawDist.lgota || [];
         const targetList = rawDist.target || [];
 
-        const totalCommon = commonList.reduce((sum, item) => sum + item.count, 0);
         const totalLgota = lgotaList.reduce((sum, item) => sum + item.count, 0);
+
+        // Вычисляем чистый общий конкурс: Всего (95) - Льготники (0) - Целевые (16) = 79
+        const commonCompetitionCount = Math.max(0, total - totalLgota - targetTotal);
 
         html += `
         <div class="info-line"><strong>План приема:</strong> ${plan} | <strong>Целевой план:</strong> ${planTarget}</div>
         <div class="stat-box">
-            <div class="info-line"><strong>Всего заявлений подано:</strong> ${totalCommon + totalLgota + targetTotal}</div>
-            <div class="stat-row">По общему конкурсу: ${totalCommon}</div>
+            <div class="info-line"><strong>Всего заявлений подано:</strong> ${total}</div>
+            <div class="stat-row">По общему конкурсу: ${commonCompetitionCount}</div>
             <div class="stat-row">Льготные вне конкурса: ${totalLgota}</div>
             <div class="stat-row">Целевые: ${targetTotal}</div>
-        </div>
-    </div>`;
+        </div>`;
 
         // 1. Таблица: Общий конкурс
         if (commonList.length > 0) {
