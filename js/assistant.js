@@ -442,12 +442,18 @@ function appendMessage(text, sender) {
     const messagesContainer = document.getElementById('ai-messages');
     const msgDiv = document.createElement('div');
     msgDiv.className = `ai-message ${sender}`;
-    msgDiv.innerHTML = text;
-    messagesContainer.appendChild(msgDiv);
 
+    // Если пишет пользователь — выводим как безопасный текст (блокирует выполнение XSS-скриптов)
+    // Если отвечает бот — разрешаем innerHTML для поддержки тегов разметки и ссылок
+    if (sender === 'user') {
+        msgDiv.textContent = text;
+    } else {
+        msgDiv.innerHTML = text;
+    }
+
+    messagesContainer.appendChild(msgDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
-
 
 /* ==========================================================================
    БЛОК 7: ГЕНЕРАТОР ДИНАМИЧЕСКИХ ОТВЕТОВ БОТА
