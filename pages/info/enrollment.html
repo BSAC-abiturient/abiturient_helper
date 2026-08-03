@@ -111,7 +111,8 @@
 
                     // Распределяем в иерархию по ключевым словам в названиях
                     if (titleLower.includes('высш') || titleLower.includes(' во') || titleLower.includes('академ')) {
-                        if (titleLower.includes('ссо')) {
+                        // Ищем 'базе ссо' или ' ссо' с пробелом, чтобы избежать совпадения со словом "клаССОВ"
+                        if (titleLower.includes('базе ссо') || titleLower.includes(' ссо')) {
                             if (titleLower.includes('заоч')) {
                                 groupedData.vo.sub.vo_sso_zaoch.docs.push(item);
                             } else {
