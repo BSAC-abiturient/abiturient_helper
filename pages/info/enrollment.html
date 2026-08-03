@@ -13,7 +13,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="../../Fon/avatar.jpeg" type="image/jpeg">
-    <title>Списки зачисленных — БГАС</title>
+    <title>Списки зачисленных</title>
     <link rel="stylesheet" href="../../css/main.css">
 </head>
 <body>
@@ -84,37 +84,126 @@
                     return;
                 }
 
+                // Иерархическая структура данных согласно вашему запросу
+                const groupedData = {
+                    vo: {
+                        title: "Общее высшее образование (ВО)",
+                        sub: {
+                            vo_11: { title: "На базе 11 классов", docs: [] },
+                            vo_sso_dnev: { title: "На базе ССО (Дневная форма обучения)", docs: [] },
+                            vo_sso_zaoch: { title: "На базе ССО (Заочная форма обучения)", docs: [] }
+                        }
+                    },
+                    sso: {
+                        title: "Среднее специальное образование (ССО)",
+                        sub: {
+                            sso_9: { title: "На базе 9 классов", docs: [] },
+                            sso_11_dnev: { title: "На базе 11 классов (Дневная форма обучения)", docs: [] },
+                            sso_11_zaoch: { title: "На базе 11 классов (Заочная форма обучения)", docs: [] },
+                            sso_pto: { title: "На базе ПТО", docs: [] }
+                        }
+                    }
+                };
+
                 lists.forEach(list => {
                     const item = list.attributes || list;
-                    const title = item.title;
+                    const titleLower = item.title.toLowerCase();
 
-                    const fileUrl = getStrapiFileUrl(item, STRAPI_URL);
-
-                    const card = document.createElement('div');
-                    card.className = 'route-card';
-                    card.style.marginBottom = '15px';
-                    card.style.display = 'flex';
-                    card.style.justifyContent = 'space-between';
-                    card.style.alignItems = 'center';
-                    card.style.padding = '15px 20px';
-
-                    let actionButtonHtml = '';
-                    const finalUrl = item.direct_url ? `../../..${item.direct_url}` : fileUrl;
-
-                    if (finalUrl) {
-                        actionButtonHtml = `<a href="${finalUrl}" target="_blank" rel="noopener noreferrer" class="btn-arrow" style="font-size: 12px; text-decoration: none;">Просмотр</a>`;
+                    // Распределяем в иерархию по ключевым словам в названиях
+                    if (titleLower.includes('высш') || titleLower.includes(' во') || titleLower.includes('академ')) {
+                        if (titleLower.includes('ссо')) {
+                            if (titleLower.includes('заоч')) {
+                                groupedData.vo.sub.vo_sso_zaoch.docs.push(item);
+                            } else {
+                                groupedData.vo.sub.vo_sso_dnev.docs.push(item);
+                            }
+                        } else {
+                            groupedData.vo.sub.vo_11.docs.push(item);
+                        }
                     } else {
-                        actionButtonHtml = `<button onclick="alert('Запись о зачислении создана, но сам файл со списком еще не прикреплен к этой записи.')" class="btn-arrow btn-gray" style="font-size: 12px; cursor: pointer; border: none; padding: 8px 12px;">Нет файла</button>`;
+                        if (titleLower.includes('9 кл') || titleLower.includes(' 9 ')) {
+                            groupedData.sso.sub.sso_9.docs.push(item);
+                        } else if (titleLower.includes('пто')) {
+                            groupedData.sso.sub.sso_pto.docs.push(item);
+                        } else {
+                            if (titleLower.includes('заоч')) {
+                                groupedData.sso.sub.sso_11_zaoch.docs.push(item);
+                            } else {
+                                groupedData.sso.sub.sso_11_dnev.docs.push(item);
+                            }
+                        }
                     }
-
-                    card.innerHTML = `
-                            <div class="route-detail" style="font-size: 15px; margin: 0; font-weight: bold; padding-right: 10px; text-align: left;">
-                                📋 ${title}
-                            </div>
-                            ${actionButtonHtml}
-                        `;
-                    container.appendChild(card);
                 });
+
+                const mainKeys = ['vo', 'sso'];
+                mainKeys.forEach(mainKey => {
+                    const mainGroup = groupedData[mainKey];
+                    const hasAnyDocs = Object.values(mainGroup.sub).some(sub => sub.docs.length > 0);
+                    if (!hasAnyDocs) return;
+
+                    // Большой заголовок (ВО или ССО) с синей линией слева
+                    const mainTitleEl = document.createElement('h2');
+                    mainTitleEl.className = 'section-title';
+                    mainTitleEl.style.fontSize = '21px';
+                    mainTitleEl.style.fontWeight = '800';
+                    mainTitleEl.style.color = '#007bff';
+                    mainTitleEl.style.marginTop = '35px';
+                    mainTitleEl.style.marginBottom = '15px';
+                    mainTitleEl.style.borderLeft = '4px solid #007bff';
+                    groupTitleEl = mainTitleEl; // Совместимость с глобальными стилями
+                    mainTitleEl.style.paddingLeft = '12px';
+                    mainTitleEl.innerText = mainGroup.title;
+                    container.appendChild(mainTitleEl);
+
+                    // Отрисовка подразделов
+                    Object.keys(mainGroup.sub).forEach(subKey => {
+                        const subGroup = mainGroup.sub[subKey];
+                        if (subGroup.docs.length === 0) return;
+
+                        // Маленький заголовок подраздела (например, "• На базе ССО (Заочная форма)")
+                        const subTitleEl = document.createElement('h3');
+                        subTitleEl.style.fontSize = '14px';
+                        subTitleEl.style.fontWeight = '700';
+                        subTitleEl.style.color = 'inherit';
+                        subTitleEl.style.marginTop = '15px';
+                        subTitleEl.style.marginBottom = '8px';
+                        subTitleEl.style.opacity = '0.85';
+                        subTitleEl.innerText = '• ' + subGroup.title;
+                        container.appendChild(subTitleEl);
+
+                        // Карточка-контейнер для списка файлов этого подраздела
+                        const card = document.createElement('div');
+                        card.className = 'route-card';
+                        card.style.padding = '15px 20px';
+                        card.style.marginBottom = '15px';
+
+                        let innerHtml = '';
+                        subGroup.docs.forEach((doc, idx) => {
+                            const isLastItem = idx === subGroup.docs.length - 1;
+                            const fileUrl = doc.direct_url ? `../../..${doc.direct_url}` : getStrapiFileUrl(doc, STRAPI_URL);
+
+                            let actionButtonHtml = '';
+                            if (fileUrl) {
+                                actionButtonHtml = `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" class="btn-arrow" style="font-size: 12px; text-decoration: none;">Просмотр</a>`;
+                            } else {
+                                actionButtonHtml = `<button onclick="alert('Файл еще не прикреплен.')" class="btn-arrow btn-gray" style="font-size: 12px; cursor: pointer; border: none; padding: 8px 12px;">Нет файла</button>`;
+                            }
+
+                            innerHtml += `
+                                    <div class="route-detail" style="font-size: 14px; margin-bottom: ${isLastItem ? '0' : '12px'}; border-bottom: ${isLastItem ? 'none' : '1px dashed rgba(113, 128, 150, 0.15)'}; padding-bottom: ${isLastItem ? '0' : '8px'}; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                        <span style="font-weight: bold; flex: 1; padding-right: 15px; text-align: left;">
+                                            📋 ${doc.title}
+                                        </span>
+                                        ${actionButtonHtml}
+                                    </div>
+                                `;
+                        });
+
+                        card.innerHTML = innerHtml;
+                        container.appendChild(card);
+                    });
+                });
+
             } catch (error) {
                 console.error("Ошибка загрузки списков зачисленных:", error);
                 document.getElementById('enrolled-container').innerHTML = '<div class="no-paid-msg">Не удалось загрузить списки зачисленных.</div>';
