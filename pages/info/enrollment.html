@@ -13,7 +13,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="../../Fon/avatar.jpeg" type="image/jpeg">
-    <title>Списки зачисленных</title>
+    <title>Списки зачисленных — БГАС</title>
     <link rel="stylesheet" href="../../css/main.css">
 </head>
 <body>
@@ -88,6 +88,7 @@
                 const groupedData = {
                     vo: {
                         title: "Общее высшее образование (ВО)",
+                        independentDocs: [], // Массив для 2-го высшего без подписи
                         sub: {
                             vo_11: { title: "На базе 11 классов", docs: [] },
                             vo_sso_dnev: { title: "На базе ССО (Дневная форма обучения)", docs: [] },
@@ -96,6 +97,7 @@
                     },
                     sso: {
                         title: "Среднее специальное образование (ССО)",
+                        independentDocs: [],
                         sub: {
                             sso_9: { title: "На базе 9 классов", docs: [] },
                             sso_11_dnev: { title: "На базе 11 классов (Дневная форма обучения)", docs: [] },
@@ -109,9 +111,12 @@
                     const item = list.attributes || list;
                     const titleLower = item.title.toLowerCase();
 
+                    // Выносим 2-ое высшее отдельно
+                    if (titleLower.includes('2-ое') || titleLower.includes('второе') || titleLower.includes('2ое')) {
+                        groupedData.vo.independentDocs.push(item);
+                    }
                     // Распределяем в иерархию по ключевым словам в названиях
-                    if (titleLower.includes('высш') || titleLower.includes(' во') || titleLower.includes('академ')) {
-                        // Ищем 'базе ссо' или ' ссо' с пробелом, чтобы избежать совпадения со словом "клаССОВ"
+                    else if (titleLower.includes('высш') || titleLower.includes(' во') || titleLower.includes('академ')) {
                         if (titleLower.includes('базе ссо') || titleLower.includes(' ссо')) {
                             if (titleLower.includes('заоч')) {
                                 groupedData.vo.sub.vo_sso_zaoch.docs.push(item);
@@ -139,7 +144,10 @@
                 const mainKeys = ['vo', 'sso'];
                 mainKeys.forEach(mainKey => {
                     const mainGroup = groupedData[mainKey];
-                    const hasAnyDocs = Object.values(mainGroup.sub).some(sub => sub.docs.length > 0);
+
+                    // Проверка наличия документов в группе (с учетом независимых документов)
+                    const hasAnyDocs = Object.values(mainGroup.sub).some(sub => sub.docs.length > 0) ||
+                        (mainGroup.independentDocs && mainGroup.independentDocs.length > 0);
                     if (!hasAnyDocs) return;
 
                     // Большой заголовок (ВО или ССО) с синей линией слева
@@ -151,17 +159,50 @@
                     mainTitleEl.style.marginTop = '35px';
                     mainTitleEl.style.marginBottom = '15px';
                     mainTitleEl.style.borderLeft = '4px solid #007bff';
-                    groupTitleEl = mainTitleEl; // Совместимость с глобальными стилями
                     mainTitleEl.style.paddingLeft = '12px';
                     mainTitleEl.innerText = mainGroup.title;
                     container.appendChild(mainTitleEl);
 
-                    // Отрисовка подразделов
+                    // СНАЧАЛА ОТРИСОВЫВАЕМ НЕЗАВИСИМЫЕ ДОКУМЕНТЫ (например, 2-ое высшее) без подписей
+                    if (mainGroup.independentDocs && mainGroup.independentDocs.length > 0) {
+                        const card = document.createElement('div');
+                        card.className = 'route-card';
+                        card.style.padding = '15px 20px';
+                        card.style.marginTop = '10px';
+                        card.style.marginBottom = '15px';
+
+                        let innerHtml = '';
+                        mainGroup.independentDocs.forEach((doc, idx) => {
+                            const isLastItem = idx === mainGroup.independentDocs.length - 1;
+                            const fileUrl = doc.direct_url ? `../../..${doc.direct_url}` : getStrapiFileUrl(doc, STRAPI_URL);
+
+                            let actionButtonHtml = '';
+                            if (fileUrl) {
+                                actionButtonHtml = `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" class="btn-arrow" style="font-size: 12px; text-decoration: none;">Просмотр</a>`;
+                            } else {
+                                actionButtonHtml = `<button onclick="alert('Файл еще не прикреплен.')" class="btn-arrow btn-gray" style="font-size: 12px; cursor: pointer; border: none; padding: 8px 12px;">Нет файла</button>`;
+                            }
+
+                            innerHtml += `
+                                    <div class="route-detail" style="font-size: 14px; margin-bottom: ${isLastItem ? '0' : '12px'}; border-bottom: ${isLastItem ? 'none' : '1px dashed rgba(113, 128, 150, 0.15)'}; padding-bottom: ${isLastItem ? '0' : '8px'}; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                        <span style="font-weight: bold; flex: 1; padding-right: 15px; text-align: left;">
+                                            📋 ${doc.title}
+                                        </span>
+                                        ${actionButtonHtml}
+                                    </div>
+                                `;
+                        });
+
+                        card.innerHTML = innerHtml;
+                        container.appendChild(card);
+                    }
+
+                    // ЗАТЕМ ОТРИСОВЫВАЕМ ВСЕ ПОДРАЗДЕЛЫ (на базе 11, на базе ССО дневная/заочная)
                     Object.keys(mainGroup.sub).forEach(subKey => {
                         const subGroup = mainGroup.sub[subKey];
                         if (subGroup.docs.length === 0) return;
 
-                        // Маленький заголовок подраздела (например, "• На базе ССО (Заочная форма)")
+                        // Маленький заголовок подраздела (например, "• На базе 11 классов")
                         const subTitleEl = document.createElement('h3');
                         subTitleEl.style.fontSize = '14px';
                         subTitleEl.style.fontWeight = '700';
