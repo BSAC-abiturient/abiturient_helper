@@ -506,9 +506,16 @@ function renderMonitoringPage(record) {
 
         // 1. Таблица: Общий конкурс
         if (commonList.length > 0) {
+            // Создаем чистый массив баллов общего конкурса, вычитая целевиков для точного расчета проходного и полупроходного баллов
             let allScores = [];
             commonList.forEach(item => {
-                for (let i = 0; i < item.count; i++) allScores.push(item.score);
+                const targetMatch = targetList.find(t => t.score === item.score);
+                const targetCount = targetMatch ? targetMatch.count : 0;
+                const commonCount = Math.max(0, item.count - targetCount);
+
+                for (let i = 0; i < commonCount; i++) {
+                    allScores.push(item.score);
+                }
             });
             allScores.sort((a, b) => b - a);
             const planForCommon = Math.max(plan - totalLgota - Math.min(targetTotal, planTarget), 0);
